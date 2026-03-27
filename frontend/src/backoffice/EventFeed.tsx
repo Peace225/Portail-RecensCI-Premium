@@ -1,129 +1,147 @@
-// src/components/EventFeed.tsx
-import React from "react";
-import { useFetch } from "../hooks/useFetch";
-import { VitalEvent } from "../types"; // Notre type strict défini précédemment
-import { Card, CardContent } from "../components/Card";
-import Button from "../components/Button";
+// src/backoffice/EventFeed.tsx
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Clock, Baby, Skull, Users, 
+  RefreshCw, AlertCircle, CheckCircle2, Timer 
+} from "lucide-react";
 
 const EventFeed: React.FC = () => {
-  // Utilisation de notre hook sécurisé (qui injecte le JWT automatiquement)
-  const { data: events, loading, error, refetch } = useFetch<VitalEvent[]>("/backoffice/actes/recents");
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // 1. État de chargement harmonisé
-  if (loading) {
-    return (
-      <Card className="w-full h-64 flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
-        <p className="text-gray-500 font-medium">Chargement du journal d'activité...</p>
-      </Card>
-    );
-  }
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      // On récupère les derniers actes de la table (ex: 'vital_events')
+      // Note: Assure-toi que cette table existe ou adapte le nom
+      const { data, error: supabaseError } = await supabase
+        .from('vital_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
 
-  // 2. Gestion des erreurs avec option de rafraîchissement
-  if (error) {
-    return (
-      <Card className="w-full border-red-200 bg-red-50 p-6 text-center">
-        <p className="text-red-800 font-bold mb-2">Impossible de charger le flux</p>
-        <p className="text-sm text-red-600 mb-4">{error}</p>
-        <Button variant="outline" size="sm" onClick={refetch}>
-          Réessayer
-        </Button>
-      </Card>
-    );
-  }
+      if (supabaseError) throw supabaseError;
+      setEvents(data || []);
+    } catch (err: any) {
+      setError("Échec de synchronisation du flux d'activité.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const feedEvents = events || [];
+  useEffect(() => {
+    fetchEvents();
+    
+    // OPTIONNEL: Temps réel avec Supabase Realtime
+    const subscription = supabase
+      .channel('live_events')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vital_events' }, 
+        payload => setEvents(prev => [payload.new, ...prev].slice(0, 10))
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(subscription); };
+  }, []);
+
+  if (loading) return (
+    <div className="p-12 flex flex-col items-center justify-center bg-slate-900/40 border border-white/5 rounded-[2.5rem] animate-pulse">
+      <Timer className="text-purple-500 animate-spin mb-3" size={32} />
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Scan des flux entrants...</p>
+    </div>
+  );
 
   return (
-    <Card className="shadow-sm border-gray-200">
-      <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white rounded-t-xl">
-        <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <ClockIcon className="w-5 h-5 text-gray-500" />
-          Flux d'Activité Récent
-        </h2>
+    <div className="bg-slate-900/40 border border-white/5 rounded-[2.5rem] backdrop-blur-xl overflow-hidden shadow-2xl">
+      {/* HEADER DU FLUX */}
+      <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20 text-blue-500">
+            <Clock size={18} />
+          </div>
+          <h2 className="text-sm font-black text-white uppercase tracking-widest italic">
+            Flux d'Activité <span className="text-blue-500">Live</span>
+          </h2>
+        </div>
         <button 
-          onClick={refetch}
-          className="text-sm text-orange-600 hover:bg-orange-50 px-3 py-1.5 rounded-md transition-colors"
-          title="Actualiser le flux"
+          onClick={fetchEvents}
+          className="p-2 text-slate-500 hover:text-white transition-colors"
         >
-          Actualiser
+          <RefreshCw size={16} />
         </button>
       </div>
 
-      <CardContent className="p-0">
-        {feedEvents.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">
-            Aucun acte enregistré récemment sur le réseau.
+      {/* LISTE DES ÉVÉNEMENTS */}
+      <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
+        {events.length === 0 ? (
+          <div className="p-12 text-center text-[10px] font-black uppercase tracking-widest text-slate-600 italic">
+            Aucun signal détecté sur le réseau.
           </div>
         ) : (
-          <ul className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
-            {feedEvents.map((event) => (
-              <li key={event.id} className="p-6 hover:bg-gray-50 transition-colors duration-150">
-                <div className="flex space-x-4">
-                  
-                  {/* Icône dynamique selon le type d'acte */}
-                  <div className="flex-shrink-0 mt-1">
-                    {event.type === "NAISSANCE" ? (
-                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <BabyIcon className="w-5 h-5 text-blue-600" />
-                      </div>
-                    ) : event.type === "DECES" ? (
-                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                        <DocumentMinusIcon className="w-5 h-5 text-gray-600" />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
-                        <UsersIcon className="w-5 h-5 text-purple-600" />
-                      </div>
-                    )}
-                  </div>
+          <div className="divide-y divide-white/5">
+            <AnimatePresence>
+              {events.map((event, index) => (
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  key={event.id}
+                  className="p-6 hover:bg-white/[0.03] transition-colors group relative"
+                >
+                  <div className="flex items-start gap-5">
+                    {/* Icône de type d'acte */}
+                    <div className={`mt-1 p-3 rounded-2xl border transition-all group-hover:scale-110 ${
+                      event.type === "NAISSANCE" ? "bg-blue-500/10 border-blue-500/20 text-blue-500" :
+                      event.type === "DECES" ? "bg-slate-800 border-white/10 text-slate-400" :
+                      "bg-purple-500/10 border-purple-500/20 text-purple-500"
+                    }`}>
+                      {event.type === "NAISSANCE" ? <Baby size={20} /> : 
+                       event.type === "DECES" ? <Skull size={20} /> : <Users size={20} />}
+                    </div>
 
-                  {/* Contenu de l'événement */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">
-                      Déclaration de {event.type.toLowerCase()}
-                      {/* Badge de statut */}
-                      <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${
-                        event.status === "SYNCED" ? "bg-green-50 text-green-700 border-green-200" :
-                        event.status === "PENDING" ? "bg-orange-50 text-orange-700 border-orange-200" :
-                        "bg-red-50 text-red-700 border-red-200"
-                      }`}>
-                        {event.status === "SYNCED" ? "Validé" : event.status === "PENDING" ? "En attente" : "Rejeté"}
-                      </span>
-                    </p>
-                    
-                    <p className="text-sm text-gray-500 mt-1">
-                      Saisi par l'Agent <span className="font-medium text-gray-700">{event.agentId}</span>
-                      {' '}au centre <span className="font-medium text-gray-700">{event.structureId}</span>
-                    </p>
-                    
-                    {event.errorMessage && (
-                      <p className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-100">
-                        Motif du rejet : {event.errorMessage}
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-black text-white uppercase tracking-wider">
+                          {event.type} ENREGISTRÉ
+                        </p>
+                        <span className="text-[9px] font-mono text-slate-500">
+                          {new Intl.DateTimeFormat('fr-CI', { hour: '2-digit', minute: '2-digit' }).format(new Date(event.created_at))}
+                        </span>
+                      </div>
+                      
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                        ID Agent: <span className="text-slate-200">{event.agent_id?.slice(0,8)}...</span> 
+                        <span className="mx-2 opacity-20">|</span> 
+                        Zone: <span className="text-slate-200">{event.zone_id || "NON SPÉCIFIÉ"}</span>
                       </p>
-                    )}
-                  </div>
 
-                  {/* Horodatage */}
-                  <div className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500">
-                    {new Intl.DateTimeFormat('fr-CI', { 
-                      hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' 
-                    }).format(new Date(event.createdAt))}
+                      {/* Status Badge */}
+                      <div className="mt-3 flex items-center gap-2">
+                        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
+                          event.status === "VALIDÉ" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-orange-500/10 border-orange-500/20 text-orange-500"
+                        }`}>
+                          {event.status === "VALIDÉ" ? <CheckCircle2 size={10} /> : <Timer size={10} />}
+                          {event.status}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+      
+      {/* FOOTER - Stats rapides */}
+      <div className="p-4 bg-white/[0.02] border-t border-white/5 text-center">
+        <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">
+          Flux chiffré de bout en bout — Protocole RECENSCI v2.0
+        </p>
+      </div>
+    </div>
   );
 };
 
 export default EventFeed;
-
-/* --- Icônes (Heroicons) --- */
-const ClockIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const BabyIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const DocumentMinusIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
-const UsersIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;

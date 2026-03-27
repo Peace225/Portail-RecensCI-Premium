@@ -1,159 +1,169 @@
-// src/components/Reports.tsx
-import React from "react";
-import { useFetch } from "../hooks/useFetch";
-import { Card, CardContent } from "../components/Card";
-import Button from "../components/Button";
+// src/backoffice/Reports.tsx
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FileText, FolderOpen, Download, Plus, 
+  Calendar, Database, ShieldCheck, RefreshCw,
+  FileSearch, AlertCircle, FileBarChart
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
-// 1. Typage strict d'un rapport d'état civil
 export interface Report {
   id: string;
   title: string;
   type: "MENSUEL" | "ANNUEL" | "AUDIT" | "STATISTIQUE";
-  generatedAt: string; // Date ISO
+  created_at: string;
   status: "READY" | "GENERATING" | "FAILED";
-  downloadUrl?: string;
-  size?: string; // Ex: "2.4 MB"
+  file_url?: string;
+  file_size?: string;
 }
 
 const Reports: React.FC = () => {
-  // 2. Utilisation de notre hook sécurisé pour récupérer les rapports
-  const { data: reports, loading, error, refetch } = useFetch<Report[]>("/backoffice/rapports");
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Simulation d'une action de génération de rapport
-  const handleGenerateReport = () => {
-    alert("Demande de génération du rapport mensuel envoyée au serveur...");
-    // Ici, on appellerait apiService.post("/backoffice/rapports/generer") puis refetch()
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      // On récupère les rapports depuis ta table 'reports'
+      const { data, error } = await supabase
+        .from('reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setReports(data || []);
+    } catch (err: any) {
+      toast.error("Erreur de liaison avec les archives.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 3. Gestion élégante du chargement
-  if (loading) {
-    return (
-      <Card className="w-full h-64 flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
-        <p className="text-gray-500 font-medium">Chargement des archives documentaires...</p>
-      </Card>
-    );
-  }
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
-  // 4. Gestion claire des erreurs
-  if (error) {
-    return (
-      <Card className="w-full border-red-200 bg-red-50 p-6 text-center">
-        <DocumentTextIcon className="w-10 h-10 text-red-400 mx-auto mb-3" />
-        <p className="text-red-800 font-bold mb-2">Impossible de charger les rapports</p>
-        <p className="text-sm text-red-600 mb-4">{error}</p>
-        <Button variant="outline" size="sm" onClick={refetch}>
-          Réessayer
-        </Button>
-      </Card>
-    );
-  }
+  const handleGenerateReport = () => {
+    toast.loading("Génération du rapport cryptographique en cours...", {
+      style: { background: '#0f172a', color: '#f97316', border: '1px solid #f97316' },
+      duration: 3000
+    });
+  };
 
-  const reportList = reports || [];
+  if (loading) return (
+    <div className="w-full h-64 flex flex-col items-center justify-center bg-slate-900/40 border border-white/5 rounded-[2.5rem] animate-pulse">
+      <RefreshCw className="w-8 h-8 text-orange-500 animate-spin mb-4" />
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Accès aux serveurs d'archives...</p>
+    </div>
+  );
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec action principale */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <FolderIcon className="w-6 h-6 text-orange-600" />
-            Rapports & Exports
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Consultez et téléchargez les synthèses statistiques de l'état civil.
-          </p>
+    <div className="space-y-8 relative">
+      {/* --- HEADER --- */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-orange-500/10 rounded-2xl border border-orange-500/20">
+            <FolderOpen className="text-orange-500" size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white uppercase tracking-widest italic">Archives & Rapports</h2>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight mt-1">Souveraineté Documentaire Nationale</p>
+          </div>
         </div>
-        <Button 
+        
+        <button 
           onClick={handleGenerateReport}
-          leftIcon={<PlusIcon className="w-5 h-5" />}
+          className="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg shadow-orange-600/20"
         >
-          Nouveau Rapport
-        </Button>
+          <Plus size={16} /> Nouveau Rapport
+        </button>
       </div>
 
-      {/* Liste des rapports stylisée */}
-      <Card className="shadow-sm border-gray-200">
-        <CardContent className="p-0">
-          {reportList.length === 0 ? (
-            <div className="p-10 text-center text-gray-500">
-              <DocumentTextIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p>Aucun rapport n'a été généré pour le moment.</p>
+      {/* --- LISTE DES RAPPORTS --- */}
+      <div className="bg-slate-900/40 border border-white/5 rounded-[2.5rem] backdrop-blur-xl overflow-hidden shadow-2xl">
+        <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Registres Documentaires</h3>
+          <button onClick={fetchReports} className="text-slate-600 hover:text-white transition-colors">
+            <RefreshCw size={14} />
+          </button>
+        </div>
+
+        <div className="divide-y divide-white/5">
+          {reports.length === 0 ? (
+            <div className="p-16 text-center space-y-4">
+              <FileSearch className="w-12 h-12 text-slate-700 mx-auto" />
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Aucune archive disponible</p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100">
-              {reportList.map((report) => (
-                <li key={report.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            reports.map((report, index) => (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                key={report.id} 
+                className="p-6 hover:bg-white/[0.03] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-6 group"
+              >
+                <div className="flex items-start gap-5">
+                  <div className={`p-4 rounded-2xl border transition-transform group-hover:scale-110 ${
+                    report.type === "AUDIT" ? "bg-purple-500/10 border-purple-500/20 text-purple-500" :
+                    report.type === "STATISTIQUE" ? "bg-blue-500/10 border-blue-500/20 text-blue-500" :
+                    "bg-orange-500/10 border-orange-500/20 text-orange-500"
+                  }`}>
+                    <FileBarChart size={24} />
+                  </div>
                   
-                  {/* Informations du rapport */}
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-lg flex-shrink-0 ${
-                      report.type === "AUDIT" ? "bg-purple-100 text-purple-600" :
-                      report.type === "STATISTIQUE" ? "bg-blue-100 text-blue-600" :
-                      "bg-orange-100 text-orange-600"
-                    }`}>
-                      <DocumentReportIcon className="w-6 h-6" />
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-md font-bold text-gray-900">{report.title}</h3>
-                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <CalendarIcon className="w-4 h-4" />
-                          {new Intl.DateTimeFormat('fr-CI', { 
-                            dateStyle: 'long', timeStyle: 'short' 
-                          }).format(new Date(report.generatedAt))}
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-black text-white uppercase tracking-wider">{report.title}</h3>
+                    <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar size={12} className="text-slate-600" />
+                        {new Intl.DateTimeFormat('fr-CI', { dateStyle: 'long' }).format(new Date(report.created_at))}
+                      </span>
+                      {report.file_size && (
+                        <span className="flex items-center gap-1.5">
+                          <Database size={12} className="text-slate-600" />
+                          {report.file_size}
                         </span>
-                        {report.size && (
-                          <>
-                            <span>•</span>
-                            <span>{report.size}</span>
-                          </>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
+                </div>
 
-                  {/* Actions (Téléchargement ou Statut) */}
-                  <div className="flex items-center sm:justify-end min-w-[140px]">
-                    {report.status === "READY" ? (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => window.open(report.downloadUrl, '_blank')}
-                        leftIcon={<DownloadIcon className="w-4 h-4" />}
-                        className="w-full sm:w-auto"
-                      >
-                        Télécharger
-                      </Button>
-                    ) : report.status === "GENERATING" ? (
-                      <span className="inline-flex items-center text-sm font-medium text-orange-600 bg-orange-50 px-3 py-1.5 rounded-full">
-                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-orange-600 mr-2"></div>
-                        En cours...
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center text-sm font-medium text-red-600 bg-red-50 px-3 py-1.5 rounded-full">
-                        Échec
-                      </span>
-                    )}
-                  </div>
-
-                </li>
-              ))}
-            </ul>
+                <div className="flex items-center gap-4 min-w-[150px] justify-end">
+                  {report.status === "READY" ? (
+                    <button 
+                      onClick={() => window.open(report.file_url, '_blank')}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+                    >
+                      <Download size={14} /> Télécharger
+                    </button>
+                  ) : report.status === "GENERATING" ? (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/5 border border-orange-500/20 rounded-xl text-[9px] font-black text-orange-500 uppercase animate-pulse">
+                      <RefreshCw size={12} className="animate-spin" /> En cours...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-red-500/5 border border-red-500/20 rounded-xl text-[9px] font-black text-red-500 uppercase">
+                      <AlertCircle size={12} /> Échec
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))
           )}
-        </CardContent>
-      </Card>
+        </div>
+        
+        {/* FOOTER ARCHIVE */}
+        <div className="p-4 bg-white/[0.02] border-t border-white/5 flex justify-center items-center gap-2">
+           <ShieldCheck size={12} className="text-emerald-500" />
+           <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.4em]">
+             Archives Certifiées par Protocole d'État
+           </p>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default Reports;
-
-/* --- Icônes (Heroicons) --- */
-const DocumentTextIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
-const DocumentReportIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
-const FolderIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>;
-const PlusIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>;
-const CalendarIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
-const DownloadIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>;

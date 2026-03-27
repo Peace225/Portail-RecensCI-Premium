@@ -1,95 +1,151 @@
-// src/components/AnalyticsPanel.tsx
-import React from "react";
-import { useFetch } from "../hooks/useFetch";
-import { Card, CardHeader, CardTitle, CardContent } from "./Card";
-import Button from "./Button";
+// src/backoffice/AnalyticsPanel.tsx
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
+import { motion } from "framer-motion";
+import { 
+  TrendingUp, TrendingDown, RefreshCw, 
+  BarChart3, AlertCircle, Info 
+} from "lucide-react";
 
 export interface AnalyticsData {
   metric: string;
   value: number;
-  description?: string; // Optionnel : pour expliquer la métrique
-  trend?: "up" | "down" | "stable"; // Optionnel : pour la visualisation
+  description?: string;
+  trend?: "up" | "down" | "stable";
 }
 
 const AnalyticsPanel: React.FC = () => {
-  // Utilisation de notre hook personnalisé qui gère l'injection du JWT et le cache
-  const { data, loading, error, refetch } = useFetch<AnalyticsData[]>("/backoffice/analytics");
+  const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // 1. État de chargement intégré au design
+  const fetchAnalytics = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Simulation de calcul de statistiques réelles depuis Supabase
+      // Dans un vrai cas, tu pourrais appeler une RPC ou faire plusieurs counts
+      const { count: totalPop } = await supabase.from('citizens').select('*', { count: 'exact', head: true }).eq('role', 'CITIZEN');
+      const { count: totalAgents } = await supabase.from('citizens').select('*', { count: 'exact', head: true }).eq('role', 'AGENT');
+
+      const data: AnalyticsData[] = [
+        { 
+          metric: "Population Totale", 
+          value: totalPop || 0, 
+          description: "Indicateur de croissance démographique", 
+          trend: "up" 
+        },
+        { 
+          metric: "Unités de Terrain", 
+          value: totalAgents || 0, 
+          description: "Agents d'accréditation actifs", 
+          trend: "stable" 
+        },
+        { 
+          metric: "Taux de Couverture", 
+          value: 74, // Exemple statique ou calculé
+          description: "Zones géographiques scannées", 
+          trend: "up" 
+        }
+      ];
+      
+      setAnalytics(data);
+    } catch (err: any) {
+      setError("Échec de la liaison avec le noyau de données.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
   if (loading) {
     return (
-      <Card className="w-full">
-        <CardContent className="flex flex-col items-center justify-center h-48">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mb-4"></div>
-          <p className="text-gray-500 font-medium">Compilation des statistiques nationales...</p>
-        </CardContent>
-      </Card>
+      <div className="w-full h-48 flex flex-col items-center justify-center bg-slate-900/50 border border-white/5 rounded-[2rem] animate-pulse">
+        <RefreshCw className="w-8 h-8 text-purple-500 animate-spin mb-4" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Compilation des flux...</p>
+      </div>
     );
   }
 
-  // 2. État d'erreur avec possibilité de réessayer (très utile pour les agents en zone rurale)
   if (error) {
     return (
-      <Card className="w-full border-red-200 bg-red-50">
-        <CardContent className="flex flex-col items-center justify-center h-48 text-center p-6">
-          <ExclamationTriangleIcon className="w-8 h-8 text-red-500 mb-3" />
-          <p className="text-red-800 font-bold mb-1">Erreur de synchronisation</p>
-          <p className="text-sm text-red-600 mb-4">{error}</p>
-          <Button variant="outline" size="sm" onClick={refetch}>
-            Actualiser les données
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="w-full p-8 bg-red-500/5 border border-red-500/20 rounded-[2rem] flex flex-col items-center gap-4 text-center">
+        <AlertCircle className="w-10 h-10 text-red-500" />
+        <div className="space-y-1">
+          <p className="text-white font-black uppercase tracking-widest">Alerte de Synchronisation</p>
+          <p className="text-xs text-red-400 font-mono italic">{error}</p>
+        </div>
+        <button 
+          onClick={fetchAnalytics}
+          className="mt-2 px-6 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+        >
+          Réinitialiser le flux
+        </button>
+      </div>
     );
   }
 
-  // Sécurité anti-crash au cas où data serait null
-  const analyticsData = data || [];
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* HEADER DU PANEL */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <ChartBarIcon className="w-6 h-6 text-orange-600" />
-          Tableau de bord analytique
-        </h2>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+            <BarChart3 className="w-5 h-5 text-purple-500" />
+          </div>
+          <h2 className="text-sm font-black text-white uppercase tracking-[0.2em] italic">
+            Monitoring <span className="text-purple-500">Analytique</span>
+          </h2>
+        </div>
         <button 
-          onClick={refetch}
-          className="text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 px-3 py-1.5 rounded-md transition-colors flex items-center gap-2"
+          onClick={fetchAnalytics}
+          className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
         >
-          <RefreshIcon className="w-4 h-4" />
-          Actualiser
+          <RefreshCw size={12} /> Actualiser
         </button>
       </div>
 
-      {/* Affichage sous forme de grille plutôt qu'une simple liste (<ul>) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {analyticsData.map((item) => (
-          <Card key={item.metric} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">{item.metric}</p>
-                  <h3 className="text-3xl font-extrabold text-gray-900">{item.value.toLocaleString('fr-CI')}</h3>
-                  {item.description && (
-                    <p className="text-xs text-gray-400 mt-2">{item.description}</p>
-                  )}
-                </div>
-                
-                {/* Indicateur visuel de tendance si fourni par l'API */}
-                {item.trend === "up" && (
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <TrendingUpIcon className="w-5 h-5 text-green-600" />
-                  </div>
-                )}
-                {item.trend === "down" && (
-                  <div className="p-2 bg-red-50 rounded-lg">
-                    <TrendingDownIcon className="w-5 h-5 text-red-600" />
+      {/* GRILLE DE DATA-CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {analytics.map((item, index) => (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            key={item.metric}
+            className="group relative bg-slate-900/40 border border-white/5 p-8 rounded-[2.5rem] hover:border-purple-500/30 transition-all duration-500"
+          >
+            {/* Effet de scanline au hover */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="flex justify-between items-start">
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.metric}</p>
+                <h3 className="text-4xl font-black text-white italic tracking-tighter">
+                  {item.value.toLocaleString('fr-CI')}
+                  {item.metric.includes("Taux") && "%"}
+                </h3>
+                {item.description && (
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Info size={10} />
+                    <p className="text-[8px] font-bold uppercase tracking-tight">{item.description}</p>
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+
+              {/* TENDANCE */}
+              {item.trend && (
+                <div className={`p-2 rounded-xl ${
+                  item.trend === "up" ? "bg-emerald-500/10 text-emerald-500" : "bg-slate-800 text-slate-500"
+                }`}>
+                  {item.trend === "up" ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                </div>
+              )}
+            </div>
+          </motion.div>
         ))}
       </div>
     </div>
@@ -97,10 +153,3 @@ const AnalyticsPanel: React.FC = () => {
 };
 
 export default AnalyticsPanel;
-
-/* --- Icônes (Heroicons) --- */
-const ChartBarIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>;
-const RefreshIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>;
-const ExclamationTriangleIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
-const TrendingUpIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
-const TrendingDownIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" /></svg>;

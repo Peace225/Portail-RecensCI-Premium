@@ -1,213 +1,203 @@
 // src/pages/Register.tsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import { Card, CardContent } from "../components/Card";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Fingerprint, IdCard, User, Mail, Phone, Lock, 
+  ShieldCheck, Cpu, Zap, ArrowRight, AlertTriangle, Sparkles
+} from "lucide-react";
+import { toast } from "react-hot-toast";
+
+import DocumentUploadHUD from "../components/DocumentUploadHUD";
+// ---> IMPORT DU CLIENT SUPABASE <---
+import { supabase } from "../supabaseClient"; 
+
+const styles = `
+  @keyframes scan-v { 0% { top: -100%; } 100% { top: 100%; } }
+  .animate-scan-v { animation: scan-v 4s linear infinite; }
+  .glass-hud {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .cyber-input {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    transition: all 0.3s ease;
+  }
+  .cyber-input:focus {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
+  }
+`;
 
 const Register: React.FC = () => {
-  // États du formulaire
-  const [nni, setNni] = useState("");
-  const [nom, setNom] = useState("");
-  const [prenoms, setPrenoms] = useState("");
-  const [email, setEmail] = useState("");
-  const [telephone, setTelephone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  
-  // États de l'interface
+  const [formData, setFormData] = useState({
+    nni: "", nom: "", prenoms: "", email: "", telephone: "", password: "", confirmPassword: "", photoUrl: ""
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // const navigate = useNavigate(); // À décommenter avec react-router
+  const navigate = useNavigate();
 
   const validateForm = () => {
-    if (nni.length !== 10) return "Le NNI doit contenir exactement 10 chiffres.";
-    if (password.length < 8) return "Le mot de passe doit contenir au moins 8 caractères.";
-    if (password !== confirmPassword) return "Les mots de passe ne correspondent pas.";
+    if (formData.nni.length !== 10) return "Le NNI doit contenir exactement 10 chiffres.";
+    if (formData.password.length < 8) return "Sécurité insuffisante : 8 caractères minimum.";
+    if (formData.password !== formData.confirmPassword) return "Désynchronisation des mots de passe.";
+    if (!formData.photoUrl) return "Le scan biométrique (Photo) est obligatoire.";
     return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     const validationError = validateForm();
+    
     if (validationError) {
       setError(validationError);
       return;
     }
-
+    
     setIsLoading(true);
+    
+    try {
+      // 1. Inscription Auth Supabase (Création du "compte de connexion")
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
 
-    // Simulation d'un appel API (ex: vérification du NNI avec l'ONECI puis création Firebase Auth)
-    setTimeout(() => {
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Échec de la création de l'identité numérique.");
+
+      // 2. Insertion dans la table `citizens` (Le "Profil")
+      const { error: dbError } = await supabase
+        .from('citizens')
+        .insert([
+          {
+            id: authData.user.id, // On lie la table au compte Auth créé
+            nni: formData.nni,
+            nom: formData.nom,
+            prenoms: formData.prenoms,
+            email: formData.email,
+            telephone: formData.telephone,
+            photo_url: formData.photoUrl
+          }
+        ]);
+
+      if (dbError) {
+        // Optionnel : si l'insertion de profil échoue, il faudrait idéalement supprimer le compte Auth pour garder une base propre
+        throw dbError;
+      }
+
+      toast.success("Nœud Citoyen Initialisé ! Enregistrement confirmé dans la base de données souveraine.", { duration: 4000 });
+      navigate("/login");
+      
+    } catch (err: any) {
+      console.error("Erreur d'inscription:", err);
+      // Gérer les erreurs courantes de Supabase pour un affichage plus clair
+      if (err.message.includes("User already registered")) {
+        setError("Cette identité numérique (Email) est déjà enregistrée.");
+      } else if (err.code === '23505' && err.message.includes("nni")) { // Code PostgreSQL pour violation d'unicité
+         setError("Ce Numéro National d'Identification (NNI) est déjà utilisé.");
+      }
+      else {
+        setError(err.message || "Une erreur critique est survenue lors de l'initialisation.");
+      }
+    } finally {
       setIsLoading(false);
-      alert("Compte citoyen créé avec succès ! Veuillez vérifier votre email pour activer votre compte.");
-      // navigate("/login");
-    }, 2000);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    let sanitizedValue = value;
+    if (name === "nni" || name === "telephone") sanitizedValue = value.replace(/\D/g, '');
+    if (name === "nom") sanitizedValue = value.toUpperCase();
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      
-      {/* En-tête / Logo */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
-        <div className="flex justify-center items-center gap-2 mb-4">
-          <div className="w-2 h-10 bg-green-600 rounded-sm"></div>
-          <h2 className="text-4xl font-extrabold tracking-tight text-orange-600">
-            Recens<span className="text-gray-900">CI</span>
-          </h2>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900">
-          Créer mon Espace Citoyen
-        </h2>
-        <p className="mt-2 text-sm text-gray-600">
-          Simplifiez vos démarches d'état civil en ligne
-        </p>
+    <div className="min-h-screen bg-[#020617] text-slate-300 flex flex-col pt-28 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
+      <style>{styles}</style>
+      <div className="absolute inset-0 [background-image:radial-gradient(circle,rgba(249,115,22,0.05)_1px,transparent_1px)] [background-size:30px_30px] opacity-30 pointer-events-none" />
+
+      {/* --- LOGO HOLOGRAPHIQUE --- */}
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mt-20 mb-12 relative z-10">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex justify-center items-center gap-3 mb-6">
+          <div className="relative w-12 h-12 bg-slate-900 border border-white/10 rounded-xl flex items-center justify-center shadow-2xl overflow-hidden">
+             <Fingerprint className="text-orange-500 animate-pulse" size={28} />
+             <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent animate-scan-v" />
+          </div>
+          <h2 className="text-4xl font-black tracking-tighter text-white italic">RECENS<span className="text-orange-500">CI</span></h2>
+        </motion.div>
+        <h3 className="text-xl font-black text-white uppercase tracking-[0.2em] italic">Créer un Nœud Citoyen</h3>
+        <p className="mt-2 text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]">Initialisation de l'Identité Numérique Souveraine</p>
       </div>
 
-      {/* Conteneur du formulaire */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-lg">
-        <Card className="shadow-xl border-t-4 border-t-green-600">
-          <CardContent className="py-8 px-4 sm:px-10">
+      <div className="sm:mx-auto sm:w-full sm:max-w-2xl relative z-10">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-hud rounded-[3.5rem] overflow-hidden border-t-4 border-t-orange-500 shadow-2xl">
+          <div className="py-12 px-6 sm:px-12">
             
-            {/* Affichage des erreurs de validation */}
-            {error && (
-              <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start">
-                <ExclamationCircleIcon className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-8 bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-4 text-red-400">
+                  <AlertTriangle size={20} className="shrink-0" />
+                  <p className="text-[11px] font-black uppercase tracking-widest">{error}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <InputHUD label="Numéro National d'Identification (NNI)" name="nni" value={formData.nni} onChange={handleChange} placeholder="0123456789" maxLength={10} icon={<IdCard size={18} />} helper="Référence unique à 10 chiffres du registre ONECI." />
               
-              {/* Le NNI est le pivot de l'identité en CI */}
-              <Input
-                label="Numéro National d'Identification (NNI)"
-                placeholder="Ex: 0123456789"
-                maxLength={10}
-                value={nni}
-                onChange={(e) => setNni(e.target.value.replace(/\D/g, ''))} // N'accepte que les chiffres
-                required
-                leftIcon={<IdCardIcon className="w-5 h-5" />}
-                helperText="Votre NNI à 10 chiffres se trouve sur votre carte d'identité ou récépissé ONECI."
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <InputHUD label="Nom de Famille" name="nom" value={formData.nom} onChange={handleChange} placeholder="KOUASSI" icon={<User size={18} />} />
+                <InputHUD label="Prénoms" name="prenoms" value={formData.prenoms} onChange={handleChange} placeholder="Koffi Jean" icon={<Sparkles size={18} />} />
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <InputHUD label="Email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="citoyen@cloud.ci" icon={<Mail size={18} />} />
+                <InputHUD label="Téléphone" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="0701020304" maxLength={10} icon={<Phone size={18} />} />
+              </div>
 
-              {/* Grille pour Nom et Prénoms */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Input
-                  label="Nom de famille"
-                  placeholder="Ex: KOUASSI"
-                  value={nom}
-                  onChange={(e) => setNom(e.target.value.toUpperCase())} // Force les majuscules
-                  required
-                />
-                <Input
-                  label="Prénoms"
-                  placeholder="Ex: Koffi Jean"
-                  value={prenoms}
-                  onChange={(e) => setPrenoms(e.target.value)}
-                  required
+              {/* INTÉGRATION DU WIDGET CLOUDINARY */}
+              <div className="pt-4 pb-2">
+                <DocumentUploadHUD 
+                  label="Scan Biométrique (Photo d'Identité)"
+                  onUploadSuccess={(url) => setFormData(prev => ({ ...prev, photoUrl: url }))}
                 />
               </div>
 
-              {/* Grille pour Contacts */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Input
-                  label="Adresse Email"
-                  type="email"
-                  placeholder="exemple@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  leftIcon={<MailIcon className="w-5 h-5" />}
-                />
-                <Input
-                  label="Téléphone"
-                  type="tel"
-                  placeholder="0102030405"
-                  maxLength={10}
-                  value={telephone}
-                  onChange={(e) => setTelephone(e.target.value.replace(/\D/g, ''))}
-                  required
-                  leftIcon={<PhoneIcon className="w-5 h-5" />}
-                />
+              <div className="pt-6 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <InputHUD label="Clé de Sécurité" name="password" type="password" value={formData.password} onChange={handleChange} placeholder="••••••••" icon={<Lock size={18} />} />
+                <InputHUD label="Confirmation" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" icon={<ShieldCheck size={18} />} />
               </div>
 
-              <div className="border-t border-gray-200 pt-5 mt-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <Input
-                    label="Mot de passe"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    leftIcon={<LockIcon className="w-5 h-5" />}
-                  />
-                  <Input
-                    label="Confirmer le mot de passe"
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    leftIcon={<LockCheckIcon className="w-5 h-5" />}
-                  />
-                </div>
-              </div>
-
-              {/* Case à cocher pour les CGU */}
-              <div className="flex items-start mt-4">
-                <div className="flex items-center h-5">
-                  <input
-                    id="terms"
-                    name="terms"
-                    type="checkbox"
-                    required
-                    className="focus:ring-orange-500 h-4 w-4 text-orange-600 border-gray-300 rounded"
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="terms" className="font-medium text-gray-700">
-                    J'accepte les <a href="#" className="text-orange-600 hover:underline">conditions d'utilisation</a> et la politique de protection des données de l'ONECI.
-                  </label>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full mt-6"
-                size="lg"
-                isLoading={isLoading}
-              >
-                Créer mon espace
-              </Button>
+              <button type="submit" disabled={isLoading} className="w-full py-6 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl uppercase tracking-[0.4em] text-[11px] shadow-lg hover:shadow-orange-500/20 transition-all active:scale-95 flex items-center justify-center gap-4 border border-orange-500/50">
+                {isLoading ? <Cpu size={20} className="animate-spin" /> : <><Zap size={18} /> <span>Initialiser mon Espace</span> <ArrowRight size={18} /></>}
+              </button>
             </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600">
-                Vous avez déjà un compte ?{" "}
-                <Link to="/login" className="font-medium text-orange-600 hover:text-orange-500 hover:underline">
-                  Connectez-vous ici
-                </Link>
-              </p>
+            <div className="mt-10 text-center border-t border-white/5 pt-8">
+              <Link to="/login" className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-orange-500 transition-colors">Identité déjà enregistrée ? Accéder au Terminal de Connexion</Link>
             </div>
-
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 };
 
-export default Register;
+const InputHUD = ({ label, name, type = "text", value, onChange, placeholder, maxLength, icon, helper }: any) => (
+  <div className="space-y-2 group w-full">
+    <div className="flex items-center justify-between px-2">
+      <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest group-focus-within:text-orange-500 transition-colors">{label}</label>
+      {icon && <span className="text-slate-700 group-focus-within:text-orange-500/50 transition-colors">{icon}</span>}
+    </div>
+    <input type={type} name={name} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} required className="w-full p-4 cyber-input rounded-2xl outline-none text-sm font-bold placeholder:text-slate-800" />
+    {helper && <p className="px-2 text-[8px] font-bold text-slate-600 uppercase italic">{helper}</p>}
+  </div>
+);
 
-/* --- Icônes (Heroicons) --- */
-const MailIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>;
-const LockIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>;
-const LockCheckIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>;
-const IdCardIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>;
-const PhoneIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>;
-const ExclamationCircleIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+export default Register;

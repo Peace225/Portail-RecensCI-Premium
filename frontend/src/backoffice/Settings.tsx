@@ -1,169 +1,181 @@
-// src/components/Settings.tsx
+// src/backoffice/Settings.tsx
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "../components/Card";
-import Button from "../components/Button";
-import Input from "../components/Input";
-import { notify } from "../services/notificationService";
+import { supabase } from "../supabaseClient";
+import { motion } from "framer-motion";
+import { 
+  ShieldCheck, Lock, Wifi, Bell, 
+  Save, RefreshCw, Cpu, ShieldAlert,
+  Smartphone, Database, Clock
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const Settings: React.FC = () => {
-  // États locaux pour les paramètres
-  const [sessionTimeout, setSessionTimeout] = useState("15");
-  const [syncInterval, setSyncInterval] = useState("60");
-  const [require2FA, setRequire2FA] = useState(true);
-  const [emailAlerts, setEmailAlerts] = useState(true);
-  
   const [isSaving, setIsSaving] = useState(false);
-
-  // Simulation de chargement des paramètres initiaux
-  useEffect(() => {
-    // Ici, on utiliserait apiService.get("/settings")
-  }, []);
+  
+  // États locaux typés pour le HUD
+  const [config, setConfig] = useState({
+    sessionTimeout: "15",
+    syncInterval: "24",
+    require2FA: true,
+    emailAlerts: true,
+    maintenanceMode: false
+  });
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
     try {
-      // Simulation d'un appel API pour sauvegarder les paramètres
-      // await apiService.put("/backoffice/settings", { sessionTimeout, require2FA... })
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulation d'écriture dans une table de configuration système
+      // const { error } = await supabase.from('system_config').upsert([config]);
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      notify.success("Les paramètres système ont été mis à jour avec succès.");
+      toast.success("Protocoles système mis à jour", {
+        style: { background: '#0f172a', color: '#10b981', border: '1px solid #10b981' },
+        icon: <ShieldCheck className="text-emerald-500" />
+      });
     } catch (error) {
-      notify.error("Erreur lors de la sauvegarde des paramètres.");
+      toast.error("Échec de la mise à jour des protocoles");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <ShieldCheckIcon className="w-6 h-6 text-orange-600" />
-          Configuration du Système
-        </h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Ajustez les règles de sécurité, de synchronisation et de comportement global de RecensCI.
-        </p>
+    <div className="max-w-5xl mx-auto space-y-10 pb-20 relative z-10">
+      
+      {/* --- HEADER --- */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h2 className="text-2xl font-black text-white uppercase tracking-widest italic flex items-center gap-3">
+            <Cpu className="text-orange-500" /> Paramètres <span className="text-orange-500">Noyau</span>
+          </h2>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-2">
+            Configuration des variables de souveraineté numérique
+          </p>
+        </div>
+        
+        <div className="px-4 py-2 bg-orange-500/5 border border-orange-500/20 rounded-xl flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+          <span className="text-[9px] font-black text-white uppercase tracking-widest">Système Opérationnel</span>
+        </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-8">
         
-        {/* Section Sécurité & Accès */}
-        <Card className="border-gray-200 shadow-sm">
-          <CardHeader className="bg-gray-50 border-b border-gray-100 py-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <LockIcon className="w-5 h-5 text-gray-600" />
-              Sécurité des Agents
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input 
-                label="Expiration de session (minutes)" 
-                type="number" 
-                min="5" 
-                max="120"
-                value={sessionTimeout}
-                onChange={(e) => setSessionTimeout(e.target.value)}
-                helperText="Déconnecte automatiquement un agent inactif pour des raisons de sécurité."
+        {/* --- SECTION 1: SÉCURITÉ ACCRÉDITÉE --- */}
+        <SettingsCard title="Sécurité des Agents" icon={<Lock className="text-blue-400" />}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiration Session (Min)</label>
+              <div className="relative">
+                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
+                <input 
+                  type="number" 
+                  value={config.sessionTimeout}
+                  onChange={(e) => setConfig({...config, sessionTimeout: e.target.value})}
+                  className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 pl-12 text-white outline-none focus:border-blue-500 transition-all font-mono"
+                />
+              </div>
+              <p className="text-[8px] text-slate-600 uppercase font-bold tracking-tight">Verrouillage automatique après inactivité.</p>
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <ToggleRow 
+                title="Double Authentification (A2F)" 
+                desc="Obligatoire pour tous les accès agents terrain."
+                active={config.require2FA}
+                onClick={() => setConfig({...config, require2FA: !config.require2FA})}
+                icon={<Smartphone size={16} />}
               />
             </div>
-            
-            {/* Toggle Switch fait maison avec Tailwind */}
-            <div className="flex items-center justify-between py-3 border-t border-gray-100 mt-4 pt-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Double Authentification (A2F) Obligatoire</h4>
-                <p className="text-sm text-gray-500">Exige un code SMS pour toutes les connexions des officiers d'état civil.</p>
+          </div>
+        </SettingsCard>
+
+        {/* --- SECTION 2: RÉSEAU & SYNC --- */}
+        <SettingsCard title="Politique de Flux" icon={<Wifi className="text-orange-400" />}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Délai Max Hors-Ligne (Heures)</label>
+              <div className="relative">
+                <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
+                <input 
+                  type="number" 
+                  value={config.syncInterval}
+                  onChange={(e) => setConfig({...config, syncInterval: e.target.value})}
+                  className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 pl-12 text-white outline-none focus:border-orange-500 transition-all font-mono"
+                />
               </div>
-              <button
-                type="button"
-                onClick={() => setRequire2FA(!require2FA)}
-                className={`${
-                  require2FA ? 'bg-green-500' : 'bg-gray-200'
-                } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2`}
-              >
-                <span className={`${
-                  require2FA ? 'translate-x-5' : 'translate-x-0'
-                } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`} />
-              </button>
+              <p className="text-[8px] text-slate-600 uppercase font-bold tracking-tight">Intervalle avant révocation du cache local.</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </SettingsCard>
 
-        {/* Section Synchronisation (Mode Hors-Ligne) */}
-        <Card className="border-gray-200 shadow-sm">
-          <CardHeader className="bg-gray-50 border-b border-gray-100 py-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <WifiIcon className="w-5 h-5 text-gray-600" />
-              Politique de Synchronisation
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input 
-                label="Délai max hors-ligne (heures)" 
-                type="number" 
-                min="1" 
-                max="72"
-                value={syncInterval}
-                onChange={(e) => setSyncInterval(e.target.value)}
-                helperText="Le temps maximum autorisé avant qu'une tablette ne se verrouille si elle n'a pas synchronisé ses actes."
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {/* --- SECTION 3: ALERTES --- */}
+        <SettingsCard title="Alertes Monitoring" icon={<Bell className="text-emerald-400" />}>
+          <ToggleRow 
+            title="Notifications de Doublons" 
+            desc="Alerte immédiate en cas de NNI dupliqué sur le réseau."
+            active={config.emailAlerts}
+            onClick={() => setConfig({...config, emailAlerts: !config.emailAlerts})}
+            icon={<ShieldAlert size={16} />}
+          />
+        </SettingsCard>
 
-        {/* Section Alertes */}
-        <Card className="border-gray-200 shadow-sm">
-          <CardHeader className="bg-gray-50 border-b border-gray-100 py-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <BellAlertIcon className="w-5 h-5 text-gray-600" />
-              Alertes Administrateur
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Notifications de Doublons</h4>
-                <p className="text-sm text-gray-500">Recevoir un email immédiat quand un NNI est utilisé sur deux actes différents.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEmailAlerts(!emailAlerts)}
-                className={`${
-                  emailAlerts ? 'bg-green-500' : 'bg-gray-200'
-                } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2`}
-              >
-                <span className={`${
-                  emailAlerts ? 'translate-x-5' : 'translate-x-0'
-                } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`} />
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Actions flottantes en bas */}
-        <div className="flex justify-end pt-4 border-t border-gray-200">
-          <Button type="button" variant="ghost" className="mr-3">
-            Annuler
-          </Button>
-          <Button type="submit" isLoading={isSaving} leftIcon={!isSaving && <SaveIcon className="w-5 h-5" />}>
-            Enregistrer les modifications
-          </Button>
+        {/* --- FOOTER ACTIONS --- */}
+        <div className="flex justify-end items-center gap-6 pt-10 border-t border-white/5">
+          <button type="button" className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors">
+            Réinitialiser
+          </button>
+          <button 
+            type="submit" 
+            disabled={isSaving}
+            className="px-10 py-4 bg-orange-600 hover:bg-orange-500 disabled:bg-slate-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 shadow-xl shadow-orange-600/20 active:scale-95"
+          >
+            {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
+            {isSaving ? "Synchronisation..." : "Appliquer les Protocoles"}
+          </button>
         </div>
-        
       </form>
     </div>
   );
 };
 
-export default Settings;
+// --- SOUS-COMPOSANT : CARTE HUD ---
+const SettingsCard = ({ title, icon, children }: any) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-slate-900/40 border border-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-xl"
+  >
+    <div className="p-8 border-b border-white/5 bg-white/[0.02] flex items-center gap-4">
+      <div className="p-2 bg-white/5 rounded-lg border border-white/10">{icon}</div>
+      <h3 className="text-[11px] font-black text-white uppercase tracking-[0.3em]">{title}</h3>
+    </div>
+    <div className="p-10">{children}</div>
+  </motion.div>
+);
 
-/* --- Icônes (Heroicons) --- */
-const ShieldCheckIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>;
-const LockIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>;
-const WifiIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.906 14.142 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>;
-const BellAlertIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>;
-const SaveIcon = (props: any) => <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>;
+// --- SOUS-COMPOSANT : LIGNE TOGGLE ---
+const ToggleRow = ({ title, desc, active, onClick, icon }: any) => (
+  <div className="flex items-center justify-between group">
+    <div className="flex items-start gap-4">
+      <div className={`mt-1 p-2 rounded-lg transition-colors ${active ? 'bg-orange-500/10 text-orange-500' : 'bg-slate-800 text-slate-600'}`}>
+        {icon}
+      </div>
+      <div>
+        <h4 className="text-xs font-black text-white uppercase tracking-wider">{title}</h4>
+        <p className="text-[9px] text-slate-500 font-bold uppercase tracking-tight mt-1">{desc}</p>
+      </div>
+    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`relative inline-flex h-6 w-12 items-center rounded-full transition-all duration-300 ${active ? 'bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.4)]' : 'bg-slate-800'}`}
+    >
+      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${active ? 'translate-x-7' : 'translate-x-1'}`} />
+    </button>
+  </div>
+);
+
+export default Settings;

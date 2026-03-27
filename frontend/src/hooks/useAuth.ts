@@ -3,63 +3,115 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { login, logout, setAuthReady } from "../store/userSlice";
-import { authService } from "../services/authService";
+import { supabase } from "../supabaseClient"; 
 import { UserRole } from "../types";
 
 export const useAuth = () => {
   const dispatch = useDispatch();
   
-  // On lit l'état global depuis Redux (notre source de vérité unique)
+  // On lit l'état global depuis Redux
   const userState = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    // 1. On s'abonne en temps réel aux changements de session Firebase
-    // Dès que l'app s'ouvre, Firebase vérifie s'il y a un token valide en cache
-    const unsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          // 2. L'utilisateur est connecté, on récupère ses habilitations (Custom Claims)
-          const claims = await authService.getUserRoles();
-
-          // 3. On met à jour le store Redux avec les données sécurisées
-          dispatch(
-            login({
-              id: firebaseUser.uid,
-              name: firebaseUser.displayName || "Utilisateur",
-              email: firebaseUser.email || "",
-              role: (claims?.role as UserRole) || "CITIZEN", // Citoyen par défaut si aucun rôle admin
-              nni: claims?.nni as string | undefined,
-              structureId: claims?.structureId as string | undefined,
-            })
-          );
-        } catch (error) {
-          console.error("Erreur lors de la lecture des habilitations", error);
-          dispatch(logout()); // Sécurité stricte : en cas de doute, on déconnecte
-        }
+    // 1. Vérification initiale de la session au chargement
+    const checkInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await handleAuthChange(session);
       } else {
-        // 4. Aucun utilisateur connecté (ou token expiré)
+        dispatch(logout());
+        dispatch(setAuthReady(true)); // Le système est prêt, même si personne n'est connecté
+      }
+    };
+
+    checkInitialSession();
+
+    // 2. Abonnement en temps réel aux changements Supabase
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        await handleAuthChange(session);
+      } else {
         dispatch(logout());
       }
+      dispatch(setAuthReady(true));
     });
 
-    // 5. Nettoyage de l'écouteur Firebase quand le composant est démonté
-    return () => unsubscribe();
+    // 3. LA FONCTION CORRIGÉE : Double vérification (Profiles puis Citizens)
+    async function handleAuthChange(session: any) {
+      try {
+        const user = session.user;
+        
+        let finalRole = "CITIZEN";
+        let finalName = user.email?.split('@')[0] || "Citoyen";
+        let finalNni = undefined;
+        let finalPhoto = undefined;
+
+        // ÉTAPE A : On cherche d'abord si c'est un membre du personnel (Maire, Police, Agent)
+        const { data: adminProfile, error: adminError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (adminProfile && adminProfile.role) {
+          // BINGO ! C'est un officiel de l'état.
+          finalRole = adminProfile.role;
+          finalName = adminProfile.full_name || finalName;
+        } 
+        else {
+          // ÉTAPE B : Ce n'est pas un officiel. On cherche si c'est un citoyen normal.
+          const { data: citizenProfile, error: citizenError } = await supabase
+            .from('citizens')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (citizenProfile) {
+            finalRole = citizenProfile.role || "CITIZEN";
+            finalName = `${citizenProfile.prenoms} ${citizenProfile.nom}`;
+            finalNni = citizenProfile.nni;
+            finalPhoto = citizenProfile.photo_url;
+          }
+        }
+
+        // On envoie le VRAI rôle à Redux !
+        dispatch(
+          login({
+            id: user.id,
+            name: finalName,
+            email: user.email || "",
+            role: finalRole as UserRole, // Redux va enfin recevoir "ENTITY_ADMIN"
+            nni: finalNni,
+            photoUrl: finalPhoto, 
+          })
+        );
+      } catch (error) {
+        console.error("Erreur lors de la synchronisation du profil", error);
+        dispatch(logout());
+      }
+    }
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [dispatch]);
 
-  // Fonction de déconnexion exposée aux composants (ex: pour le Sidebar)
+  // --- LA FONCTION DE DÉCONNEXION BLINDÉE ---
   const handleLogout = async () => {
     try {
-      await authService.logout();
-      // Note : Firebase va détecter la déconnexion et déclencher onAuthStateChange,
-      // ce qui appellera dispatch(logout()) automatiquement.
+      await supabase.auth.signOut();
     } catch (error) {
-      console.error("Erreur lors de la déconnexion", error);
+      console.error("Erreur réseau lors de la déconnexion :", error);
+    } finally {
+      dispatch(logout());
+      localStorage.clear();
+      sessionStorage.clear();
     }
   };
 
   return {
     user: userState.isLoggedIn ? userState : null,
-    loading: !userState.isAuthReady, // Vrai tant que Firebase n'a pas répondu initialement
+    loading: !userState.isAuthReady, 
     isLoggedIn: userState.isLoggedIn,
     role: userState.role,
     logout: handleLogout,
