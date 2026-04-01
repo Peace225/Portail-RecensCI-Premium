@@ -8,8 +8,10 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-// ---> IMPORT DU CLIENT SUPABASE <---
-import { supabase } from "../supabaseClient";
+import { apiService, tokenStorage } from "../services/apiService";
+import { useDispatch } from "react-redux";
+import { login } from "../store/userSlice";
+import { UserRole } from "../types";
 
 const styles = `
   @keyframes scan-v { 0% { top: -100%; } 100% { top: 100%; } }
@@ -26,6 +28,7 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,76 +36,48 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // 1. Authentification avec Supabase
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      // Appel au backend NestJS
+      const data: any = await apiService.post("/auth/login", {
         email: formData.email,
         password: formData.password,
       });
 
-      if (authError) throw authError;
+      // Stockage du JWT
+      tokenStorage.set(data.access_token);
 
-      if (authData?.user) {
-        
-        // 2. LECTURE DU PROFIL & DE L'INSTITUTION (La magie du RBAC)
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select(`
-            role,
-            institutions ( type )
-          `)
-          .eq('id', authData.user.id)
-          .single();
+      // Mise à jour Redux
+      dispatch(
+        login({
+          id: data.user.id,
+          name: data.user.name || formData.email.split("@")[0],
+          email: formData.email,
+          role: data.user.role as UserRole,
+          structureId: data.user.institutionId || undefined,
+        })
+      );
 
-        if (profileError) {
-          console.warn("Profil introuvable, on assume le rôle CITOYEN par défaut.");
-        }
+      toast.success("Authentification Réussie", {
+        style: {
+          background: "#0f172a",
+          color: "#f97316",
+          border: "1px solid #f97316",
+          borderRadius: "15px",
+        },
+      });
 
-        toast.success("Authentification Biométrique Réussie", {
-          icon: '🛡️',
-          style: { 
-            background: '#0f172a', 
-            color: '#f97316', 
-            border: '1px solid #f97316',
-            borderRadius: '15px' 
-          }
-        });
-        
-        // 3. LE SWITCH DE REDIRECTION INTELLIGENT
-        const userRole = profile?.role || 'CITIZEN';
-        // Supabase retourne l'objet relié (institutions). On extrait le type.
-        const institutionType = profile?.institutions?.type; 
-
-        if (userRole === 'SUPER_ADMIN') {
-          // L'Hyperviseur (Toi)
-          navigate("/backoffice", { replace: true });
-        } 
-        else if (userRole === 'ENTITY_ADMIN') {
-          // Le Maire ou le Commissaire
-          if (institutionType === 'MAIRIE') {
-            navigate("/portail/mairie", { replace: true });
-          } else if (institutionType === 'POLICE') {
-            navigate("/portail/police", { replace: true });
-          } else {
-            // S'il est admin d'un hôpital ou autre, on le met sur un dashboard générique par défaut
-            navigate("/dashboard", { replace: true });
-          }
-        } 
-        else if (['DEPT_HEAD', 'SERVICE_HEAD', 'AGENT'].includes(userRole)) {
-          // Les agents de terrain / guichet
-          navigate("/dashboard", { replace: true });
-        } 
-        else {
-          // Le Citoyen lambda (Défaut)
-          navigate("/me", { replace: true }); 
-        }
+      // Redirection selon le rôle
+      const role = data.user.role;
+      if (role === "SUPER_ADMIN" || role === "ADMIN") {
+        navigate("/backoffice", { replace: true });
+      } else if (role === "ENTITY_ADMIN") {
+        navigate("/portail/mairie", { replace: true });
+      } else if (role === "AGENT") {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/me", { replace: true });
       }
     } catch (err: any) {
-      console.error("Erreur de connexion:", err);
-      if (err.message.includes("Invalid login credentials")) {
-        setError("Identifiants incorrects. Accès refusé par le protocole de sécurité.");
-      } else {
-        setError(err.message || "Échec de la liaison avec le Cloud Souverain.");
-      }
+      setError(err.message || "Échec de la connexion.");
     } finally {
       setIsLoading(false);
     }
