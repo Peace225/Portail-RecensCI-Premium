@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
-
-export type Severity = 'LÉGER' | 'GRAVE' | 'FATAL';
+import { PrismaService } from '../prisma/prisma.service';
+import { Severity, IncidentStatus } from '@prisma/client';
 
 @Injectable()
 export class SecurityService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(private prisma: PrismaService) {}
 
   async createIncident(dto: {
     type: string;
@@ -14,45 +13,35 @@ export class SecurityService {
     latitude?: number;
     longitude?: number;
     description: string;
-    judicial_followup?: boolean;
-  }, reportedBy: string) {
-    const { data, error } = await this.supabase
-      .getClient()
-      .from('security_incidents')
-      .insert({ ...dto, reported_by: reportedBy, status: 'OUVERT' })
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    return data;
+    judicialFollowup?: boolean;
+  }, reportedById: string) {
+    return this.prisma.securityIncident.create({
+      data: { ...dto, reportedById },
+    });
   }
 
-  async findAll(filters: { severity?: Severity; status?: string; page?: number; limit?: number }) {
-    const { page = 1, limit = 20, severity, status } = filters;
-    let query = this.supabase
-      .getClient()
-      .from('security_incidents')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range((page - 1) * limit, page * limit - 1);
+  async findAll(filters: { severity?: Severity; status?: IncidentStatus; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
 
-    if (severity) query = query.eq('severity', severity);
-    if (status) query = query.eq('status', status);
+    const where: any = {};
+    if (filters.severity) where.severity = filters.severity;
+    if (filters.status) where.status = filters.status;
 
-    const { data, error, count } = await query;
-    if (error) throw new Error(error.message);
-    return { data, total: count, page, limit };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.securityIncident.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.securityIncident.count({ where }),
+    ]);
+
+    return { data, total, page, limit };
   }
 
-  // Données pour la carte (IncidentMap.tsx)
+  // Données pour IncidentMap.tsx (lat/lng uniquement)
   async getMapData() {
-    const { data, error } = await this.supabase
-      .getClient()
-      .from('security_incidents')
-      .select('id, type, severity, latitude, longitude, status, created_at')
-      .not('latitude', 'is', null);
-
-    if (error) throw new Error(error.message);
-    return data;
+    return this.prisma.securityIncident.findMany({
+      where: { latitude: { not: null } },
+      select: { id: true, type: true, severity: true, latitude: true, longitude: true, status: true, createdAt: true },
+    });
   }
 }

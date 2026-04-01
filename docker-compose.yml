@@ -1,11 +1,38 @@
+version: '3.8'
 
-version: '3'
 services:
-  frontend:
-    build: ./frontend
+  postgres:
+    image: postgres:16-alpine
+    container_name: recensci_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: recensci
+      POSTGRES_PASSWORD: recensci_secret
+      POSTGRES_DB: recensci
     ports:
-      - '5173:5173'
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build: ./backend
+    container_name: recensci_api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://recensci:recensci_secret@postgres:5432/recensci
+      JWT_SECRET: recensci_jwt_super_secret_local
+      PORT: 3000
+      FRONTEND_URL: http://localhost:5173
     ports:
-      - '5000:5000'
+      - '3000:3000'
+
+  frontend:
+    build: ./frontend
+    container_name: recensci_frontend
+    ports:
+      - '5173:5173'
+
+volumes:
+  postgres_data:

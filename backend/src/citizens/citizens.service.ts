@@ -1,69 +1,52 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CitizensService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(private prisma: PrismaService) {}
 
   async findAll(filters: { search?: string; page?: number; limit?: number }) {
-    const { page = 1, limit = 20, search } = filters;
-    let query = this.supabase
-      .getClient()
-      .from('citizens')
-      .select('*', { count: 'exact' })
-      .range((page - 1) * limit, page * limit - 1);
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
 
-    if (search) {
-      query = query.or(`full_name.ilike.%${search}%,nni.ilike.%${search}%`);
-    }
+    const where = filters.search
+      ? {
+          OR: [
+            { fullName: { contains: filters.search, mode: 'insensitive' as const } },
+            { nni: { contains: filters.search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
 
-    const { data, error, count } = await query;
-    if (error) throw new Error(error.message);
-    return { data, total: count, page, limit };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.citizen.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.citizen.count({ where }),
+    ]);
+
+    return { data, total, page, limit };
   }
 
   async findOne(id: string) {
-    const { data, error } = await this.supabase
-      .getClient()
-      .from('citizens')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error || !data) throw new NotFoundException('Citoyen introuvable');
-    return data;
+    const citizen = await this.prisma.citizen.findUnique({ where: { id } });
+    if (!citizen) throw new NotFoundException('Citoyen introuvable');
+    return citizen;
   }
 
   async findByNni(nni: string) {
-    const { data, error } = await this.supabase
-      .getClient()
-      .from('citizens')
-      .select('*')
-      .eq('nni', nni)
-      .single();
-
-    if (error || !data) throw new NotFoundException('Citoyen introuvable');
-    return data;
+    const citizen = await this.prisma.citizen.findUnique({ where: { nni } });
+    if (!citizen) throw new NotFoundException('Citoyen introuvable');
+    return citizen;
   }
 
   async update(id: string, dto: any) {
-    const { data, error } = await this.supabase
-      .getClient()
-      .from('citizens')
-      .update(dto)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    return data;
+    return this.prisma.citizen.update({ where: { id }, data: dto });
   }
 
-  async validate(id: string, agentId: string) {
-    return this.update(id, {
-      status: 'VALIDATED',
-      validated_by: agentId,
-      validated_at: new Date().toISOString(),
+  async validate(id: string) {
+    return this.prisma.citizen.update({
+      where: { id },
+      data: { status: 'VALIDE', validatedAt: new Date() },
     });
   }
 }

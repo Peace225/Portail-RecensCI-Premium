@@ -1,58 +1,75 @@
 # RecensCI — Backend NestJS
 
-API REST pour le portail national d'état civil RecensCI, adaptée au frontend React/Vite existant.
+API REST pour le portail national d'état civil RecensCI.
 
 ## Stack
 - NestJS 10 + TypeScript
-- Supabase (Auth JWT + PostgreSQL)
-- Passport JWT (même secret que Supabase)
+- PostgreSQL 16 (Docker)
+- Prisma ORM
+- JWT (passport-jwt)
 - Swagger UI (`/docs`)
 
-## Installation
+## Démarrage rapide
 
+### 1. Lancer PostgreSQL
+```bash
+docker-compose up postgres -d
+```
+
+### 2. Installer et migrer
 ```bash
 cd backend
 npm install
-cp .env.example .env   # remplir les variables Supabase
+npx prisma migrate dev --name init
+npx prisma db seed
+```
+
+### 3. Démarrer l'API
+```bash
 npm run start:dev
+# → http://localhost:3000/v1
+# → http://localhost:3000/docs  (Swagger)
 ```
 
-## Variables d'environnement
+## Comptes de test (seed)
 
-| Variable | Description |
-|---|---|
-| `SUPABASE_URL` | URL du projet Supabase (même que le frontend) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Clé service role (Settings > API) |
-| `SUPABASE_JWT_SECRET` | JWT secret (Settings > API > JWT Settings) |
-| `FRONTEND_URL` | URL du frontend pour CORS |
-
-## Endpoints
-
-| Module | Route | Rôles |
+| Email | Mot de passe | Rôle |
 |---|---|---|
-| Auth | `GET /v1/auth/me` | Tous |
-| Citizens | `GET /v1/citizens` | AGENT+ |
-| Citizens | `PATCH /v1/citizens/:id/validate` | AGENT+ |
-| Vital Events | `POST /v1/events/:type` | AGENT+ |
-| Vital Events | `POST /v1/events/sync` | AGENT+ (sync offline) |
-| Agents | `GET /v1/agents` | ADMIN+ |
-| Agents | `POST /v1/agents` | ADMIN+ |
-| Security | `POST /v1/security/incidents` | AGENT+ |
-| Security | `GET /v1/security/map` | AGENT+ |
-| Exports | `GET /v1/exports/stats` | AGENT+ |
-| Exports | `GET /v1/exports/data` | ADMIN+ |
+| superadmin@recensci.ci | password123 | SUPER_ADMIN |
+| maire@recensci.ci | password123 | ENTITY_ADMIN |
+| agent@recensci.ci | password123 | AGENT |
+| citoyen@recensci.ci | password123 | CITIZEN |
 
-## Architecture
+## Endpoints principaux
 
+| Route | Description |
+|---|---|
+| `POST /v1/auth/login` | Login → JWT |
+| `GET /v1/auth/me` | Profil connecté |
+| `GET /v1/citizens` | Liste citoyens |
+| `PATCH /v1/citizens/:id/validate` | Valider un citoyen |
+| `POST /v1/events/:type` | Créer naissance/décès/mariage... |
+| `POST /v1/events/sync` | Sync batch offline |
+| `GET /v1/agents` | Liste agents |
+| `POST /v1/agents` | Créer un agent |
+| `GET /v1/security/map` | Données carte incidents |
+| `GET /v1/exports/stats` | Statistiques globales |
+| `GET /v1/exports/data?table=birth_records` | Export données |
+
+## Variables d'environnement (.env)
+
+```env
+DATABASE_URL="postgresql://recensci:recensci_secret@localhost:5432/recensci"
+JWT_SECRET="recensci_jwt_super_secret_local"
+PORT=3000
+FRONTEND_URL="http://localhost:5173"
 ```
-src/
-├── main.ts                  # Bootstrap + Swagger
-├── app.module.ts            # Module racine
-├── supabase/                # Client Supabase global
-├── auth/                    # JWT Strategy + Guards + RBAC
-├── citizens/                # Gestion citoyens (CitizenDatabase, CitizenValidation)
-├── vital-events/            # Naissances, décès, mariages, divorces, migrations
-├── agents/                  # Gestion agents (AddAgent, AgentList, AgentMessages)
-├── security/                # Incidents (IncidentMap, IncidentReportForm)
-└── exports/                 # Stats + export CSV/JSON (DataExportModule, AnalyticsPanel)
+
+## Commandes Prisma utiles
+
+```bash
+npm run db:migrate    # Créer une migration
+npm run db:generate   # Régénérer le client Prisma
+npm run db:seed       # Insérer les données de test
+npm run db:studio     # Ouvrir Prisma Studio (GUI)
 ```

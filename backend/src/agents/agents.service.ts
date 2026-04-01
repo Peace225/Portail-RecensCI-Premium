@@ -1,67 +1,55 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { SupabaseService } from '../supabase/supabase.service';
+import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AgentsService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(private prisma: PrismaService) {}
 
   async findAll(institutionId?: string) {
-    let query = this.supabase
-      .getClient()
-      .from('profiles')
-      .select('*, institutions(name, type)')
-      .in('role', ['AGENT', 'ENTITY_ADMIN']);
-
-    if (institutionId) query = query.eq('institution_id', institutionId);
-
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    return data;
+    return this.prisma.user.findMany({
+      where: {
+        role: { in: ['AGENT', 'ENTITY_ADMIN'] },
+        ...(institutionId ? { institutionId } : {}),
+      },
+      select: {
+        id: true, fullName: true, email: true, role: true, createdAt: true,
+        institution: { select: { name: true, type: true } },
+      },
+    });
   }
 
-  async create(dto: { email: string; full_name: string; role: string; institution_id: string }) {
-    // Crée l'utilisateur Supabase Auth + profil
-    const { data: authUser, error: authError } = await this.supabase
-      .getClient()
-      .auth.admin.createUser({
+  async create(dto: { email: string; fullName: string; role: string; institutionId?: string; password?: string }) {
+    const passwordHash = await bcrypt.hash(dto.password || 'Recensci@2024', 10);
+    return this.prisma.user.create({
+      data: {
         email: dto.email,
-        password: Math.random().toString(36).slice(-10), // Mot de passe temporaire
-        email_confirm: true,
-      });
-
-    if (authError) throw new Error(authError.message);
-
-    const { data, error } = await this.supabase
-      .getClient()
-      .from('profiles')
-      .insert({
-        id: authUser.user.id,
-        full_name: dto.full_name,
-        role: dto.role,
-        institution_id: dto.institution_id,
-      })
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-    return data;
+        fullName: dto.fullName,
+        role: dto.role as any,
+        institutionId: dto.institutionId,
+        passwordHash,
+      },
+      select: { id: true, fullName: true, email: true, role: true },
+    });
   }
 
   async remove(id: string) {
-    const { error } = await this.supabase.getClient().auth.admin.deleteUser(id);
-    if (error) throw new Error(error.message);
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('Agent introuvable');
+    await this.prisma.user.delete({ where: { id } });
     return { success: true };
   }
 
   async getMessages(agentId: string) {
-    const { data, error } = await this.supabase
-      .getClient()
-      .from('agent_messages')
-      .select('*')
-      .eq('agent_id', agentId)
-      .order('created_at', { ascending: false });
+    return this.prisma.agentMessage.findMany({
+      where: { agentId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 
-    if (error) throw new Error(error.message);
-    return data;
+  async sendMessage(agentId: string, content: string, fromAdmin = true) {
+    return this.prisma.agentMessage.create({
+      data: { agentId, content, fromAdmin },
+    });
   }
 }
