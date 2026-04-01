@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log('Seeding database...');
 
   // Institutions
   const mairie = await prisma.institution.upsert({
@@ -73,7 +73,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Seed terminé');
+  console.log('Seed termine');
   console.log('   superadmin@recensci.ci / password123');
   console.log('   maire@recensci.ci      / password123');
   console.log('   agent@recensci.ci      / password123');

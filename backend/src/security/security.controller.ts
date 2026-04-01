@@ -9,7 +9,7 @@ import { Roles } from '../auth/roles.decorator';
 import { SecurityService } from './security.service';
 import { CreateIncidentDto, IncidentResponseDto } from './dto/incident.dto';
 
-@ApiTags('🚨 Security')
+@ApiTags('Security')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('security')

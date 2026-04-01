@@ -57,12 +57,12 @@ citoyen@recensci.ci    / password123
       },
       'JWT',
     )
-    .addTag('🔐 Auth', 'Authentification et profil')
-    .addTag('👤 Citizens', 'Gestion des citoyens')
-    .addTag('📋 Vital Events', 'Naissances, décès, mariages, divorces, migrations')
-    .addTag('🧑‍💼 Agents', 'Gestion des agents et messages')
-    .addTag('🚨 Security', 'Incidents de sécurité et carte')
-    .addTag('📊 Exports & Stats', 'Statistiques et export de données')
+    .addTag('Auth', 'Authentification et profil')
+    .addTag('Citizens', 'Gestion des citoyens')
+    .addTag('Vital Events', 'Naissances, décès, mariages, divorces, migrations')
+    .addTag('Agents', 'Gestion des agents et messages')
+    .addTag('Security', 'Incidents de sécurité et carte')
+    .addTag('Exports & Stats', 'Statistiques et export de données')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -81,7 +81,7 @@ citoyen@recensci.ci    / password123
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`\n🚀 RecensCI API → http://localhost:${port}/v1`);
-  console.log(`📖 Swagger UI   → http://localhost:${port}/docs\n`);
+  console.log(`\nRecensCI API -> http://localhost:${port}/v1`);
+  console.log(`Swagger UI   -> http://localhost:${port}/docs\n`);
 }
 bootstrap();

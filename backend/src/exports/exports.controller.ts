@@ -9,7 +9,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { ExportsService } from './exports.service';
 
-@ApiTags('📊 Exports & Stats')
+@ApiTags('Exports & Stats')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('exports')

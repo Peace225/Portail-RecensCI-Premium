@@ -9,7 +9,7 @@ import { Roles } from '../auth/roles.decorator';
 import { AgentsService } from './agents.service';
 import { CreateAgentDto, SendMessageDto, AgentResponseDto } from './dto/agent.dto';
 
-@ApiTags('🧑‍💼 Agents')
+@ApiTags('Agents')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('agents')

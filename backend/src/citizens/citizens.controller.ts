@@ -9,7 +9,7 @@ import { Roles } from '../auth/roles.decorator';
 import { CitizensService } from './citizens.service';
 import { UpdateCitizenDto, CitizenResponseDto, PaginatedCitizensDto } from './dto/citizen.dto';
 
-@ApiTags('👤 Citizens')
+@ApiTags('Citizens')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('citizens')

@@ -12,7 +12,7 @@ import {
   CreateDivorceDto, CreateMigrationDto, SyncBatchDto, UpdateStatusDto,
 } from './dto/vital-events.dto';
 
-@ApiTags('📋 Vital Events')
+@ApiTags('Vital Events')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiExtraModels(CreateBirthDto, CreateDeathDto, CreateMarriageDto, CreateDivorceDto, CreateMigrationDto)
