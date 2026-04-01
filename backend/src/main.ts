@@ -6,31 +6,82 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Prefix global de l'API (correspond à VITE_API_URL = .../v1)
   app.setGlobalPrefix('v1');
 
-  // Validation automatique des DTOs
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  // CORS pour le frontend React/Vite
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
   });
 
-  // Swagger UI
+  // ─── SWAGGER ───────────────────────────────────────────────────────────────
   const config = new DocumentBuilder()
     .setTitle('RecensCI API')
-    .setDescription("API du Portail National d'État Civil - RecensCI")
+    .setDescription(
+      `## Portail National d'État Civil — Côte d'Ivoire
+      
+API REST du système RecensCI. Authentification via JWT Bearer.
+
+### Workflow
+1. **POST /v1/auth/login** → récupérer le \`access_token\`
+2. Cliquer **Authorize** en haut à droite et coller le token
+3. Tous les endpoints protégés sont maintenant accessibles
+
+### Rôles
+| Rôle | Accès |
+|---|---|
+| \`CITIZEN\` | Profil personnel uniquement |
+| \`AGENT\` | Déclarations + citoyens |
+| \`ENTITY_ADMIN\` | Mairie / Police — agents de son institution |
+| \`ADMIN\` | Backoffice complet |
+| \`SUPER_ADMIN\` | Accès total |
+
+### Comptes de test
+\`\`\`
+superadmin@recensci.ci / password123
+maire@recensci.ci      / password123  
+agent@recensci.ci      / password123
+citoyen@recensci.ci    / password123
+\`\`\`
+      `,
+    )
     .setVersion('1.0')
-    .addBearerAuth()
+    .setContact('RecensCI', 'https://recensci.gouv.ci', 'api@recensci.gouv.ci')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Coller le token obtenu via POST /v1/auth/login',
+      },
+      'JWT',
+    )
+    .addTag('🔐 Auth', 'Authentification et profil')
+    .addTag('👤 Citizens', 'Gestion des citoyens')
+    .addTag('📋 Vital Events', 'Naissances, décès, mariages, divorces, migrations')
+    .addTag('🧑‍💼 Agents', 'Gestion des agents et messages')
+    .addTag('🚨 Security', 'Incidents de sécurité et carte')
+    .addTag('📊 Exports & Stats', 'Statistiques et export de données')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,         // garde le token entre les rechargements
+      defaultModelsExpandDepth: 1,
+      docExpansion: 'list',
+      filter: true,
+      showRequestDuration: true,
+    },
+    customSiteTitle: 'RecensCI API Docs',
+    customfavIcon: '/public/images/logo.png',
+  });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`RecensCI API démarrée sur http://localhost:${port}/v1`);
-  console.log(`Swagger disponible sur http://localhost:${port}/docs`);
+  console.log(`\n🚀 RecensCI API → http://localhost:${port}/v1`);
+  console.log(`📖 Swagger UI   → http://localhost:${port}/docs\n`);
 }
 bootstrap();
