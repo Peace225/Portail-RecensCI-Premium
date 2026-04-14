@@ -1,7 +1,6 @@
 // src/modules/MaternalHealthForm.tsx
 import React, { useState } from "react";
-import { db } from "../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { apiService } from "../services/apiService";
 import { toast } from "react-hot-toast";
 import { HeartPulse, UserRound, Activity, Stethoscope, Baby, FileText, AlertCircle } from "lucide-react";
 
@@ -47,9 +46,9 @@ const MaternalHealthForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await addDoc(collection(db, "maternal_health"), {
+      await apiService.post('/events/birth', {
         ...formData,
-        registeredAt: serverTimestamp(),
+        type: 'MATERNAL_HEALTH',
         category: "MORTALITÉ_MATERNELLE",
       });
       toast.success("Rapport clinique sanitaire enregistré avec succès.");

@@ -1,7 +1,6 @@
 // src/pages/Exports/DataExportModule.tsx
 import React, { useState } from "react";
-import { db } from "../../firebase/firebaseConfig";
-import { collection, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
+import { apiService } from "../../services/apiService";
 import { toast } from "react-hot-toast";
 import { Database, Download, FileJson, FileSpreadsheet, ShieldAlert, FileText } from "lucide-react";
 
@@ -13,18 +12,17 @@ const DataExportModule: React.FC = () => {
 
   // FONCTION : Conversion d'un tableau d'objets en chaîne CSV
   const convertToCSV = (objArray: any[]) => {
-    const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+    if (!objArray.length) return "";
     let str = '';
-    const headers = Object.keys(array[0]).join(',') + '\r\n';
+    const headers = Object.keys(objArray[0]).join(',') + '\r\n';
     str += headers;
 
-    for (let i = 0; i < array.length; i++) {
+    for (let i = 0; i < objArray.length; i++) {
       let line = '';
-      for (const index in array[i]) {
+      for (const index in objArray[i]) {
         if (line !== '') line += ',';
-        // Nettoyage des données
-        const val = array[i][index] instanceof Timestamp ? array[i][index].toDate().toISOString() : array[i][index];
-        line += `"${String(val).replace(/"/g, '""')}"`;
+        const val = objArray[i][index];
+        line += `"${String(val ?? '').replace(/"/g, '""')}"`;
       }
       str += line + '\r\n';
     }
@@ -49,47 +47,33 @@ const DataExportModule: React.FC = () => {
 
     setLoading(true);
     try {
-      const start = new Date(dateRange.start);
-      const end = new Date(dateRange.end);
-      end.setHours(23, 59, 59, 999);
-
-      const q = query(
-        collection(db, category),
-        where("registeredAt", ">=", Timestamp.fromDate(start)),
-        where("registeredAt", "<=", Timestamp.fromDate(end)),
-        orderBy("registeredAt", "desc")
-      );
-
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data() 
-      }));
-
-      if (data.length === 0) {
-        toast.error("Aucune donnée disponible pour cette période spécifique.");
-        setLoading(false);
-        return;
-      }
-
       const fileName = `INS_${category}_${dateRange.start}_au_${dateRange.end}`;
 
-      if (format === "JSON") {
-        const jsonContent = JSON.stringify(data, null, 2);
-        downloadFile(jsonContent, `${fileName}.json`, "application/json");
+      if (format === "CSV") {
+        // For CSV, request CSV format directly and trigger download
+        const endpoint = `/exports/data?table=${encodeURIComponent(category)}&format=csv&startDate=${dateRange.start}&endDate=${dateRange.end}`;
+        const csvData = await apiService.get<string>(endpoint);
+        const content = typeof csvData === 'string' ? csvData : convertToCSV(Array.isArray(csvData) ? csvData : []);
+        if (!content) {
+          toast.error("Aucune donnée disponible pour cette période spécifique.");
+          return;
+        }
+        downloadFile(content, `${fileName}.csv`, "text/csv;charset=utf-8;");
       } else {
-        const csvContent = convertToCSV(data);
-        downloadFile(csvContent, `${fileName}.csv`, "text/csv;charset=utf-8;");
+        const endpoint = `/exports/data?table=${encodeURIComponent(category)}&format=json&startDate=${dateRange.start}&endDate=${dateRange.end}`;
+        const data = await apiService.get<any>(endpoint);
+        const arr = Array.isArray(data) ? data : (data?.data ?? []);
+        if (!arr.length) {
+          toast.error("Aucune donnée disponible pour cette période spécifique.");
+          return;
+        }
+        downloadFile(JSON.stringify(arr, null, 2), `${fileName}.json`, "application/json");
       }
 
       toast.success("Dataset chiffré et exporté avec succès !");
     } catch (error: any) {
       console.error(error);
-      if (error.code === 'failed-precondition') {
-        toast.error("Veuillez générer l'index Firestore dans votre console Firebase.");
-      } else {
-        toast.error("Erreur de connexion lors de l'extraction des données.");
-      }
+      toast.error("Erreur de connexion lors de l'extraction des données.");
     } finally {
       setLoading(false);
     }

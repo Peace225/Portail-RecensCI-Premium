@@ -1,6 +1,6 @@
 // src/backoffice/Reports.tsx
 import React, { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+import { apiService } from "../services/apiService";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, FolderOpen, Download, Plus, 
@@ -26,14 +26,8 @@ const Reports: React.FC = () => {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      // On récupère les rapports depuis ta table 'reports'
-      const { data, error } = await supabase
-        .from('reports')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setReports(data || []);
+      const data = await apiService.get<Report[]>('/exports/stats');
+      setReports(Array.isArray(data) ? data : []);
     } catch (err: any) {
       toast.error("Erreur de liaison avec les archives.");
     } finally {

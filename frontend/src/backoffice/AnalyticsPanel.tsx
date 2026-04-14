@@ -1,6 +1,6 @@
 // src/backoffice/AnalyticsPanel.tsx
 import React, { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+import { apiService } from "../services/apiService";
 import { motion } from "framer-motion";
 import { 
   TrendingUp, TrendingDown, RefreshCw, 
@@ -23,27 +23,24 @@ const AnalyticsPanel: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      // Simulation de calcul de statistiques réelles depuis Supabase
-      // Dans un vrai cas, tu pourrais appeler une RPC ou faire plusieurs counts
-      const { count: totalPop } = await supabase.from('citizens').select('*', { count: 'exact', head: true }).eq('role', 'CITIZEN');
-      const { count: totalAgents } = await supabase.from('citizens').select('*', { count: 'exact', head: true }).eq('role', 'AGENT');
+      const dashboard: any = await apiService.get('/analytics/dashboard');
 
       const data: AnalyticsData[] = [
         { 
           metric: "Population Totale", 
-          value: totalPop || 0, 
+          value: dashboard?.totalCitizens || dashboard?.total || 0, 
           description: "Indicateur de croissance démographique", 
           trend: "up" 
         },
         { 
           metric: "Unités de Terrain", 
-          value: totalAgents || 0, 
+          value: dashboard?.totalAgents || 0, 
           description: "Agents d'accréditation actifs", 
           trend: "stable" 
         },
         { 
           metric: "Taux de Couverture", 
-          value: 74, // Exemple statique ou calculé
+          value: dashboard?.coverageRate || 74,
           description: "Zones géographiques scannées", 
           trend: "up" 
         }

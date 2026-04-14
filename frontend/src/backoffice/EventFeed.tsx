@@ -1,6 +1,6 @@
 // src/backoffice/EventFeed.tsx
 import React, { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+import { apiService } from "../services/apiService";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Clock, Baby, Skull, Users, 
@@ -15,16 +15,18 @@ const EventFeed: React.FC = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      // On récupère les derniers actes de la table (ex: 'vital_events')
-      // Note: Assure-toi que cette table existe ou adapte le nom
-      const { data, error: supabaseError } = await supabase
-        .from('vital_events')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
+      const [births, deaths]: [any[], any[]] = await Promise.all([
+        apiService.get<any[]>('/events/birth?limit=10').catch(() => []),
+        apiService.get<any[]>('/events/death?limit=5').catch(() => []),
+      ]);
 
-      if (supabaseError) throw supabaseError;
-      setEvents(data || []);
+      const combined = [
+        ...(Array.isArray(births) ? births.map((e: any) => ({ ...e, type: "NAISSANCE" })) : []),
+        ...(Array.isArray(deaths) ? deaths.map((e: any) => ({ ...e, type: "DECES" })) : []),
+      ].sort((a, b) => new Date(b.createdAt || b.created_at || 0).getTime() - new Date(a.createdAt || a.created_at || 0).getTime())
+       .slice(0, 10);
+
+      setEvents(combined);
     } catch (err: any) {
       setError("Échec de synchronisation du flux d'activité.");
     } finally {
@@ -34,16 +36,6 @@ const EventFeed: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
-    
-    // OPTIONNEL: Temps réel avec Supabase Realtime
-    const subscription = supabase
-      .channel('live_events')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vital_events' }, 
-        payload => setEvents(prev => [payload.new, ...prev].slice(0, 10))
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(subscription); };
   }, []);
 
   if (loading) return (

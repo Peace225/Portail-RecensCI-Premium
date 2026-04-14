@@ -1,6 +1,6 @@
 // src/backoffice/UsersManagement.tsx
 import React, { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+import { apiService } from "../services/apiService";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, UserCheck, Shield, Search, 
@@ -18,18 +18,21 @@ const UsersManagement: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('citizens')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const [citizens, agents]: [any[], any[]] = await Promise.all([
+        apiService.get<any[]>('/citizens').catch(() => []),
+        apiService.get<any[]>('/agents').catch(() => []),
+      ]);
+
+      let combined = [
+        ...(Array.isArray(citizens) ? citizens : []),
+        ...(Array.isArray(agents) ? agents.map((a: any) => ({ ...a, role: a.role || 'AGENT' })) : []),
+      ];
 
       if (filterRole !== "ALL") {
-        query = query.eq('role', filterRole);
+        combined = combined.filter(u => u.role === filterRole);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      setUsers(data || []);
+      setUsers(combined);
     } catch (err: any) {
       toast.error("Erreur de synchronisation des registres.");
     } finally {

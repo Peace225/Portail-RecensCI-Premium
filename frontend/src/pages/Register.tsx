@@ -9,8 +9,9 @@ import {
 import { toast } from "react-hot-toast";
 
 import DocumentUploadHUD from "../components/DocumentUploadHUD";
-// ---> IMPORT DU CLIENT SUPABASE <---
-import { supabase } from "../supabaseClient"; 
+import { apiService, tokenStorage } from "../services/apiService";
+import { useDispatch } from "react-redux";
+import { login } from "../store/userSlice";
 
 const styles = `
   @keyframes scan-v { 0% { top: -100%; } 100% { top: 100%; } }
@@ -39,6 +40,7 @@ const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const validateForm = () => {
     if (formData.nni.length !== 10) return "Le NNI doit contenir exactement 10 chiffres.";
@@ -61,49 +63,32 @@ const Register: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // 1. Inscription Auth Supabase (Création du "compte de connexion")
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const data: any = await apiService.post("/auth/register", {
         email: formData.email,
         password: formData.password,
+        fullName: `${formData.nom} ${formData.prenoms}`.trim(),
+        nni: formData.nni,
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Échec de la création de l'identité numérique.");
-
-      // 2. Insertion dans la table `citizens` (Le "Profil")
-      const { error: dbError } = await supabase
-        .from('citizens')
-        .insert([
-          {
-            id: authData.user.id, // On lie la table au compte Auth créé
-            nni: formData.nni,
-            nom: formData.nom,
-            prenoms: formData.prenoms,
-            email: formData.email,
-            telephone: formData.telephone,
-            photo_url: formData.photoUrl
-          }
-        ]);
-
-      if (dbError) {
-        // Optionnel : si l'insertion de profil échoue, il faudrait idéalement supprimer le compte Auth pour garder une base propre
-        throw dbError;
+      if (data?.access_token) {
+        tokenStorage.set(data.access_token);
+        dispatch(login({
+          id: data.user?.id || "",
+          name: data.user?.fullName || `${formData.nom} ${formData.prenoms}`.trim(),
+          email: formData.email,
+          role: data.user?.role || "CITIZEN",
+          nni: formData.nni,
+          photoUrl: formData.photoUrl || undefined,
+        }));
+        toast.success("Nœud Citoyen Initialisé ! Enregistrement confirmé dans la base de données souveraine.", { duration: 4000 });
+        navigate("/me");
+      } else {
+        throw new Error("Réponse inattendue du serveur.");
       }
-
-      toast.success("Nœud Citoyen Initialisé ! Enregistrement confirmé dans la base de données souveraine.", { duration: 4000 });
-      navigate("/login");
       
     } catch (err: any) {
       console.error("Erreur d'inscription:", err);
-      // Gérer les erreurs courantes de Supabase pour un affichage plus clair
-      if (err.message.includes("User already registered")) {
-        setError("Cette identité numérique (Email) est déjà enregistrée.");
-      } else if (err.code === '23505' && err.message.includes("nni")) { // Code PostgreSQL pour violation d'unicité
-         setError("Ce Numéro National d'Identification (NNI) est déjà utilisé.");
-      }
-      else {
-        setError(err.message || "Une erreur critique est survenue lors de l'initialisation.");
-      }
+      setError(err.message || "Une erreur critique est survenue lors de l'initialisation.");
     } finally {
       setIsLoading(false);
     }

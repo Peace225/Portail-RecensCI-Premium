@@ -1,7 +1,6 @@
 // src/modules/MarriageForm.tsx
 import React, { useState } from "react";
-import { db } from "../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { apiService } from "../services/apiService";
 import { toast } from "react-hot-toast";
 import { HeartHandshake, User, UserRound, Camera, FileCheck, Users, MapPin, Scale } from "lucide-react";
 
@@ -56,10 +55,9 @@ const MarriageForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await addDoc(collection(db, "marriages"), {
+      await apiService.post('/events/marriage', {
         ...formData,
         photos: previews,
-        registeredAt: serverTimestamp(),
         status: "ACTE_VALIDE",
       });
       toast.success("Acte de Mariage scellé et enregistré au registre civil !");

@@ -1,7 +1,6 @@
 // src/modules/InternalMigrationForm.tsx
 import React, { useState } from "react";
-import { db, auth } from "../firebase/firebaseConfig";
-import { collection, addDoc, doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { apiService } from "../services/apiService";
 import { toast } from "react-hot-toast";
 import { MapPinned, User, MapPinOff, ArrowRight, HousePlus, Route, UploadCloud, CheckCircle2 } from "lucide-react";
 
@@ -54,23 +53,10 @@ const InternalMigrationForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // 1. Enregistrer le mouvement
-      await addDoc(collection(db, "internal_migrations"), {
+      await apiService.post('/events/migration', {
         ...formData,
         residenceCertificateScan: docPreview,
-        registeredAt: serverTimestamp(),
       });
-
-      // 2. Mettre à jour le profil (Si citoyen connecté)
-      const user = auth.currentUser;
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, {
-          currentRegion: formData.arrivalRegion,
-          currentCity: formData.arrivalCity,
-          lastMigrationDate: serverTimestamp()
-        });
-      }
 
       toast.success("Changement de résidence acté dans la base nationale.");
     } catch (error) {

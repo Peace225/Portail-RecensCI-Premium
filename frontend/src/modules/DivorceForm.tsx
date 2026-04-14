@@ -1,7 +1,6 @@
 // src/modules/DivorceForm.tsx
 import React, { useState } from "react";
-import { db } from "../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { apiService } from "../services/apiService";
 import { toast } from "react-hot-toast";
 import { Scale, FileSignature, SplitSquareHorizontal, UserX, Landmark, ScrollText, UploadCloud } from "lucide-react";
 
@@ -49,10 +48,9 @@ const DivorceForm: React.FC = () => {
 
     setLoading(true);
     try {
-      await addDoc(collection(db, "divorces"), {
+      await apiService.post('/events/divorce', {
         ...formData,
         judgmentScan: docPreview,
-        registeredAt: serverTimestamp(),
         status: "DISSOLUTION_VALIDÉE",
       });
       toast.success("Dissolution actée et mise à jour dans le registre national.");

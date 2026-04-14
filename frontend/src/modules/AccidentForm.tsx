@@ -1,7 +1,6 @@
 // src/modules/AccidentForm.tsx
 import React, { useState } from "react";
-import { db } from "../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { apiService } from "../services/apiService";
 import { toast } from "react-hot-toast";
 import { Car, AlertTriangle, MapPin, Users, ShieldAlert, UploadCloud, FileText } from "lucide-react";
 
@@ -56,10 +55,10 @@ const AccidentForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await addDoc(collection(db, "accidents"), {
+      await apiService.post('/security/incidents', {
+        type: 'ACCIDENT',
         ...formData,
         scenePhoto: preview,
-        registeredAt: serverTimestamp(),
         status: "SIGNALÉ",
       });
       toast.success("Rapport d'accident transmis aux autorités !");

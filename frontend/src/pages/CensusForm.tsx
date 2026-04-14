@@ -1,7 +1,6 @@
 // src/pages/CensusForm.tsx
 import React, { useState } from "react";
-import { db } from "../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { apiService } from "../services/apiService";
 import { toast } from "react-hot-toast";
 import { User, Users, Plus, Trash2, Wifi, Zap, Droplet, Utensils, HeartPulse, Wallet } from "lucide-react";
 
@@ -63,11 +62,10 @@ const CensusForm: React.FC = () => {
         censusType: mode,
         members: mode === "FAMILLE" ? familyMembers : [],
         totalHouseholdSize: mode === "FAMILLE" ? familyMembers.length + 1 : 1,
-        registeredAt: serverTimestamp(),
         status: "RECENSÉ",
       };
 
-      await addDoc(collection(db, "census_records"), payload);
+      await apiService.post('/citizens', payload);
       toast.success(`Enrôlement ${mode.toLowerCase()} validé et synchronisé !`);
     } catch (error) {
       toast.error("Erreur de sauvegarde système.");
