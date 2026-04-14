@@ -169,7 +169,7 @@ model MarriageRecord {
   spouse2Nni      String?     @map("spouse2_nni")
   marriageDate    DateTime    @map("marriage_date")
   marriagePlace   String?     @map("marriage_place")
-  witnessName     String?     @map("witness_name")
+  witnesses       Json?       @default("[]") @map("witnesses") // [{ name: string, nni?: string }]
   status          EventStatus @default(EN_ATTENTE_VALIDATION)
   agentId         String?     @map("agent_id")
   reviewedAt      DateTime?   @map("reviewed_at")

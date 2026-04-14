@@ -43,7 +43,12 @@ export class CreateMarriageDto {
   @ApiPropertyOptional({ example: 'CI-0004-2024' }) @IsOptional() @IsString() spouse2Nni?: string;
   @ApiProperty({ example: '2024-04-01' }) @IsDateString() marriageDate: string;
   @ApiPropertyOptional({ example: 'Mairie Cocody' }) @IsOptional() @IsString() marriagePlace?: string;
-  @ApiPropertyOptional({ example: 'Bamba Seydou' }) @IsOptional() @IsString() witnessName?: string;
+  @ApiPropertyOptional({
+    description: 'Liste des témoins',
+    example: [{ name: 'Bamba Seydou', nni: 'CI-0005-2024' }, { name: 'Coulibaly Issa' }],
+  })
+  @IsOptional()
+  witnesses?: Array<{ name: string; nni?: string }>;
 }
 
 // ─── DIVORCE ─────────────────────────────────────────────────────────────────
