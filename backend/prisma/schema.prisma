@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  CITIZEN
+  AGENT
+  ENTITY_ADMIN
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum InstitutionType {
+  MAIRIE
+  POLICE
+  ONECI
+  MINISTERE
+}
+
+enum EventStatus {
+  EN_ATTENTE_VALIDATION
+  VALIDE
+  REJETE
+}
+
+enum Gender {
+  MASCULIN
+  FEMININ
+}
+
+enum Severity {
+  LEGER
+  GRAVE
+  FATAL
+}
+
+enum IncidentStatus {
+  OUVERT
+  EN_COURS
+  FERME
+}
+
+// ─── INSTITUTION ─────────────────────────────────────────────────────────────
+
+model Institution {
+  id        String          @id @default(uuid())
+  name      String
+  type      InstitutionType
+  city      String?
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  users User[]
+
+  @@map("institutions")
+}
+
+// ─── USER (agents, admins, super_admin) ──────────────────────────────────────
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  fullName      String    @map("full_name")
+  role          Role      @default(AGENT)
+  institutionId String?   @map("institution_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+
+  // Événements enregistrés par cet agent
+  birthRecords      BirthRecord[]
+  deathRecords      DeathRecord[]
+  marriageRecords   MarriageRecord[]
+  divorceRecords    DivorceRecord[]
+  migrationRecords  MigrationRecord[]
+  incidents         SecurityIncident[]
+  messages          AgentMessage[]
+
+  @@map("users")
+}
+
+// ─── CITIZEN ─────────────────────────────────────────────────────────────────
+
+model Citizen {
+  id          String      @id @default(uuid())
+  nni         String      @unique  // Numéro National d'Identification
+  email       String?     @unique
+  passwordHash String?    @map("password_hash")
+  fullName    String      @map("full_name")
+  birthDate   DateTime?   @map("birth_date")
+  gender      Gender?
+  address     String?
+  city        String?
+  phone       String?
+  status      String      @default("EN_ATTENTE_VALIDATION")
+  validatedAt DateTime?   @map("validated_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("citizens")
+}
+
+// ─── BIRTH RECORD ────────────────────────────────────────────────────────────
+
+model BirthRecord {
+  id               String      @id @default(uuid())
+  babyFirstName    String      @map("baby_first_name")
+  babyLastName     String      @map("baby_last_name")
+  gender           Gender
+  birthDate        DateTime    @map("birth_date")
+  birthTime        String?     @map("birth_time")
+  weight           String?
+  height           String?
+  hospitalName     String?     @map("hospital_name")
+  cityOfBirth      String      @map("city_of_birth")
+  motherFullName   String      @map("mother_full_name")
+  motherNni        String?     @map("mother_nni")
+  motherProfession String?     @map("mother_profession")
+  fatherFullName   String?     @map("father_full_name")
+  fatherNni        String?     @map("father_nni")
+  fatherProfession String?     @map("father_profession")
+  doctorName       String?     @map("doctor_name")
+  status           EventStatus @default(EN_ATTENTE_VALIDATION)
+  agentId          String?     @map("agent_id")
+  reviewedAt       DateTime?   @map("reviewed_at")
+  createdAt        DateTime    @default(now()) @map("created_at")
+
+  agent User? @relation(fields: [agentId], references: [id])
+
+  @@map("birth_records")
+}
+
+// ─── DEATH RECORD ────────────────────────────────────────────────────────────
+
+model DeathRecord {
+  id             String      @id @default(uuid())
+  deceasedName   String      @map("deceased_name")
+  deceasedNni    String?     @map("deceased_nni")
+  deathDate      DateTime    @map("death_date")
+  deathPlace     String?     @map("death_place")
+  cause          String?
+  declarantName  String      @map("declarant_name")
+  declarantNni   String?     @map("declarant_nni")
+  status         EventStatus @default(EN_ATTENTE_VALIDATION)
+  agentId        String?     @map("agent_id")
+  reviewedAt     DateTime?   @map("reviewed_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  agent User? @relation(fields: [agentId], references: [id])
+
+  @@map("death_records")
+}
+
+// ─── MARRIAGE RECORD ─────────────────────────────────────────────────────────
+
+model MarriageRecord {
+  id              String      @id @default(uuid())
+  spouse1Name     String      @map("spouse1_name")
+  spouse1Nni      String?     @map("spouse1_nni")
+  spouse2Name     String      @map("spouse2_name")
+  spouse2Nni      String?     @map("spouse2_nni")
+  marriageDate    DateTime    @map("marriage_date")
+  marriagePlace   String?     @map("marriage_place")
+  witnesses       Json?       @default("[]") @map("witnesses") // [{ name: string, nni?: string }]
+  status          EventStatus @default(EN_ATTENTE_VALIDATION)
+  agentId         String?     @map("agent_id")
+  reviewedAt      DateTime?   @map("reviewed_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  agent User? @relation(fields: [agentId], references: [id])
+
+  @@map("marriage_records")
+}
+
+// ─── DIVORCE RECORD ──────────────────────────────────────────────────────────
+
+model DivorceRecord {
+  id            String      @id @default(uuid())
+  spouse1Name   String      @map("spouse1_name")
+  spouse2Name   String      @map("spouse2_name")
+  divorceDate   DateTime    @map("divorce_date")
+  courtName     String?     @map("court_name")
+  status        EventStatus @default(EN_ATTENTE_VALIDATION)
+  agentId       String?     @map("agent_id")
+  reviewedAt    DateTime?   @map("reviewed_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  agent User? @relation(fields: [agentId], references: [id])
+
+  @@map("divorce_records")
+}
+
+// ─── MIGRATION RECORD ────────────────────────────────────────────────────────
+
+model MigrationRecord {
+  id              String      @id @default(uuid())
+  citizenName     String      @map("citizen_name")
+  citizenNni      String?     @map("citizen_nni")
+  originCity      String      @map("origin_city")
+  destinationCity String      @map("destination_city")
+  migrationType   String      @map("migration_type") // INTERNE | INTERNATIONAL
+  migrationDate   DateTime    @map("migration_date")
+  status          EventStatus @default(EN_ATTENTE_VALIDATION)
+  agentId         String?     @map("agent_id")
+  reviewedAt      DateTime?   @map("reviewed_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  agent User? @relation(fields: [agentId], references: [id])
+
+  @@map("migration_records")
+}
+
+// ─── SECURITY INCIDENT ───────────────────────────────────────────────────────
+
+model SecurityIncident {
+  id               String         @id @default(uuid())
+  type             String
+  severity         Severity
+  location         String
+  latitude         Float?
+  longitude        Float?
+  description      String
+  judicialFollowup Boolean        @default(false) @map("judicial_followup")
+  status           IncidentStatus @default(OUVERT)
+  reportedById     String?        @map("reported_by_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  reportedBy User? @relation(fields: [reportedById], references: [id])
+
+  @@map("security_incidents")
+}
+
+// ─── AGENT MESSAGE ───────────────────────────────────────────────────────────
+
+model AgentMessage {
+  id        String   @id @default(uuid())
+  agentId   String   @map("agent_id")
+  content   String
+  fromAdmin Boolean  @default(false) @map("from_admin")
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  agent User @relation(fields: [agentId], references: [id])
+
+  @@map("agent_messages")
+}
