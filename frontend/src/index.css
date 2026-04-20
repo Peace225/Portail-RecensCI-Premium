@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Si tu veux, tu peux ajouter du style global ici */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
