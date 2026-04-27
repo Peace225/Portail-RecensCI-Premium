@@ -11,6 +11,14 @@ import {
   Droplets, Power, CloudSun, Leaf, Wheat, ShieldCheck, FileText, Heart, Baby, UserMinus, Car
 } from "lucide-react";
 import 'leaflet/dist/leaflet.css';
+import { apiService } from "../services/apiService";
+
+interface DashboardData {
+  citizens: { total: number; pending: number; validated: number; suspect: number };
+  vitalEvents: { births: number; deaths: number; marriages: number; divorces: number; migrations: number };
+  agents: number;
+  incidents: number;
+}
 
 // --- DICTIONNAIRE DE COULEURS TAILWIND STRICT ---
 const COLOR_MAP: Record<string, { bg: string, text: string, shadow: string }> = {
@@ -38,10 +46,17 @@ const BackofficeDashboard = () => {
   const [targetYear, setTargetYear] = useState(2026);
   const [isPredictive, setIsPredictive] = useState(false);
   const [livePulse, setLivePulse] = useState(0);
+  const [apiPop, setApiPop] = useState<number | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => setLivePulse(p => p + 1), 2500);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    apiService.get<DashboardData>('/analytics/dashboard')
+      .then(d => setApiPop(d.citizens.total))
+      .catch(() => {});
   }, []);
 
   const searchResults = useMemo(() => {
@@ -170,7 +185,7 @@ const BackofficeDashboard = () => {
                <GlassCard title="Démographie Locale" icon={<Users size={18}/>} theme={THEME}>
                   <div className="flex flex-col mb-4">
                     <Metric className="text-white text-3xl font-black italic tracking-tighter truncate drop-shadow-md">
-                       <LiveValue value={current.pop} isPredictive={isPredictive} />
+                       <LiveValue value={apiPop !== null && selectedID === "NATIONAL" ? apiPop : current.pop} isPredictive={isPredictive} />
                     </Metric>
                     <div className="mt-2 flex justify-between items-center">
                        <Text className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Flux Humain</Text>

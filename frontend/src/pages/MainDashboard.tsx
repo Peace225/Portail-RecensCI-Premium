@@ -1,5 +1,5 @@
 // src/pages/MainDashboard.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import IncidentMap from "./Security/IncidentMap";
 import { 
   Users, Baby, Skull, ShieldAlert, TrendingUp, 
@@ -10,9 +10,10 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell, Legend
 } from "recharts";
+import { apiService } from "../services/apiService";
 
-// --- DONNÉES STATIQUES ---
-const demographicData = [
+// --- DONNÉES STATIQUES FALLBACK ---
+const DEFAULT_DEMOGRAPHIC_DATA = [
   { month: "Jan", naissances: 4000, deces: 1200 },
   { month: "Fév", naissances: 3000, deces: 1100 },
   { month: "Mar", naissances: 5000, deces: 1300 },
@@ -42,7 +43,42 @@ const securityData = [
 
 const COLORS = ["#f97316", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444"];
 
+interface DashboardData {
+  citizens: { total: number; pending: number; validated: number; suspect: number };
+  vitalEvents: { births: number; deaths: number; marriages: number; divorces: number; migrations: number };
+  agents: number;
+  incidents: number;
+}
+
 const MainDashboard: React.FC = () => {
+  const [dashData, setDashData] = useState<DashboardData | null>(null);
+  const [demographicData, setDemographicData] = useState(DEFAULT_DEMOGRAPHIC_DATA);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [dash, trend] = await Promise.all([
+          apiService.get<DashboardData>('/analytics/dashboard'),
+          apiService.get<typeof DEFAULT_DEMOGRAPHIC_DATA>('/analytics/trend'),
+        ]);
+        setDashData(dash);
+        if (Array.isArray(trend) && trend.length > 0) setDemographicData(trend);
+      } catch {
+        // keep static fallback values
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const formatPop = (n: number) => {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+    return String(n);
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 pb-20 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
@@ -72,10 +108,18 @@ const MainDashboard: React.FC = () => {
 
       {/* 1. KPIs AVEC EFFETS DE SURVOL */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KpiCard title="Population Enrôlée" value="28.5M" trend="+2.4%" positive icon={<Users size={24} />} color="text-blue-600" bg="bg-blue-50" />
-        <KpiCard title="Naissances (Mensuel)" value="12,400" trend="+5.1%" positive icon={<Baby size={24} />} color="text-emerald-600" bg="bg-emerald-50" />
-        <KpiCard title="Taux de Couverture" value="94.2%" trend="+0.8%" positive icon={<Globe size={24} />} color="text-orange-600" bg="bg-orange-50" />
-        <KpiCard title="Alertes Sécurité" value="14" trend="-2.0%" positive icon={<ShieldAlert size={24} />} color="text-red-600" bg="bg-red-50" />
+        {loading ? (
+          <div className="col-span-4 flex justify-center items-center py-10">
+            <span className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-400" />
+          </div>
+        ) : (
+          <>
+            <KpiCard title="Population Enrôlée" value={dashData ? formatPop(dashData.citizens.total) : "28.5M"} trend="+2.4%" positive icon={<Users size={24} />} color="text-blue-600" bg="bg-blue-50" />
+            <KpiCard title="Naissances (Mensuel)" value={dashData ? dashData.vitalEvents.births.toLocaleString() : "12,400"} trend="+5.1%" positive icon={<Baby size={24} />} color="text-emerald-600" bg="bg-emerald-50" />
+            <KpiCard title="Taux de Couverture" value="94.2%" trend="+0.8%" positive icon={<Globe size={24} />} color="text-orange-600" bg="bg-orange-50" />
+            <KpiCard title="Alertes Sécurité" value={dashData ? String(dashData.incidents) : "14"} trend="-2.0%" positive icon={<ShieldAlert size={24} />} color="text-red-600" bg="bg-red-50" />
+          </>
+        )}
       </div>
 
       {/* 2. CARTOGRAPHIE (IX : FOCUS CARTE) */}

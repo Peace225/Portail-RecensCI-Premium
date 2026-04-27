@@ -1,7 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Shield, Crosshair, Fingerprint, AlertOctagon, Siren, Activity } from 'lucide-react';
+import { apiService } from '../../../services/apiService';
+
+interface PoliceData {
+  openIncidents: number;
+  graveIncidents: number;
+  fatalIncidents: number;
+  closedIncidents: number;
+  deployments: number;
+}
 
 export default function PoliceDashboard() {
+  const [policeData, setPoliceData] = useState<PoliceData | null>(null);
+
+  useEffect(() => {
+    apiService.get<PoliceData>('/analytics/police').then(setPoliceData).catch(() => {});
+  }, []);
+
+  const alertesFichier = policeData ? policeData.graveIncidents + policeData.fatalIncidents : 12;
   return (
     <div className="p-8 max-w-[1600px] mx-auto space-y-8">
       <header className="border-b border-blue-500/20 pb-6 flex justify-between items-end">
@@ -26,7 +42,7 @@ export default function PoliceDashboard() {
         {[
           { label: "Contrôles Biométriques (24h)", val: "3,402", icon: <Fingerprint />, color: "text-cyan-400", bg: "bg-cyan-500/10" },
           { label: "Unités Déployées", val: "84", icon: <Crosshair />, color: "text-blue-500", bg: "bg-blue-500/10" },
-          { label: "Alertes Fichier Criminel", val: "12", icon: <AlertOctagon />, color: "text-red-400", bg: "bg-red-500/10" },
+          { label: "Alertes Fichier Criminel", val: String(alertesFichier), icon: <AlertOctagon />, color: "text-red-400", bg: "bg-red-500/10" },
           { label: "Taux de Résolution AFIS", val: "99.1%", icon: <Activity />, color: "text-emerald-400", bg: "bg-emerald-500/10" },
         ].map((kpi, i) => (
           <div key={i} className="bg-[#050914] border border-blue-500/10 p-6 rounded-3xl relative overflow-hidden group">

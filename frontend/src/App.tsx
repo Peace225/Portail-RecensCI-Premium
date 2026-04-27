@@ -57,6 +57,9 @@ import DeathForm from "./modules/DeathForm";
 import MarriageForm from "./modules/MarriageForm";
 import DivorceForm from "./modules/DivorceForm";
 import DataExportModule from "./pages/Exports/DataExportModule";
+import IncidentReportForm from "./pages/Security/IncidentReportForm";
+import IncidentMap from "./pages/Security/IncidentMap";
+import MigrationFlowForm from "./pages/Migration/MigrationFlowForm";
 
 // --- Imports Backoffice (Accréditation & Citoyen) ---
 import AddAgent from "./backoffice/agents/AddAgent";
@@ -66,6 +69,10 @@ import AgentMessages from "./backoffice/agents/AgentMessages";
 import CitizenFlux from "./backoffice/citoyen/CitizenFlux";
 import CitizenDatabase from "./backoffice/citoyen/CitizenDatabase";
 import CitizenValidation from "./backoffice/citoyen/CitizenValidation";
+import AnalyticsPanel from "./backoffice/AnalyticsPanel";
+import EventFeed from "./backoffice/EventFeed";
+import Reports from "./backoffice/Reports";
+import UsersManagement from "./backoffice/UsersManagement";
 
 /* ==========================================
    🛡️ GARDIEN DE SÉCURITÉ UNIFIÉ (RBAC)
@@ -80,6 +87,7 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
   // Si le rôle de l'utilisateur n'est pas autorisé pour cette zone
   if (role && !allowedRoles.includes(role)) {
     if (role === 'ADMIN' || role === 'SUPER_ADMIN') return <Navigate to="/backoffice" replace />;
+    if (role === 'ENTITY_ADMIN') return <Navigate to="/portail/mairie" replace />;
     if (role === 'AGENT') return <Navigate to="/dashboard" replace />;
     return <Navigate to="/me" replace />;
   }
@@ -97,6 +105,7 @@ const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoggedIn) {
     if (role === 'ADMIN' || role === 'SUPER_ADMIN') return <Navigate to="/backoffice" replace />;
+    if (role === 'ENTITY_ADMIN') return <Navigate to="/portail/mairie" replace />;
     if (role === 'AGENT') return <Navigate to="/dashboard" replace />;
     return <Navigate to="/me" replace />;
   }
@@ -203,6 +212,10 @@ const App: React.FC = () => {
               <Route path="naissances" element={<BirthForm />} />
               <Route path="mariages" element={<MarriageForm />} />
               <Route path="deces" element={<DeathForm />} />
+              <Route path="divorces" element={<DivorceForm />} />
+              <Route path="migrations" element={<MigrationFlowForm />} />
+              <Route path="incidents" element={<IncidentReportForm />} />
+              <Route path="carte-incidents" element={<IncidentMap />} />
               <Route path="exports" element={<DataExportModule />} />
               <Route path="parametres" element={<Settings />} />
             </Route>
@@ -231,6 +244,12 @@ const App: React.FC = () => {
               <Route path="citoyen/flux" element={<CitizenFlux />} />
               <Route path="citoyen/database" element={<CitizenDatabase />} />
               <Route path="citoyen/validation" element={<CitizenValidation />} />
+
+              {/* --- Modules Analytics & Admin --- */}
+              <Route path="analytics" element={<AnalyticsPanel />} />
+              <Route path="events" element={<EventFeed />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="users" element={<UsersManagement />} />
             </Route>
 
             {/* Redirection automatique pour les URLs inconnues vers l'accueil ou 404 */}

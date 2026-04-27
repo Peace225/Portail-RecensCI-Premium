@@ -2,7 +2,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Définition stricte des rôles du système RecensCI
-export type UserRole = "CITIZEN" | "AGENT" | "ADMIN" | "SUPER_ADMIN";
+export type UserRole = "CITIZEN" | "AGENT" | "ENTITY_ADMIN" | "ADMIN" | "SUPER_ADMIN";
 
 export interface UserState {
   id: string | null;         // L'UID Supabase (UUID)

@@ -1,7 +1,7 @@
 // src/types/user.ts
 
 // 1. Définition stricte des rôles du système
-export type UserRole = "CITIZEN" | "AGENT" | "ADMIN" | "SUPER_ADMIN";
+export type UserRole = "CITIZEN" | "AGENT" | "ENTITY_ADMIN" | "ADMIN" | "SUPER_ADMIN";
 
 // 2. Interface globale de l'utilisateur (Correspond au state Redux)
 export interface User {
