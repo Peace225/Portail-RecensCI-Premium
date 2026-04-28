@@ -409,3 +409,82 @@ model SupportTicket {
 
   @@map("support_tickets")
 }
+
+// ─── AUDIT LOG (Module 15 — Administration & Audit) ──────────────────────────
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  VALIDATE
+  REJECT
+  ACCESS_DENIED
+}
+
+model AuditLog {
+  id           String      @id @default(uuid())
+  userId       String?     @map("user_id")       // Qui a fait l'action
+  userEmail    String?     @map("user_email")
+  userRole     String?     @map("user_role")
+  action       AuditAction
+  resource     String                             // Ex: "BirthRecord", "Citizen", "User"
+  resourceId   String?     @map("resource_id")   // ID de la ressource concernée
+  description  String?                            // Détail lisible
+  ipAddress    String?     @map("ip_address")
+  userAgent    String?     @map("user_agent")
+  metadata     Json?       @default("{}")         // Données supplémentaires (avant/après)
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ─── API KEY (Module 16 — Exports & API Partenaires) ─────────────────────────
+
+enum ApiKeyStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+  EXPIRED
+}
+
+model ApiKey {
+  id            String       @id @default(uuid())
+  name          String                             // Nom du partenaire / usage
+  keyHash       String       @unique @map("key_hash") // Hash de la clé (jamais en clair)
+  keyPrefix     String       @map("key_prefix")   // Préfixe visible ex: "rci_live_xxxx"
+  organizationName String?   @map("organization_name")
+  contactEmail  String?      @map("contact_email")
+  permissions   Json         @default("[]")        // ["read:births", "read:deaths", ...]
+  rateLimit     Int          @default(1000) @map("rate_limit") // Requêtes/heure
+  status        ApiKeyStatus @default(ACTIVE)
+  expiresAt     DateTime?    @map("expires_at")
+  lastUsedAt    DateTime?    @map("last_used_at")
+  createdBy     String?      @map("created_by")   // userId admin
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  usageLogs ApiKeyUsageLog[]
+
+  @@map("api_keys")
+}
+
+model ApiKeyUsageLog {
+  id        String   @id @default(uuid())
+  apiKeyId  String   @map("api_key_id")
+  endpoint  String
+  method    String
+  status    Int      // HTTP status code
+  createdAt DateTime @default(now()) @map("created_at")
+
+  apiKey ApiKey @relation(fields: [apiKeyId], references: [id])
+
+  @@index([apiKeyId])
+  @@index([createdAt])
+  @@map("api_key_usage_logs")
+}
