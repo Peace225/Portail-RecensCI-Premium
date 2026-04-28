@@ -2,10 +2,24 @@ import React from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Shield, Users, Crosshair, Fingerprint, LogOut, ChevronRight, Server, Activity } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function PoliceLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useSelector((state: RootState) => state.user);
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
+  const initials = user.name
+    ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'PO';
 
   const menuItems = [
     { name: "QG Opérationnel", path: "/portail/police", icon: <Activity size={18} />, exact: true },
@@ -67,10 +81,21 @@ export default function PoliceLayout() {
         </nav>
 
         <div className="mt-6 pt-6 border-t border-white/5">
-          <button className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors justify-center group">
-            <LogOut size={14} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Déconnexion Tactique</span>
-          </button>
+          <div className="bg-black/40 p-4 rounded-2xl border border-white/5 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-black text-sm">
+                {initials}
+              </div>
+              <div>
+                <p className="text-xs font-black text-white uppercase truncate max-w-[140px]">{user.name || 'Admin Police'}</p>
+                <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest">Admin Police</p>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors justify-center group">
+              <LogOut size={14} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Déconnexion</span>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -78,7 +103,9 @@ export default function PoliceLayout() {
         <header className="shrink-0 z-50 bg-[#050914]/60 backdrop-blur-xl border-b border-blue-500/20 h-20 flex justify-between items-center px-8 shadow-md">
            <div className="flex items-center gap-2">
              <Shield size={16} className="text-blue-500" />
-             <span className="text-xs font-black text-white uppercase tracking-widest">Préfecture Abidjan</span>
+             <span className="text-xs font-black text-white uppercase tracking-widest">
+               {user.name || 'Portail Police'}
+             </span>
            </div>
            
            <div className="flex items-center gap-2 text-[9px] font-mono text-cyan-400 bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/30">

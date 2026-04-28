@@ -6,15 +6,28 @@ import {
   Database, Map, BadgeCheck, UserCircle, Eye, Cpu, Activity, 
   UserPlus, Users, MapPin, Send, Video, Flame, BellRing, Lock, 
   Crosshair, Box, BarChart2,
-  // 👉 NOUVELLES ICÔNES (Système & Core)
   Server, HardDrive, Network, Rocket, Terminal, History, AlertOctagon, 
   Sliders, Key, Webhook, Monitor
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
+import { useAuth } from "../hooks/useAuth";
 
 const BackofficeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useSelector((state: RootState) => state.user);
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
+  const initials = user.name
+    ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'SA';
 
   // On ouvre tous les menus par défaut pour que tu voies l'arborescence complète
   const [expandedMenus, setExpandedMenus] = useState<string[]>([
@@ -247,7 +260,7 @@ const BackofficeLayout = () => {
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
               </div>
             </div>
-            <button className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-colors justify-center group">
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-colors justify-center group">
               <LogOut size={14} className="group-hover:-translate-x-1 transition-transform" />
               <span className="text-[10px] font-black uppercase tracking-widest">Déconnexion</span>
             </button>
@@ -270,13 +283,15 @@ const BackofficeLayout = () => {
            
            <div className="flex items-center gap-5">
               <div className="text-right">
-                <p className="text-xs font-black text-white uppercase tracking-wider">Gael Kouhame</p>
-                <p className="text-[9px] font-bold text-cyan-400 uppercase tracking-[0.2em] mt-0.5">Superviseur Admin</p>
+                <p className="text-xs font-black text-white uppercase tracking-wider">{user.name || 'Super Admin'}</p>
+                <p className="text-[9px] font-bold text-cyan-400 uppercase tracking-[0.2em] mt-0.5">
+                  {user.role === 'SUPER_ADMIN' ? 'Superviseur Admin' : 'Administrateur'}
+                </p>
               </div>
               <div className="relative">
                 <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 p-0.5 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
                    <div className="w-full h-full bg-[#020617] rounded-full border-2 border-transparent flex items-center justify-center overflow-hidden">
-                      <span className="text-white font-black text-sm">GK</span>
+                      <span className="text-white font-black text-sm">{initials}</span>
                    </div>
                 </div>
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#050914] rounded-full" />
