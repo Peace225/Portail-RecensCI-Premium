@@ -1,17 +1,25 @@
 // src/pages/StatsDashboard.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Activity, Users, Zap, ShieldCheck, TrendingUp } from "lucide-react";
-
-// Données fictives pour le graphique
-const data = [
-  { name: "Lun", val: 400 }, { name: "Mar", val: 700 },
-  { name: "Mer", val: 500 }, { name: "Jeu", val: 900 },
-  { name: "Ven", val: 650 }, { name: "Sam", val: 1100 },
-];
+import { apiService } from "../services/apiService";
 
 const StatsDashboard = () => {
-  return (
+  const [stats, setStats] = useState({ citizens: 0, births: 0, incidents: 0 });
+  const [trend, setTrend] = useState([
+    { name: "Lun", val: 400 }, { name: "Mar", val: 700 },
+    { name: "Mer", val: 500 }, { name: "Jeu", val: 900 },
+    { name: "Ven", val: 650 }, { name: "Sam", val: 1100 },
+  ]);
+
+  useEffect(() => {
+    apiService.get<any>('/analytics/dashboard').then(d => {
+      setStats({ citizens: d?.citizens?.total || 0, births: d?.vitalEvents?.births || 0, incidents: d?.incidents || 0 });
+    }).catch(() => {});
+    apiService.get<any[]>('/analytics/trend').then(d => {
+      if (Array.isArray(d) && d.length) setTrend(d.map(t => ({ name: t.date || t.month, val: t.naissances || 0 })));
+    }).catch(() => {});
+  }, []);
     // AJUSTEMENT : pt-32 pour descendre le contenu sous le Header
     <div className="min-h-screen bg-[#020617] pt-32 p-8 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 relative overflow-hidden">
       
@@ -35,19 +43,19 @@ const StatsDashboard = () => {
         <StatCard 
           icon={<Users className="text-blue-500" size={24} />} 
           label="Citoyens Enregistrés" 
-          value="2.4M" 
+          value={stats.citizens > 0 ? stats.citizens.toLocaleString() : "2.4M"} 
           trend="+12%"
         />
         <StatCard 
           icon={<Zap className="text-orange-500" size={24} />} 
-          label="Requêtes / Seconde" 
-          value="842" 
+          label="Naissances Enregistrées" 
+          value={stats.births > 0 ? stats.births.toLocaleString() : "842"} 
           trend="Stable"
         />
         <StatCard 
           icon={<ShieldCheck className="text-emerald-500" size={24} />} 
-          label="Intégrité Système" 
-          value="99.9%" 
+          label="Incidents Sécurité" 
+          value={stats.incidents > 0 ? stats.incidents.toLocaleString() : "0"} 
           trend="Optimal"
         />
       </div>
@@ -68,7 +76,7 @@ const StatsDashboard = () => {
 
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
+            <AreaChart data={trend}>
               <defs>
                 <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>

@@ -7,8 +7,7 @@ import {
   Activity, Wifi, Stethoscope, Utensils, Droplets, Phone
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-
-// ---> IMPORT DU COMPOSANT D'UPLOAD CLOUDINARY <---
+import { apiService } from "../../services/apiService";
 import DocumentUploadHUD from "../../components/DocumentUploadHUD";
 
 interface FamilyMember {
@@ -50,22 +49,27 @@ const CensusDetails = () => {
     setMembers(members.map(m => m.id === id ? { ...m, photoUrl: url } : m));
   };
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async () => {
     setIsSubmitting(true);
     
-    // Vérification basique
     if (!declarantPhotoUrl) {
       toast.error("La photo du Chef de Ménage est requise.");
       setIsSubmitting(false);
       return;
     }
 
-    setTimeout(() => {
+    try {
+      await apiService.post('/citizens', {
+        fullName: '',
+        photoUrl: declarantPhotoUrl,
+        household: members,
+      });
+      toast.success("Données transmises au Cloud Souverain");
+    } catch {
+      toast.error("Erreur lors de la transmission");
+    } finally {
       setIsSubmitting(false);
-      toast.success("Données transmises au Cloud Souverain 🇨🇮");
-      console.log("Photo Déclarant:", declarantPhotoUrl);
-      console.log("Membres:", members);
-    }, 3000);
+    }
   };
 
   return (
