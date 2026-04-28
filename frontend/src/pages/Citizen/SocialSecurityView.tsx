@@ -1,17 +1,32 @@
 // src/pages/citizen/SocialSecurityView.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
   ShieldCheck, GraduationCap, ArrowRight, Clock, 
   TrendingUp, Landmark, ShieldAlert, Wallet, 
   Activity, Zap, Download, BarChart3
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { apiService } from "../../services/apiService";
 
 // --- CONFIGURATION DU GRAPHIQUE (DATA) ---
 const chartData = [30, 45, 35, 60, 55, 70, 65, 80, 75, 90, 85, 100]; // Évolution simulée
 const months = ["AVR", "MAI", "JUI", "JUL", "AOU", "SEP", "OCT", "NOV", "DEC", "JAN", "FEB", "MAR"];
 
 const SocialSecurityView: React.FC = () => {
+  const userId = useSelector((state: RootState) => state.user.id);
+  const [benefits, setBenefits] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!userId) return;
+    apiService.get<any[]>(`/citizens/${userId}/social-benefits`).then((data) => {
+      if (data && data.length > 0) setBenefits(data);
+    }).catch(() => {
+      // Fall back to static data
+    });
+  }, [userId]);
+
   return (
     <div className="min-h-screen bg-[#020617] text-slate-300 p-4 md:p-10 pt-24 relative overflow-hidden font-sans">
       

@@ -1,10 +1,37 @@
 // src/pages/Migration/MigrationFlowForm.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "../../components/Card";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+import { apiService } from "../../services/apiService";
+import { toast } from "react-hot-toast";
 
 const MigrationFlowForm = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const raw = Object.fromEntries(formData.entries());
+
+    try {
+      await apiService.post('/events/migration', {
+        citizenName: raw.fullName || '',
+        originCity: raw.nationality || '',
+        destinationCity: raw.hostAddress || '',
+        migrationType: raw.reason || 'TRAVAIL',
+        migrationDate: raw.arrivalDate || '',
+      });
+      toast.success("Entrée enregistrée avec succès.");
+      (e.target as HTMLFormElement).reset();
+    } catch {
+      toast.error("Erreur lors de l'enregistrement.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <header className="mb-8">
@@ -12,7 +39,7 @@ const MigrationFlowForm = () => {
         <p className="text-gray-500">Contrôle des entrées et résidences (Expatriés / Réfugiés / Travailleurs).</p>
       </header>
 
-      <form className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card title="Identité de l'Individu">
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
             <Input name="fullName" label="Nom Complet" required />
@@ -42,7 +69,7 @@ const MigrationFlowForm = () => {
 
         <div className="flex justify-end gap-4">
           <Button variant="outline">Annuler</Button>
-          <Button type="submit">Valider l'entrée</Button>
+          <Button type="submit" isLoading={loading}>Valider l'entrée</Button>
         </div>
       </form>
     </div>

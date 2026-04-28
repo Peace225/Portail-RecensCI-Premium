@@ -6,11 +6,15 @@ import {
   Navigation, Activity, Info, Cpu, LocateFixed, Compass 
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { apiService } from "../../services/apiService";
 
 const AddressChange = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [locationData, setLocationData] = useState({ city: "", district: "" });
+  const userId = useSelector((state: RootState) => state.user.id);
 
   // SIMULATION DU SCAN GPS (SONAR)
   const handleGPSScan = () => {
@@ -24,12 +28,21 @@ const AddressChange = () => {
     }, 3000);
   };
 
-  const handleMigration = () => {
+  const handleMigration = async () => {
     setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
+    try {
+      if (userId) {
+        await apiService.patch(`/citizens/${userId}/address`, {
+          address: locationData.district,
+          city: locationData.city,
+        });
+      }
       toast.success("Nœud de résidence mis à jour avec succès");
-    }, 2500);
+    } catch {
+      toast.error("Erreur lors de la mise à jour de l'adresse.");
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   return (

@@ -7,6 +7,7 @@ import {
   Activity, Cpu, Zap, Target, Crosshair
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { apiService } from "../../services/apiService";
 
 const styles = `
   @keyframes ripple {
@@ -37,28 +38,56 @@ const CitizenEmergency: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [incidentType, setIncidentType] = useState<string | null>(null);
 
-  const handleAlert = (e: React.FormEvent) => {
+  const handleAlert = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!incidentType) {
       toast.error("Veuillez définir la nature de l'urgence");
       return;
     }
     setLoading(true);
-    
-    setTimeout(() => {
-      toast.success("ALERTE CRITIQUE : REÇUE PAR LE NŒUD DE SÉCURITÉ", {
-        duration: 5000,
-        style: { 
-          borderRadius: '20px', 
-          background: '#450a0a', 
-          color: '#fff', 
-          border: '2px solid #ef4444',
-          fontSize: '11px',
-          fontWeight: '900'
-        }
-      });
-      setLoading(false);
-    }, 2500);
+
+    const form = e.currentTarget;
+    const textarea = form.querySelector<HTMLTextAreaElement>('textarea');
+    const description = textarea?.value || '';
+
+    const payload: any = {
+      type: incidentType,
+      description,
+      location: 'Abidjan, CI',
+      latitude: null as number | null,
+      longitude: null as number | null,
+    };
+
+    const sendAlert = async (lat?: number, lng?: number) => {
+      if (lat !== undefined) { payload.latitude = lat; payload.longitude = lng; }
+      try {
+        await apiService.post('/security/emergency', payload);
+        toast.success("ALERTE CRITIQUE : REÇUE PAR LE NŒUD DE SÉCURITÉ", {
+          duration: 5000,
+          style: { 
+            borderRadius: '20px', 
+            background: '#450a0a', 
+            color: '#fff', 
+            border: '2px solid #ef4444',
+            fontSize: '11px',
+            fontWeight: '900'
+          }
+        });
+      } catch {
+        toast.error("Erreur lors de l'envoi de l'alerte.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => sendAlert(pos.coords.latitude, pos.coords.longitude),
+        () => sendAlert()
+      );
+    } else {
+      sendAlert();
+    }
   };
 
   return (

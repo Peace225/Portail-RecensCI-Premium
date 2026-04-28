@@ -1,19 +1,16 @@
 // src/pages/Security/IncidentReportForm.tsx
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addEventToQueue } from "../../store/vitalEventSlice";
 import { notify } from "../../services/notificationService";
 import { Card, CardContent } from "../../components/Card";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
-import { v4 as uuidv4 } from "uuid";
+import { apiService } from "../../services/apiService";
 
 interface Props {
   mode: 'ACCIDENT' | 'HOMICIDE';
 }
 
 const IncidentReportForm: React.FC<Props> = ({ mode }) => {
-  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,25 +20,30 @@ const IncidentReportForm: React.FC<Props> = ({ mode }) => {
     const formData = new FormData(e.currentTarget);
     const rawData = Object.fromEntries(formData.entries());
 
-    // Capture GPS pour la carte de chaleur (Heatmap)
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const incident = {
-        id: uuidv4(),
-        type: mode === 'ACCIDENT' ? 'ACCIDENT_ROUTE' : 'HOMICIDE',
-        status: 'PENDING' as const,
-        agentId: "POLICE_ID_789", // À extraire du store Auth
-        structureId: "COMMISSARIAT_YOP_04",
-        location: { lat: pos.coords.latitude, lng: pos.coords.longitude },
-        data: rawData,
-        createdAt: new Date().toISOString(),
-        attachments: []
-      };
+    const sendIncident = async (lat?: number, lng?: number) => {
+      try {
+        await apiService.post('/security/incidents', {
+          type: mode === 'ACCIDENT' ? 'ACCIDENT_ROUTE' : 'HOMICIDE',
+          severity: rawData.severity || 'LÉGER',
+          location: rawData.locationName || '',
+          latitude: lat ?? null,
+          longitude: lng ?? null,
+          description: rawData.summary || '',
+          judicialFollowup: false,
+        });
+        notify.success(`${mode} enregistré et géolocalisé.`);
+        (e.target as HTMLFormElement).reset();
+      } catch {
+        notify.error(`Erreur lors de l'enregistrement du signalement.`);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      dispatch(addEventToQueue(incident as any));
-      notify.success(`${mode} enregistré et géolocalisé.`);
-      setLoading(false);
-      (e.target as HTMLFormElement).reset();
-    });
+    navigator.geolocation.getCurrentPosition(
+      (pos) => sendIncident(pos.coords.latitude, pos.coords.longitude),
+      () => sendIncident()
+    );
   };
 
   return (

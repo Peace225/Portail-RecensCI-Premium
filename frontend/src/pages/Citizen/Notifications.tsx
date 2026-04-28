@@ -1,5 +1,5 @@
 // src/pages/citizen/Notifications.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Bell, CheckCircle2, AlertCircle, Info, 
@@ -7,6 +7,7 @@ import {
   Activity, ShieldCheck, Zap, Cpu, MessageSquare, Archive
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { apiService } from "../../services/apiService";
 
 interface Notification {
   id: number;
@@ -61,12 +62,29 @@ const styles = `
 const Notifications: React.FC = () => {
   const [notifs, setNotifs] = useState<Notification[]>(initialNotifications);
 
+  useEffect(() => {
+    apiService.get<any[]>('/notifications').then((data) => {
+      const mapped: Notification[] = data.map((n: any) => ({
+        id: n.id,
+        title: n.title || n.type || 'Notification',
+        message: n.message || n.content || '',
+        time: n.createdAt ? new Date(n.createdAt).toLocaleString() : '',
+        type: n.type === 'ALERT' ? 'alert' : n.type === 'SUCCESS' ? 'success' : 'info',
+        isRead: n.isRead ?? false,
+      }));
+      if (mapped.length > 0) setNotifs(mapped);
+    }).catch(() => {
+      // Fall back to mock data
+    });
+  }, []);
+
   const markAllRead = () => {
     setNotifs(notifs.map(n => ({ ...n, isRead: true })));
     toast.success("Flux synchronisé : Tous les messages sont lus");
   };
 
   const deleteNotif = (id: number) => {
+    apiService.patch(`/notifications/${id}/read`, {}).catch(() => {});
     setNotifs(notifs.filter(n => n.id !== id));
     toast.error("Entrée de log archivée");
   };

@@ -6,6 +6,7 @@ import {
   Wifi, Smartphone, ShieldCheck, DownloadCloud
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { apiService } from '../../services/apiService';
 
 // --- DONNÉES SIMULÉES ---
 const HOURLY_DATA = [
@@ -35,6 +36,16 @@ const INITIAL_FEED = [
 
 export default function AgentData() {
   const [liveFeed, setLiveFeed] = useState(INITIAL_FEED);
+  const [kpiData, setKpiData] = useState<{ totalAgents: number; syncedDevices: number } | null>(null);
+
+  useEffect(() => {
+    apiService.get<any>('/analytics/dashboard').then((data) => {
+      setKpiData({
+        totalAgents: data?.agents?.total ?? data?.totalAgents ?? null,
+        syncedDevices: data?.devices?.synced ?? data?.syncedDevices ?? null,
+      });
+    }).catch(() => {});
+  }, []);
 
   // Simulation d'arrivée de nouvelles données en temps réel
   useEffect(() => {
@@ -87,10 +98,10 @@ export default function AgentData() {
         {/* Mini KPI Cards */}
         <div className="grid grid-cols-4 gap-4">
            {[
-             { label: "Dossiers Enrôlés (Aujourd'hui)", val: "4,150", icon: <CheckCircle size={16}/>, color: "text-emerald-400", border: "border-emerald-500/30" },
+             { label: "Dossiers Enrôlés (Aujourd'hui)", val: kpiData?.totalAgents != null ? String(kpiData.totalAgents) : "4,150", icon: <CheckCircle size={16}/>, color: "text-emerald-400", border: "border-emerald-500/30" },
              { label: "Paquets en Attente (Hors-Ligne)", val: "142", icon: <Clock size={16}/>, color: "text-amber-400", border: "border-amber-500/30" },
              { label: "Échecs de Transfert", val: "12", icon: <AlertTriangle size={16}/>, color: "text-rose-400", border: "border-rose-500/30" },
-             { label: "Terminaux Synchronisés", val: "94%", icon: <Smartphone size={16}/>, color: "text-cyan-400", border: "border-cyan-500/30" },
+             { label: "Terminaux Synchronisés", val: kpiData?.syncedDevices != null ? `${kpiData.syncedDevices}%` : "94%", icon: <Smartphone size={16}/>, color: "text-cyan-400", border: "border-cyan-500/30" },
            ].map((kpi, i) => (
              <div key={i} className={`bg-[#050914]/80 backdrop-blur-xl border ${kpi.border} rounded-2xl p-4 flex items-center gap-4 shadow-lg`}>
                 <div className={`p-3 rounded-xl bg-white/5 ${kpi.color}`}>{kpi.icon}</div>

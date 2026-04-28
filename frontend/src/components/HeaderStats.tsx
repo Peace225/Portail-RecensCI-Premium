@@ -1,14 +1,21 @@
 // src/components/HeaderStats.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ShieldCheck, Cpu, Lock, Activity, Globe } from "lucide-react";
+import { apiService } from "../services/apiService";
 
 const HeaderStats = () => {
+  const [dashData, setDashData] = useState<any>(null);
+
+  useEffect(() => {
+    apiService.get<any>('/analytics/dashboard').then(setDashData).catch(() => {});
+  }, []);
+
   const stats = [
     { label: "SÉCURITÉ", value: "NIVEAU 5", icon: <ShieldCheck size={10} />, color: "text-emerald-500" },
-    { label: "NŒUDS ACTIFS", value: "4,829", icon: <Cpu size={10} />, color: "text-orange-500" },
+    { label: "CITOYENS", value: dashData?.citizens?.total != null ? String(dashData.citizens.total) : "4,829", icon: <Cpu size={10} />, color: "text-orange-500" },
     { label: "ENCRYPTAGE", value: "AES-512", icon: <Lock size={10} />, color: "text-blue-500" },
-    { label: "STATUT SYSTÈME", value: "OPÉRATIONNEL", icon: <Activity size={10} />, color: "text-emerald-500" },
-    { label: "IA SOUVERAINE", value: "ACTIVE", icon: <Globe size={10} />, color: "text-orange-500" },
+    { label: "NAISSANCES", value: dashData?.vitalEvents?.births != null ? String(dashData.vitalEvents.births) : "OPÉRATIONNEL", icon: <Activity size={10} />, color: "text-emerald-500" },
+    { label: "INCIDENTS", value: dashData?.incidents != null ? String(dashData.incidents) : "ACTIVE", icon: <Globe size={10} />, color: "text-orange-500" },
   ];
 
   const scrollingStats = [...stats, ...stats, ...stats];

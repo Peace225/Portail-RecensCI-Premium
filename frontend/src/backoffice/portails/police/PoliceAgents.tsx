@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Search, Crosshair, MapPin, Radio, ShieldCheck } from 'lucide-react';
+import { apiService } from '../../../services/apiService';
 
-const POLICE_AGENTS = [
+const POLICE_AGENTS_MOCK = [
   { id: "MAT-771-A", name: "BOKA Arthur", rank: "COMMISSAIRE", unit: "Anti-Criminalité", status: "online", zone: "Zone Sud" },
   { id: "MAT-882-B", name: "KONE Seydou", rank: "OFFICIER", unit: "Immigration", status: "online", zone: "Aéroport FHB" },
   { id: "MAT-904-C", name: "DIABY Awa", rank: "PATROUILLE", unit: "Voie Publique", status: "offline", zone: "Zone Nord" },
@@ -10,6 +11,27 @@ const POLICE_AGENTS = [
 
 export default function PoliceAgents() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [agents, setAgents] = useState<any[]>(POLICE_AGENTS_MOCK);
+
+  useEffect(() => {
+    apiService.get<any[]>('/agents').then((data) => {
+      if (data && data.length > 0) {
+        setAgents(data.map((a: any) => ({
+          id: a.id || a.matricule || '',
+          name: a.fullName || a.name || '',
+          rank: a.role || a.rank || 'AGENT',
+          unit: a.institution?.name || a.unit || '—',
+          status: 'online',
+          zone: a.institution?.type || a.zone || '—',
+        })));
+      }
+    }).catch(() => {});
+  }, []);
+
+  const filteredAgents = agents.filter(a =>
+    (a.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (a.id || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getRankBadge = (rank: string) => {
     switch(rank) {
@@ -54,7 +76,7 @@ export default function PoliceAgents() {
         
         <div className="overflow-y-auto custom-scrollbar flex-1 p-2">
           <AnimatePresence>
-            {POLICE_AGENTS.map((agent, index) => (
+            {filteredAgents.map((agent, index) => (
               <motion.div 
                 key={agent.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}
                 className="grid grid-cols-12 gap-4 p-4 items-center bg-black/40 mb-2 rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-colors group"
