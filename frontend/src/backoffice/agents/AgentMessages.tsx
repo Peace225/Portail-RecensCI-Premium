@@ -1,15 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send, Lock, ShieldCheck, Search, MessageSquare, AlertTriangle } from 'lucide-react';
+import { apiService } from '../../services/apiService';
 
-const CHATS = [
+const MOCK_CHATS = [
   { id: 1, name: "KOFFI Alain", lastMsg: "Zone sécurisée, enrôlement en cours.", time: "10:42", unread: 0, status: "online" },
   { id: 2, name: "ÉQUIPE ALPHA - Yopougon", lastMsg: "Besoin de batteries supplémentaires.", time: "10:15", unread: 2, status: "alert" },
   { id: 3, name: "TOURE Mariam", lastMsg: "Fin de service confirmée.", time: "Hier", unread: 0, status: "offline" },
 ];
 
+type Chat = { id: number | string; name: string; lastMsg: string; time: string; unread: number; status: string };
+type Message = { id?: string; content: string; fromMe: boolean; time: string };
+
 export default function AgentMessages() {
-  const [activeChat, setActiveChat] = useState(CHATS[0]);
+  const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
+  const [activeChat, setActiveChat] = useState<Chat>(MOCK_CHATS[0]);
+  const [messages, setMessages] = useState<Message[]>([
+    { content: "Superviseur, nous avons un problème avec la tablette T-45.", fromMe: false, time: "10:12" },
+    { content: "Bien reçu. Restez sur place, je déclenche le protocole de diagnostic à distance.", fromMe: true, time: "10:14" },
+  ]);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    apiService.get<any[]>('/agents')
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped: Chat[] = data.map((a: any) => ({
+            id: a.id,
+            name: a.fullName,
+            lastMsg: 'Aucun message',
+            time: '',
+            unread: 0,
+            status: 'online',
+          }));
+          setChats(mapped);
+          setActiveChat(mapped[0]);
+        }
+      })
+      .catch(() => {
+        // keep mock data
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!activeChat?.id) return;
+    apiService.get<any[]>(`/agents/${activeChat.id}/messages`)
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setMessages(data.map((m: any) => ({
+            id: m.id,
+            content: m.content,
+            fromMe: m.fromMe ?? false,
+            time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '',
+          })));
+        }
+      })
+      .catch(() => {});
+  }, [activeChat?.id]);
+
+  const handleSend = async () => {
+    if (!message.trim()) return;
+    try {
+      await apiService.post(`/agents/${activeChat.id}/messages`, { content: message });
+    } catch {
+      // best-effort
+    }
+    setMessage("");
+  };
 
   return (
     <div className="p-8 max-w-[1600px] mx-auto h-full flex flex-col">
@@ -38,7 +94,7 @@ export default function AgentMessages() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
-            {CHATS.map(chat => (
+            {chats.map(chat => (
               <div key={chat.id} onClick={() => setActiveChat(chat)} className={`p-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${activeChat.id === chat.id ? 'bg-purple-500/10 border-l-2 border-l-purple-500' : ''}`}>
                 <div className="flex justify-between items-start mb-1">
                   <h4 className={`text-xs font-black uppercase ${activeChat.id === chat.id ? 'text-white' : 'text-slate-300'}`}>{chat.name}</h4>
@@ -66,28 +122,28 @@ export default function AgentMessages() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {/* Mock messages */}
             <div className="flex justify-center mb-6">
               <span className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[9px] font-bold text-slate-500 uppercase tracking-widest">Aujourd'hui</span>
             </div>
-            <div className="flex flex-col gap-1 items-start">
-              <div className="bg-slate-800/80 text-white p-3 rounded-2xl rounded-tl-sm text-sm border border-white/5 max-w-[80%]">Superviseur, nous avons un problème avec la tablette T-45.</div>
-              <span className="text-[9px] text-slate-500 font-mono ml-1">10:12</span>
-            </div>
-            <div className="flex flex-col gap-1 items-end">
-              <div className="bg-purple-600 text-white p-3 rounded-2xl rounded-tr-sm text-sm shadow-[0_0_15px_rgba(168,85,247,0.3)] max-w-[80%]">Bien reçu. Restez sur place, je déclenche le protocole de diagnostic à distance.</div>
-              <span className="text-[9px] text-purple-400/60 font-mono mr-1">10:14</span>
-            </div>
+            {messages.map((msg, i) => (
+              <div key={i} className={`flex flex-col gap-1 ${msg.fromMe ? 'items-end' : 'items-start'}`}>
+                <div className={`p-3 rounded-2xl text-sm border max-w-[80%] ${msg.fromMe ? 'bg-purple-600 text-white rounded-tr-sm shadow-[0_0_15px_rgba(168,85,247,0.3)] border-transparent' : 'bg-slate-800/80 text-white rounded-tl-sm border-white/5'}`}>
+                  {msg.content}
+                </div>
+                <span className={`text-[9px] font-mono ${msg.fromMe ? 'text-purple-400/60 mr-1' : 'text-slate-500 ml-1'}`}>{msg.time}</span>
+              </div>
+            ))}
           </div>
 
           <div className="p-4 border-t border-white/5 bg-black/40">
             <div className="relative flex items-center">
               <input 
                 type="text" value={message} onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="TRANSMETTRE UN ORDRE..." 
                 className="w-full bg-slate-900 border border-white/10 rounded-xl pl-4 pr-12 py-4 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors uppercase"
               />
-              <button className="absolute right-2 bg-purple-600 hover:bg-purple-500 p-2 rounded-lg text-white transition-colors shadow-lg">
+              <button onClick={handleSend} className="absolute right-2 bg-purple-600 hover:bg-purple-500 p-2 rounded-lg text-white transition-colors shadow-lg">
                 <Send size={18} />
               </button>
             </div>

@@ -1,32 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Search, ShieldCheck, UserPlus, 
   MapPin, Activity, Filter, CheckCircle, Crosshair
 } from 'lucide-react';
-
-// --- Données Simulées (Croisées avec les rôles Supabase) ---
-const MAIRIE_AGENTS = [
-  { id: "AGN-YOP-001", name: "KOUASSI Jean", role: "DEPT_HEAD", department: "État Civil", service: "Tous", status: "online", phone: "0102030405" },
-  { id: "AGN-YOP-045", name: "TRAORE Seydou", role: "SERVICE_HEAD", department: "État Civil", service: "Naissances", status: "online", phone: "0708091011" },
-  { id: "AGN-YOP-112", name: "BAMBA Aminata", role: "AGENT", department: "État Civil", service: "Naissances", status: "offline", phone: "0506070809" },
-  { id: "AGN-YOP-089", name: "YAO Akissi", role: "AGENT", department: "État Civil", service: "Mariages", status: "online", phone: "0144556677" },
-  { id: "AGN-YOP-201", name: "KONE Yacouba", role: "AGENT", department: "Action Sociale", service: "Sinistres", status: "alert", phone: "0788990011" },
-];
+import { apiService } from '../../../services/apiService';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
 
 export default function MairieAgents() {
+  const [agents, setAgents] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const institutionId = useSelector((state: RootState) => state.user.structureId);
 
-  const filteredAgents = MAIRIE_AGENTS.filter(a => 
-    a.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    a.id.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    const url = institutionId ? `/agents?institutionId=${institutionId}` : '/agents';
+    apiService.get<any[]>(url).then(setAgents).catch(() => {});
+  }, [institutionId]);
+
+  const filteredAgents = agents.filter(a =>
+    (a.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (a.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getRoleBadge = (role: string) => {
     switch(role) {
-      case 'DEPT_HEAD': return <span className="bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest">Directeur</span>;
-      case 'SERVICE_HEAD': return <span className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest">Chef Service</span>;
-      default: return <span className="bg-slate-500/20 text-slate-400 border border-slate-500/30 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest">Agent</span>;
+      case 'ENTITY_ADMIN': return <span className="bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest">Admin</span>;
+      case 'AGENT': return <span className="bg-slate-500/20 text-slate-400 border border-slate-500/30 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest">Agent</span>;
+      default: return <span className="bg-slate-500/20 text-slate-400 border border-slate-500/30 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest">{role}</span>;
     }
   };
 
@@ -64,11 +65,11 @@ export default function MairieAgents() {
       <div className="grid grid-cols-4 gap-4 mb-6">
         <div className="bg-black/40 border border-white/5 p-4 rounded-2xl flex items-center gap-4">
           <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl"><Users size={18}/></div>
-          <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Total Effectif</p><p className="text-xl font-black text-white">45</p></div>
+          <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Total Effectif</p><p className="text-xl font-black text-white">{agents.length}</p></div>
         </div>
         <div className="bg-black/40 border border-white/5 p-4 rounded-2xl flex items-center gap-4">
           <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl"><Activity size={18}/></div>
-          <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">En Service (Live)</p><p className="text-xl font-black text-white">32</p></div>
+          <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Agents de terrain</p><p className="text-xl font-black text-white">{agents.filter(a => a.role === 'AGENT').length}</p></div>
         </div>
       </div>
 
@@ -90,43 +91,24 @@ export default function MairieAgents() {
                 key={agent.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}
                 className="grid grid-cols-12 gap-4 p-4 border-b border-white/5 items-center hover:bg-white/5 transition-colors group"
               >
-                {/* Identité */}
                 <div className="col-span-3 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center relative">
-                    <span className="text-xs font-black text-white">{agent.name.charAt(0)}</span>
-                    <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#050914] ${
-                      agent.status === 'online' ? 'bg-emerald-500' : agent.status === 'alert' ? 'bg-rose-500' : 'bg-slate-500'
-                    }`} />
+                    <span className="text-xs font-black text-white">{(agent.fullName || '?').charAt(0)}</span>
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#050914] bg-emerald-500" />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-white uppercase">{agent.name}</p>
-                    <p className="text-[10px] font-mono text-amber-500 tracking-widest mt-0.5">{agent.id}</p>
+                    <p className="text-xs font-black text-white uppercase">{agent.fullName}</p>
+                    <p className="text-[10px] font-mono text-amber-500 tracking-widest mt-0.5">{agent.email}</p>
                   </div>
                 </div>
-                
-                {/* Rôle */}
-                <div className="col-span-2 flex justify-center">
-                  {getRoleBadge(agent.role)}
-                </div>
-
-                {/* Affectation */}
-                <div className="col-span-2 text-xs font-bold text-slate-300 uppercase truncate">
-                  {agent.department}
-                </div>
+                <div className="col-span-2 flex justify-center">{getRoleBadge(agent.role)}</div>
+                <div className="col-span-2 text-xs font-bold text-slate-300 uppercase truncate">{agent.institution?.name || '—'}</div>
                 <div className="col-span-2 flex items-center gap-2 text-slate-400">
                   <MapPin size={12} className="text-amber-500" />
-                  <span className="text-[10px] font-bold uppercase truncate">{agent.service}</span>
+                  <span className="text-[10px] font-bold uppercase truncate">{agent.institution?.type || '—'}</span>
                 </div>
-
-                {/* Statut */}
                 <div className="col-span-2 flex justify-center">
-                  {agent.status === 'online' ? (
-                    <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-400 uppercase tracking-widest"><CheckCircle size={12}/> En Ligne</span>
-                  ) : agent.status === 'offline' ? (
-                    <span className="flex items-center gap-1.5 text-[9px] font-black text-slate-500 uppercase tracking-widest">Hors Ligne</span>
-                  ) : (
-                    <span className="flex items-center gap-1.5 text-[9px] font-black text-rose-400 uppercase tracking-widest animate-pulse">Alerte</span>
-                  )}
+                  <span className="flex items-center gap-1.5 text-[9px] font-black text-emerald-400 uppercase tracking-widest"><CheckCircle size={12}/> Actif</span>
                 </div>
 
                 {/* Actions */}

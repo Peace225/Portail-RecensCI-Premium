@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldAlert, AlertOctagon, CheckCircle, XCircle, 
   Fingerprint, FileText, Search, UserMinus, ScanFace
 } from 'lucide-react';
+import { apiService } from '../../services/apiService';
 
 const FLAGGED_DOSSIERS = [
   { id: "TMP-9912", name: "KONE Oumar", issue: "DOUBLON BIOMÉTRIQUE", severity: "high", reason: "L'empreinte digitale correspond déjà au dossier CI-102-4456 (DIALLO Seydou)." },
@@ -12,7 +13,36 @@ const FLAGGED_DOSSIERS = [
 ];
 
 export default function CitizenValidation() {
+  const [dossiers, setDossiers] = useState(FLAGGED_DOSSIERS);
   const [activeDossier, setActiveDossier] = useState(FLAGGED_DOSSIERS[0]);
+
+  useEffect(() => {
+    apiService.get<any[]>('/citizens/flagged?limit=20')
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((c: any) => ({
+            id: c.id,
+            name: c.fullName,
+            issue: 'DOSSIER SUSPECT',
+            severity: 'high' as const,
+            reason: 'Dossier marqué comme suspect dans le système.',
+          }));
+          setDossiers(mapped);
+          setActiveDossier(mapped[0]);
+        }
+      })
+      .catch(() => {
+        // keep mock data on failure
+      });
+  }, []);
+
+  const handleApprove = (id: string) => {
+    apiService.patch(`/citizens/${id}/validate`, {}).catch(() => {});
+  };
+
+  const handleReject = (id: string) => {
+    apiService.patch(`/citizens/${id}/investigate`, {}).catch(() => {});
+  };
 
   return (
     <div className="p-8 max-w-[1600px] mx-auto h-full flex flex-col">
@@ -30,11 +60,11 @@ export default function CitizenValidation() {
         <div className="col-span-12 lg:col-span-4 bg-[#050914]/80 backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
           <div className="p-5 border-b border-white/5 bg-black/40 flex items-center gap-2">
             <AlertOctagon size={16} className="text-rose-400" />
-            <h3 className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">Dossiers Suspects ({FLAGGED_DOSSIERS.length})</h3>
+            <h3 className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">Dossiers Suspects ({dossiers.length})</h3>
           </div>
           
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-            {FLAGGED_DOSSIERS.map(dossier => (
+            {dossiers.map(dossier => (
               <div 
                 key={dossier.id} onClick={() => setActiveDossier(dossier)}
                 className={`p-4 rounded-2xl cursor-pointer transition-all border ${activeDossier.id === dossier.id ? 'bg-rose-500/10 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.15)]' : 'bg-black/40 border-white/5 hover:bg-white/5'}`}
@@ -123,10 +153,14 @@ export default function CitizenValidation() {
 
             {/* Actions Critiques */}
             <div className="mt-8 flex gap-4 pt-6 border-t border-white/5">
-              <button className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black text-[10px] uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 border border-white/10 transition-colors">
+              <button 
+                onClick={() => handleApprove(activeDossier.id)}
+                className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black text-[10px] uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 border border-white/10 transition-colors">
                 <Search size={14} /> Lancer Investigation Manuelle
               </button>
-              <button className="flex-1 bg-rose-500 hover:bg-rose-400 text-black font-black text-[11px] uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(244,63,94,0.3)]">
+              <button 
+                onClick={() => handleReject(activeDossier.id)}
+                className="flex-1 bg-rose-500 hover:bg-rose-400 text-black font-black text-[11px] uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(244,63,94,0.3)]">
                 <XCircle size={16} /> Rejeter pour Fraude
               </button>
             </div>

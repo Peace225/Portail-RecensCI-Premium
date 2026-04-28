@@ -6,9 +6,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 const CitizenProfile: React.FC = () => {
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user);
   const [householdType, setHouseholdType] = useState<"SEUL" | "MENAGE">("MENAGE");
 
   return (
@@ -30,10 +33,10 @@ const CitizenProfile: React.FC = () => {
             </div>
             
             <div className="text-center md:text-left flex-1">
-              <h2 className="text-3xl md:text-4xl font-black tracking-tighter italic">KOUHAME Kevin Gael</h2>
+              <h2 className="text-3xl md:text-4xl font-black tracking-tighter italic">{user.name || "KOUHAME Kevin Gael"}</h2>
               <div className="flex items-center justify-center md:justify-start gap-3 mt-2">
                  <Cpu size={14} className="text-orange-500" />
-                 <p className="text-orange-400 font-bold tracking-[0.2em] text-xs uppercase italic">Numéro National : CI-002938475</p>
+                 <p className="text-orange-400 font-bold tracking-[0.2em] text-xs uppercase italic">Numéro National : {user.nni || 'NNI non assigné'}</p>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">

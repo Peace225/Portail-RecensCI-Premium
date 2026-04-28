@@ -4,12 +4,15 @@ import {
   UserPlus, ShieldCheck, MapPin, Fingerprint, 
   ScanFace, QrCode, Cpu, Save, XCircle
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { apiService } from '../../services/apiService';
 
 export default function AddAgent() {
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
     telephone: '',
+    email: '',
     zone: 'Abidjan (Cocody)',
     clearance: 'GAMMA',
   });
@@ -24,6 +27,19 @@ export default function AddAgent() {
       setIsScanning(false);
       setBioStatus('success');
     }, 2500);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await apiService.post('/agents', {
+        email: formData.email,
+        fullName: `${formData.prenom} ${formData.nom}`,
+        role: 'AGENT',
+      });
+      toast.success('Profil agent créé avec succès');
+    } catch {
+      toast.error('Erreur lors de la création du profil agent');
+    }
   };
 
   return (
@@ -68,6 +84,14 @@ export default function AddAgent() {
                   type="tel" value={formData.telephone} onChange={(e) => setFormData({...formData, telephone: e.target.value})}
                   className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-cyan-400 font-mono focus:outline-none focus:border-cyan-500/50 transition-colors"
                   placeholder="+225 01 02 03 04 05"
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-2">Adresse Email</label>
+                <input 
+                  type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-cyan-400 font-mono focus:outline-none focus:border-cyan-500/50 transition-colors"
+                  placeholder="agent@recensci.ci"
                 />
               </div>
             </div>
@@ -185,6 +209,7 @@ export default function AddAgent() {
               <XCircle size={16} /> Annuler
             </button>
             <button 
+              onClick={handleSubmit}
               disabled={bioStatus !== 'success' || !formData.nom}
               className={`flex-[2] font-black text-[11px] uppercase tracking-widest py-4 rounded-2xl flex items-center justify-center gap-2 transition-all ${bioStatus === 'success' && formData.nom ? 'bg-cyan-500 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:bg-cyan-400' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
             >

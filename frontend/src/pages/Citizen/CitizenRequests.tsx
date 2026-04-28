@@ -1,5 +1,5 @@
 // src/pages/citizen/CitizenRequests.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Clock, CheckCircle2, AlertCircle, FileText, 
@@ -8,9 +8,12 @@ import {
   AlertTriangle, Send, MessageSquare, Loader2
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { apiService } from "../../services/apiService";
 
-// --- MOCK DATA DYNAMISÉ ---
-const requests = [
+// --- MOCK DATA FALLBACK ---
+const MOCK_REQUESTS = [
   { 
     id: "REQ-892", 
     type: "Extrait d'Acte de Naissance", 
@@ -36,10 +39,43 @@ const styles = `
   @keyframes glitch { 0% { opacity: 1; } 50% { opacity: 0.8; transform: translateX(1px); } 100% { opacity: 1; } }
 `;
 
+const statusColorMap: Record<string, string> = {
+  EN_COURS: "orange",
+  VALIDÉ: "emerald",
+  REJETÉ: "red",
+};
+
+const mapApiRequest = (r: any) => ({
+  id: r.id || r.requestId || "REQ-???",
+  type: r.type || r.documentType || "Document",
+  date: r.date || (r.createdAt ? new Date(r.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : ""),
+  status: r.status || "EN_COURS",
+  color: statusColorMap[r.status] || "orange",
+  steps: r.steps || undefined,
+});
+
 const CitizenRequests: React.FC = () => {
+  const userId = useSelector((state: RootState) => state.user.id);
+  const [requests, setRequests] = useState<any[]>(MOCK_REQUESTS);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isCorrectionMode, setIsCorrectionMode] = useState(false);
   const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    setIsLoading(true);
+    apiService.get<any[]>(`/citizens/${userId}/requests`)
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setRequests(data.map(mapApiRequest));
+        }
+      })
+      .catch(() => {
+        // silently fall back to mock data
+      })
+      .finally(() => setIsLoading(false));
+  }, [userId]);
 
   const handleReportError = () => {
     setIsSending(true);
@@ -69,7 +105,11 @@ const CitizenRequests: React.FC = () => {
 
         {/* --- LISTE DES REQUÊTES --- */}
         <div className="grid grid-cols-1 gap-5">
-          {requests.map((req, idx) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 size={32} className="animate-spin text-orange-500" />
+            </div>
+          ) : requests.map((req, idx) => (
             <motion.div 
               key={req.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}
               onClick={() => setSelectedDoc(req)}

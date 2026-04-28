@@ -1,32 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, CheckCircle, Clock, AlertTriangle, 
   User, MapPin, Fingerprint, FileText, X, ChevronRight, Download, Database
 } from 'lucide-react';
-
-const MOCK_CITIZENS = [
-  { id: "CI-984-2391", name: "KOUASSI Jean-Marc", dob: "14/05/1988", region: "Abidjan (Cocody)", gender: "M", status: "verified", bio: true, phone: "+225 0102030405", mother: "KOUADIO Aya", father: "KOUASSI Konan", job: "Ingénieur Informatique" },
-  { id: "CI-742-8810", name: "BAMBA Fatoumata", dob: "22/11/1995", region: "Bouaké (Gbêkê)", gender: "F", status: "pending", bio: false, phone: "+225 0708091011", mother: "TOURE Mariam", father: "BAMBA Ali", job: "Commerçante" },
-  { id: "CI-102-4456", name: "DIALLO Seydou", dob: "03/02/1975", region: "Korhogo (Poro)", gender: "M", status: "alert", bio: true, phone: "+225 0506070809", mother: "KONE Fanta", father: "DIALLO Mamadou", job: "Agriculteur" },
-  { id: "CI-556-9021", name: "YAPI Akissi Grâce", dob: "30/08/2001", region: "Abidjan (Yopougon)", gender: "F", status: "verified", bio: true, phone: "+225 0144556677", mother: "N'GUESSAN Amoin", father: "YAPI Koffi", job: "Étudiante" },
-  { id: "CI-889-1123", name: "SERI Dago Charles", dob: "12/12/1982", region: "San-Pédro", gender: "M", status: "verified", bio: true, phone: "+225 0788990011", mother: "GBAKA Marie", father: "SERI Gnahoré", job: "Docker" },
-];
+import { apiService } from '../../services/apiService';
 
 export default function CitizenDatabase() {
+  const [citizens, setCitizens] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCitizen, setSelectedCitizen] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const filteredCitizens = MOCK_CITIZENS.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    c.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    apiService.get<any>('/citizens?limit=50')
+      .then(res => setCitizens(res.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!searchTerm) return;
+    const timer = setTimeout(() => {
+      apiService.get<any>(`/citizens?search=${encodeURIComponent(searchTerm)}&limit=50`)
+        .then(res => setCitizens(res.data || []))
+        .catch(() => {});
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const getStatusConfig = (status: string) => {
     switch(status) {
-      case 'verified': return { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', icon: <CheckCircle size={14}/>, label: 'VALIDÉ' };
-      case 'pending': return { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', icon: <Clock size={14}/>, label: 'ATTENTE' };
-      case 'alert': return { color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', icon: <AlertTriangle size={14}/>, label: 'ANOMALIE' };
+      case 'VALIDE': return { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', icon: <CheckCircle size={14}/>, label: 'VALIDÉ' };
+      case 'EN_ATTENTE_VALIDATION': return { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', icon: <Clock size={14}/>, label: 'ATTENTE' };
+      case 'SUSPECT': return { color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', icon: <AlertTriangle size={14}/>, label: 'ANOMALIE' };
       default: return { color: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/30', icon: <User size={14}/>, label: 'INCONNU' };
     }
   };
@@ -61,28 +68,29 @@ export default function CitizenDatabase() {
         </div>
 
         <div className="overflow-y-auto custom-scrollbar flex-1">
+          {loading && <div className="flex justify-center py-10"><span className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400" /></div>}
           <AnimatePresence>
-            {filteredCitizens.map((citizen, index) => {
+            {citizens.map((citizen, index) => {
               const statusConf = getStatusConfig(citizen.status);
               return (
                 <motion.div 
-                  key={citizen.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} onClick={() => setSelectedCitizen(citizen)}
+                  key={citizen.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }} onClick={() => setSelectedCitizen(citizen)}
                   className="grid grid-cols-12 gap-4 p-4 border-b border-white/5 items-center hover:bg-white/5 cursor-pointer transition-colors group"
                 >
                   <div className="col-span-3 flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center border border-white/10 group-hover:border-cyan-500/50 transition-colors">
-                      <span className="text-sm font-black text-white">{citizen.name.charAt(0)}</span>
+                      <span className="text-sm font-black text-white">{citizen.fullName?.charAt(0) || '?'}</span>
                     </div>
                     <div>
-                      <p className="text-xs font-black text-white uppercase">{citizen.name}</p>
-                      <p className="text-[10px] font-mono text-cyan-400 mt-0.5 tracking-widest">{citizen.id}</p>
+                      <p className="text-xs font-black text-white uppercase">{citizen.fullName}</p>
+                      <p className="text-[10px] font-mono text-cyan-400 mt-0.5 tracking-widest">{citizen.nni}</p>
                     </div>
                   </div>
-                  <div className="col-span-2 flex items-center gap-2 text-slate-400"><MapPin size={14} className="text-slate-500" /><span className="text-[10px] font-bold uppercase">{citizen.region}</span></div>
-                  <div className="col-span-2 text-xs font-mono font-bold text-slate-300">{citizen.dob}</div>
+                  <div className="col-span-2 flex items-center gap-2 text-slate-400"><MapPin size={14} className="text-slate-500" /><span className="text-[10px] font-bold uppercase">{citizen.city || '—'}</span></div>
+                  <div className="col-span-2 text-xs font-mono font-bold text-slate-300">{citizen.birthDate ? new Date(citizen.birthDate).toLocaleDateString('fr-FR') : '—'}</div>
                   <div className="col-span-2 flex justify-center">
-                    <div className={`flex items-center gap-1.5 px-2 py-1 rounded border ${citizen.bio ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-rose-400 bg-rose-500/10 border-rose-500/20'}`}>
-                      <Fingerprint size={12} /><span className="text-[9px] font-black uppercase tracking-wider">{citizen.bio ? 'Capturée' : 'Manquante'}</span>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded border text-slate-400 bg-slate-500/10 border-slate-500/20">
+                      <Fingerprint size={12} /><span className="text-[9px] font-black uppercase tracking-wider">—</span>
                     </div>
                   </div>
                   <div className="col-span-2"><div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border ${statusConf.bg} ${statusConf.border} ${statusConf.color}`}>{statusConf.icon}<span className="text-[9px] font-black tracking-widest">{statusConf.label}</span></div></div>
@@ -111,11 +119,11 @@ export default function CitizenDatabase() {
                     <div className="absolute bottom-0 w-full bg-cyan-500/20 text-center py-1 backdrop-blur-md"><span className="text-[8px] font-black text-cyan-400 uppercase tracking-widest">Photo ID</span></div>
                   </div>
                   <div>
-                    <h3 className="text-xl font-black text-white uppercase leading-none mb-2">{selectedCitizen.name}</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Profession : {selectedCitizen.job}</p>
+                    <h3 className="text-xl font-black text-white uppercase leading-none mb-2">{selectedCitizen.fullName || selectedCitizen.name}</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">NNI : {selectedCitizen.nni || selectedCitizen.id}</p>
                     <div className="flex gap-2">
-                      <span className="px-3 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">Sexe: {selectedCitizen.gender}</span>
-                      <span className="px-3 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">Né(e) le: {selectedCitizen.dob}</span>
+                      <span className="px-3 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">Ville: {selectedCitizen.city || '—'}</span>
+                      <span className="px-3 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">Email: {selectedCitizen.email || '—'}</span>
                     </div>
                   </div>
                 </div>

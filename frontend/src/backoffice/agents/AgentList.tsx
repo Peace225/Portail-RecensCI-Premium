@@ -1,26 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, ShieldCheck, ShieldAlert, 
   MapPin, Battery, Signal, UserMinus, Crosshair, 
   Send, Lock, Activity, UserCog, CheckCircle, X, Database, Users
 } from 'lucide-react';
-
-const MOCK_AGENTS = [
-  { id: "AGN-882-A", name: "KOFFI Alain", zone: "Abidjan (Yopougon)", clearance: "ALPHA", status: "online", battery: 85, lastPing: "A l'instant", quota: 142, phone: "+225 0102030405", ip: "10.4.52.19" },
-  { id: "AGN-105-B", name: "TOURE Mariam", zone: "Bouaké (Gbêkê)", clearance: "BETA", status: "offline", battery: 12, lastPing: "Il y a 2h", quota: 89, phone: "+225 0708091011", ip: "10.4.88.2" },
-  { id: "AGN-934-A", name: "BAMBA Seydou", zone: "Korhogo (Poro)", clearance: "ALPHA", status: "online", battery: 64, lastPing: "A l'instant", quota: 210, phone: "+225 0506070809", ip: "10.4.91.55" },
-  { id: "AGN-442-C", name: "YAO Akissi", zone: "San-Pédro", clearance: "GAMMA", status: "alert", battery: 4, lastPing: "Il y a 5 min", quota: 45, phone: "+225 0144556677", ip: "10.4.12.99" },
-  { id: "AGN-771-A", name: "DIOMANDE Yves", zone: "Abidjan (Cocody)", clearance: "ALPHA", status: "online", battery: 92, lastPing: "A l'instant", quota: 178, phone: "+225 0788990011", ip: "10.4.33.10" },
-];
+import { apiService } from '../../services/apiService';
 
 export default function AgentList() {
+  const [agents, setAgents] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
 
-  const filteredAgents = MOCK_AGENTS.filter(a => 
-    a.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    a.id.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    apiService.get<any[]>('/agents').then(setAgents).catch(() => {});
+  }, []);
+
+  const filteredAgents = agents.filter(a =>
+    (a.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (a.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusConfig = (status: string) => {
@@ -63,10 +61,10 @@ export default function AgentList() {
 
         <div className="grid grid-cols-4 gap-4">
            {[
-             { label: "Effectif Total", val: "1,245", icon: <Users size={16}/>, color: "text-blue-400" },
-             { label: "Agents Actifs", val: "892", icon: <Activity size={16}/>, color: "text-emerald-400" },
-             { label: "Alertes Terminaux", val: "14", icon: <ShieldAlert size={16}/>, color: "text-rose-400" },
-             { label: "Données (24h)", val: "14.5K", icon: <Database size={16}/>, color: "text-purple-400" },
+             { label: "Effectif Total", val: agents.length.toString(), icon: <Users size={16}/>, color: "text-blue-400" },
+             { label: "Agents Actifs", val: agents.filter(a => a.role === 'AGENT').length.toString(), icon: <Activity size={16}/>, color: "text-emerald-400" },
+             { label: "Alertes Terminaux", val: "0", icon: <ShieldAlert size={16}/>, color: "text-rose-400" },
+             { label: "Admins Entité", val: agents.filter(a => a.role === 'ENTITY_ADMIN').length.toString(), icon: <Database size={16}/>, color: "text-purple-400" },
            ].map((kpi, i) => (
              <div key={i} className="bg-slate-900/50 border border-white/5 rounded-2xl p-4 flex items-center gap-4">
                 <div className={`p-3 rounded-xl bg-white/5 ${kpi.color}`}>{kpi.icon}</div>
@@ -91,8 +89,6 @@ export default function AgentList() {
         <div className="overflow-y-auto custom-scrollbar flex-1">
           <AnimatePresence>
             {filteredAgents.map((agent, index) => {
-              const status = getStatusConfig(agent.status);
-              const clearanceColor = getClearanceColor(agent.clearance);
               return (
                 <motion.div 
                   key={agent.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} onClick={() => setSelectedAgent(agent)}
@@ -101,26 +97,26 @@ export default function AgentList() {
                   <div className="col-span-3 flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center relative">
                       <UserCog size={18} className="text-slate-400 group-hover:text-cyan-400 transition-colors" />
-                      <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-[#050914] ${status.dot}`} />
                     </div>
                     <div>
-                      <p className="text-xs font-black text-white uppercase">{agent.name}</p>
-                      <p className="text-[10px] font-mono text-cyan-400 mt-0.5 tracking-widest">{agent.id}</p>
+                      <p className="text-xs font-black text-white uppercase">{agent.fullName}</p>
+                      <p className="text-[10px] font-mono text-cyan-400 mt-0.5 tracking-widest">{agent.email}</p>
                     </div>
                   </div>
                   <div className="col-span-2 flex items-center gap-2 text-slate-400">
                     <MapPin size={14} className="text-purple-500" />
-                    <span className="text-[10px] font-bold uppercase truncate">{agent.zone}</span>
+                    <span className="text-[10px] font-bold uppercase truncate">{agent.institution?.name || '—'}</span>
                   </div>
                   <div className="col-span-2 flex justify-center">
-                    <span className={`px-3 py-1 rounded-md border text-[9px] font-black uppercase tracking-widest ${clearanceColor}`}>Niveau {agent.clearance}</span>
+                    <span className="px-3 py-1 rounded-md border text-[9px] font-black uppercase tracking-widest text-purple-400 border-purple-500/30 bg-purple-500/10">{agent.role}</span>
                   </div>
                   <div className="col-span-2 flex justify-center items-center gap-4">
-                    <div className="flex items-center gap-1"><Battery size={14} className={agent.battery > 20 ? "text-emerald-500" : "text-rose-500"} /><span className="text-[10px] font-mono font-bold text-slate-300">{agent.battery}%</span></div>
-                    <div className="flex items-center gap-1"><Signal size={14} className={agent.status === 'online' ? "text-cyan-500" : "text-slate-600"} /><span className="text-[9px] font-mono font-bold text-slate-400">{agent.lastPing}</span></div>
+                    <span className="text-[10px] font-mono font-bold text-slate-400">{new Date(agent.createdAt).toLocaleDateString('fr-FR')}</span>
                   </div>
                   <div className="col-span-2 flex justify-center">
-                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border ${status.bg} ${status.border} ${status.color}`}><span className="text-[8px] font-black tracking-widest">{status.label}</span></div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
+                      <span className="text-[8px] font-black tracking-widest">ACTIF</span>
+                    </div>
                   </div>
                   <div className="col-span-1 flex justify-center">
                     <button className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-cyan-500 group-hover:text-black transition-colors"><Crosshair size={14} /></button>
@@ -138,7 +134,7 @@ export default function AgentList() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[2000]" onClick={() => setSelectedAgent(null)} />
             <motion.div initial={{ x: '100%', opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: '100%', opacity: 0 }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute right-0 top-0 bottom-0 w-[450px] bg-[#050914] border-l border-white/10 z-[2001] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col">
               <div className="p-6 border-b border-white/5 flex justify-between items-center bg-black/40">
-                <div className="flex items-center gap-3 text-purple-400"><BadgeCheck size={20} /><h2 className="text-xs font-black uppercase tracking-widest">Dossier Agent</h2></div>
+                <div className="flex items-center gap-3 text-purple-400"><ShieldCheck size={20} /><h2 className="text-xs font-black uppercase tracking-widest">Dossier Agent</h2></div>
                 <button onClick={() => setSelectedAgent(null)} className="text-slate-500 hover:text-white transition-colors"><X size={20} /></button>
               </div>
               <div className="p-8 flex-1 overflow-y-auto space-y-8 custom-scrollbar">

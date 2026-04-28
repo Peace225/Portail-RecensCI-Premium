@@ -5,51 +5,43 @@ import {
   User, MapPin, Fingerprint, ShieldAlert, AlertTriangle, 
   Database, Eye
 } from 'lucide-react';
-
-// --- SIMULATION DES DONNÉES ENTRANTES (Ce que le citoyen a rempli) ---
-const INITIAL_QUEUE = [
-  { id: "TMP-8891", name: "KOUAME, Aya Grâce", dob: "12/04/1998", pob: "Abobo", gender: "F", phone: "0701020304", father: "KOUAME Konan", mother: "KOFFI Akissi", bio: true, time: "Il y a 10s", risk: "low" },
-  { id: "TMP-8890", name: "TRAORE, Seydou", dob: "05/11/1985", pob: "Korhogo", gender: "M", phone: "0509080706", father: "TRAORE Mamadou", mother: "BAKAYOKO Fanta", bio: false, time: "Il y a 45s", risk: "medium" },
-  { id: "TMP-8889", name: "BAMBA, Ali", dob: "22/01/2002", pob: "Bouaké", gender: "M", phone: "0144556677", father: "BAMBA Yacouba", mother: "TOURE Mariam", bio: true, time: "Il y a 2m", risk: "high" },
-];
+import { apiService } from '../../services/apiService';
 
 export default function CitizenFlux() {
-  const [incomingQueue, setIncomingQueue] = useState(INITIAL_QUEUE);
-  const [selectedDossier, setSelectedDossier] = useState<any>(INITIAL_QUEUE[0]);
+  const [incomingQueue, setIncomingQueue] = useState<any[]>([]);
+  const [selectedDossier, setSelectedDossier] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Simulation d'un nouveau citoyen qui s'inscrit en direct
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const isRisky = Math.random() > 0.8;
-      const newCitizen = {
-        id: `TMP-${Math.floor(1000 + Math.random() * 9000)}`,
-        name: ["DIALLO, Amadou", "YAO, Kouassi", "KONE, Fatou"][Math.floor(Math.random()*3)],
-        dob: "14/08/1990",
-        pob: ["Yopougon", "San-Pédro", "Man"][Math.floor(Math.random()*3)],
-        gender: Math.random() > 0.5 ? "M" : "F",
-        phone: `07${Math.floor(10000000 + Math.random() * 90000000)}`,
-        father: "INCONNU",
-        mother: "INCONNU",
-        bio: Math.random() > 0.2, // 80% ont la biométrie
-        time: "À l'instant",
-        risk: isRisky ? "high" : "low"
-      };
-      
-      setIncomingQueue(prev => [newCitizen, ...prev].slice(0, 15)); // Garde les 15 derniers
-    }, 8000); // Un nouveau dossier toutes les 8 secondes
+  const fetchPending = () => {
+    apiService.get<any>('/citizens/pending?limit=15')
+      .then(res => {
+        const data = res.data || [];
+        setIncomingQueue(data);
+        if (data.length > 0 && !selectedDossier) setSelectedDossier(data[0]);
+      })
+      .catch(() => {});
+  };
 
+  useEffect(() => {
+    fetchPending();
+    const interval = setInterval(fetchPending, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  // Action pour Approuver ou Rejeter un dossier
   const handleProcess = (action: 'approve' | 'reject') => {
+    if (!selectedDossier) return;
     setIsProcessing(true);
-    setTimeout(() => {
-      setIncomingQueue(prev => prev.filter(c => c.id !== selectedDossier.id));
-      setSelectedDossier(null);
-      setIsProcessing(false);
-    }, 800);
+    const endpoint = action === 'approve' ? `/citizens/${selectedDossier.id}/approve` : `/citizens/${selectedDossier.id}/investigate`;
+    apiService.patch(endpoint, {})
+      .then(() => {
+        setIncomingQueue(prev => prev.filter(c => c.id !== selectedDossier.id));
+        setSelectedDossier(null);
+      })
+      .catch(() => {
+        setIncomingQueue(prev => prev.filter(c => c.id !== selectedDossier.id));
+        setSelectedDossier(null);
+      })
+      .finally(() => setIsProcessing(false));
   };
 
   return (
@@ -103,17 +95,17 @@ export default function CitizenFlux() {
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${citoyen.risk === 'high' ? 'bg-rose-500 animate-pulse' : citoyen.risk === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
                       <p className={`text-[10px] font-mono font-black tracking-widest ${selectedDossier?.id === citoyen.id ? 'text-cyan-400' : 'text-slate-400'}`}>
-                        {citoyen.id}
+                        {citoyen.nni || citoyen.id}
                       </p>
                     </div>
                     <span className="text-[9px] font-bold text-slate-500 uppercase">{citoyen.time}</span>
                   </div>
                   
-                  <h4 className="text-sm font-black text-white uppercase truncate">{citoyen.name}</h4>
+                  <h4 className="text-sm font-black text-white uppercase truncate">{citoyen.fullName || citoyen.name}</h4>
                   
                   <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
                     <span className="text-[9px] text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                      <MapPin size={10} /> {citoyen.pob}
+                      <MapPin size={10} /> {citoyen.city || citoyen.pob || '—'}
                     </span>
                     {citoyen.bio ? (
                       <span className="text-[9px] text-emerald-400 font-bold uppercase flex items-center gap-1"><Fingerprint size={10}/> Bio OK</span>
@@ -150,7 +142,7 @@ export default function CitizenFlux() {
 
               <div className="p-6 border-b border-white/5 bg-black/40 flex justify-between items-center">
                 <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-                  <FileText size={18} className="text-cyan-400" /> Analyse du Dossier {selectedDossier.id}
+                  <FileText size={18} className="text-cyan-400" /> Analyse du Dossier {selectedDossier.nni || selectedDossier.id}
                 </h3>
                 {selectedDossier.risk === 'high' && (
                   <span className="bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
@@ -170,16 +162,16 @@ export default function CitizenFlux() {
                   <div className="flex-1 space-y-4">
                     <div>
                       <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Nom Complet déclaré</p>
-                      <h2 className="text-2xl font-black text-white uppercase">{selectedDossier.name}</h2>
+                      <h2 className="text-2xl font-black text-white uppercase">{selectedDossier.fullName || selectedDossier.name}</h2>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1">Date & Lieu de Naissance</p>
-                        <p className="text-xs font-black text-slate-300 uppercase">{selectedDossier.dob} à {selectedDossier.pob}</p>
+                        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1">Ville / Lieu de Naissance</p>
+                        <p className="text-xs font-black text-slate-300 uppercase">{selectedDossier.city || selectedDossier.pob || '—'}</p>
                       </div>
                       <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1">Téléphone Citoyen</p>
-                        <p className="text-xs font-mono font-black text-cyan-400">{selectedDossier.phone}</p>
+                        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1">Téléphone / Email</p>
+                        <p className="text-xs font-mono font-black text-cyan-400">{selectedDossier.phone || selectedDossier.email || '—'}</p>
                       </div>
                     </div>
                   </div>
