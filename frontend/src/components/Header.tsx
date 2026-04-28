@@ -29,9 +29,11 @@ const Header: React.FC = () => {
 
   const { role } = useSelector((state: RootState) => state.user);
 
-  // 👉 1. LOGIQUE DE VISIBILITÉ : On liste les pages où le logo/menu classique doit apparaître
+  // On liste les routes où le Header global doit être visible
   const publicPages = ['/', '/stats', '/login', '/register', '/aide'];
-  const isPublicRoute = publicPages.includes(location.pathname);
+  const protectedLayouts = ['/dashboard', '/backoffice', '/portail', '/me', '/mon-profil', '/recensement-details', '/migrations', '/prestations', '/declarer', '/mes-demandes', '/notifications'];
+  const isInProtectedLayout = protectedLayouts.some(p => location.pathname.startsWith(p));
+  const isPublicRoute = !isInProtectedLayout;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

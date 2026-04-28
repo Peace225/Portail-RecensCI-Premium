@@ -60,6 +60,12 @@ import DataExportModule from "./pages/Exports/DataExportModule";
 import IncidentReportForm from "./pages/Security/IncidentReportForm";
 import IncidentMap from "./pages/Security/IncidentMap";
 import MigrationFlowForm from "./pages/Migration/MigrationFlowForm";
+import AccidentForm from "./modules/AccidentForm";
+import HomicideForm from "./modules/Security/HomicideForm";
+import MaternalHealthForm from "./modules/MaternalHealthForm";
+import InternationalFlowForm from "./modules/InternationalFlowForm";
+import InternalMigrationForm from "./modules/InternalMigrationForm";
+import ComingSoon from "./pages/ComingSoon";
 
 // --- Imports Backoffice (Accréditation & Citoyen) ---
 import AddAgent from "./backoffice/agents/AddAgent";
@@ -181,6 +187,8 @@ const App: React.FC = () => {
               <Route index element={<MairieDashboard />} />
               <Route path="departements" element={<MairieDepartments />} />
               <Route path="agents" element={<MairieAgents />} />
+              <Route path="registres" element={<ComingSoon />} />
+              <Route path="parametres" element={<ComingSoon />} />
             </Route>
 
             {/* ======================================================
@@ -214,6 +222,11 @@ const App: React.FC = () => {
               <Route path="deces" element={<DeathForm />} />
               <Route path="divorces" element={<DivorceForm />} />
               <Route path="migrations" element={<MigrationFlowForm />} />
+              <Route path="migrations-int" element={<InternalMigrationForm />} />
+              <Route path="migrations-ext" element={<InternationalFlowForm />} />
+              <Route path="accidents" element={<AccidentForm />} />
+              <Route path="securite" element={<HomicideForm />} />
+              <Route path="sante-maternelle" element={<MaternalHealthForm />} />
               <Route path="incidents" element={<IncidentReportForm />} />
               <Route path="carte-incidents" element={<IncidentMap />} />
               <Route path="exports" element={<DataExportModule />} />
@@ -250,6 +263,35 @@ const App: React.FC = () => {
               <Route path="events" element={<EventFeed />} />
               <Route path="reports" element={<Reports />} />
               <Route path="users" element={<UsersManagement />} />
+
+              {/* --- Surveillance --- */}
+              <Route path="surveillance/video" element={<ComingSoon />} />
+              <Route path="surveillance/heatmap" element={<IncidentMap />} />
+              <Route path="surveillance/alertes" element={<ComingSoon />} />
+              <Route path="surveillance/cyber" element={<ComingSoon />} />
+
+              {/* --- Zones & Terrain --- */}
+              <Route path="zones/mapping" element={<ComingSoon />} />
+              <Route path="zones/tracking" element={<ComingSoon />} />
+              <Route path="zones/logistique" element={<ComingSoon />} />
+              <Route path="zones/rendement" element={<ComingSoon />} />
+
+              {/* --- Technique & DevOps --- */}
+              <Route path="technique/serveurs" element={<ComingSoon />} />
+              <Route path="technique/database" element={<ComingSoon />} />
+              <Route path="technique/api" element={<ComingSoon />} />
+              <Route path="technique/deployments" element={<ComingSoon />} />
+
+              {/* --- Logs & Réseau --- */}
+              <Route path="logs/terminal" element={<ComingSoon />} />
+              <Route path="logs/audit" element={<ComingSoon />} />
+              <Route path="logs/security" element={<ComingSoon />} />
+
+              {/* --- Paramètres Système --- */}
+              <Route path="settings/rules" element={<ComingSoon />} />
+              <Route path="settings/iam" element={<ComingSoon />} />
+              <Route path="settings/integrations" element={<ComingSoon />} />
+              <Route path="settings/display" element={<ComingSoon />} />
             </Route>
 
             {/* Redirection automatique pour les URLs inconnues vers l'accueil ou 404 */}

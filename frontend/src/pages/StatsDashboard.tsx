@@ -20,7 +20,8 @@ const StatsDashboard = () => {
       if (Array.isArray(d) && d.length) setTrend(d.map(t => ({ name: t.date || t.month, val: t.naissances || 0 })));
     }).catch(() => {});
   }, []);
-    // AJUSTEMENT : pt-32 pour descendre le contenu sous le Header
+
+  return (
     <div className="min-h-screen bg-[#020617] pt-32 p-8 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 relative overflow-hidden">
       
       {/* Background Decor (Optionnel pour le style) */}

@@ -44,7 +44,7 @@ const menuItems = [
     group: "Système", 
     items: [
       // ✨ POINT VERS LE BACKOFFICE POUR LE LAYOUT ADMIN ✨
-      { name: "Paramètres", path: "/backoffice", icon: <Settings size={20} /> },
+      { name: "Paramètres", path: "/dashboard/parametres", icon: <Settings size={20} /> },
       { name: "Exports INS", path: "/dashboard/exports", icon: <FileOutput size={20} /> },
     ]
   }
