@@ -53,7 +53,7 @@ export default function MairieDashboard() {
             <Landmark className="text-amber-500" size={40} />
             DASHBOARD <span className="text-amber-500">FINANCIER</span>
           </h1>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">
+        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">
             République de Côte d'Ivoire • Trésorerie Communale
           </p>
         </div>

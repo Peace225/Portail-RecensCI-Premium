@@ -66,6 +66,11 @@ import MaternalHealthForm from "./modules/MaternalHealthForm";
 import InternationalFlowForm from "./modules/InternationalFlowForm";
 import InternalMigrationForm from "./modules/InternalMigrationForm";
 import ComingSoon from "./pages/ComingSoon";
+import CertificateRequest from "./pages/Citizen/CertificateRequest";
+import HealthAlerts from "./pages/Health/HealthAlerts";
+import Support from "./pages/Support";
+import CustomaryMarriageForm from "./modules/CustomaryMarriageForm";
+import OutOfFacilityBirthForm from "./modules/OutOfFacilityBirthForm";
 
 // --- Imports Backoffice (Accréditation & Citoyen) ---
 import AddAgent from "./backoffice/agents/AddAgent";
@@ -171,6 +176,8 @@ const App: React.FC = () => {
               <Route path="/mes-demandes" element={<CitizenRequests />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/aide" element={<CitizenEmergency />} />
+              <Route path="/certificats" element={<CertificateRequest />} />
+              <Route path="/support" element={<Support />} />
             </Route>
 
             {/* ======================================================
@@ -227,9 +234,14 @@ const App: React.FC = () => {
               <Route path="accidents" element={<AccidentForm />} />
               <Route path="securite" element={<HomicideForm />} />
               <Route path="sante-maternelle" element={<MaternalHealthForm />} />
+              <Route path="mariage-coutumier" element={<CustomaryMarriageForm />} />
+              <Route path="naissance-terrain" element={<OutOfFacilityBirthForm />} />
+              <Route path="alertes-sante" element={<HealthAlerts />} />
               <Route path="incidents" element={<IncidentReportForm />} />
               <Route path="carte-incidents" element={<IncidentMap />} />
               <Route path="exports" element={<DataExportModule />} />
+              <Route path="certificats" element={<CertificateRequest />} />
+              <Route path="support" element={<Support />} />
               <Route path="parametres" element={<Settings />} />
             </Route>
 

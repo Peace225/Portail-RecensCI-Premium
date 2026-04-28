@@ -10,6 +10,7 @@ import { SecurityModule } from './security/security.module';
 import { ExportsModule } from './exports/exports.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ModulesModule } from './modules/modules.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ExportsModule,
     AnalyticsModule,
     NotificationsModule,
+    ModulesModule,
   ],
 })
 export class AppModule {}

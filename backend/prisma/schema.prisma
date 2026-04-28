@@ -76,13 +76,15 @@ model User {
   institution   Institution? @relation(fields: [institutionId], references: [id])
 
   // Événements enregistrés par cet agent
-  birthRecords      BirthRecord[]
-  deathRecords      DeathRecord[]
-  marriageRecords   MarriageRecord[]
-  divorceRecords    DivorceRecord[]
-  migrationRecords  MigrationRecord[]
-  incidents         SecurityIncident[]
-  messages          AgentMessage[]
+  birthRecords              BirthRecord[]
+  deathRecords              DeathRecord[]
+  marriageRecords           MarriageRecord[]
+  divorceRecords            DivorceRecord[]
+  migrationRecords          MigrationRecord[]
+  incidents                 SecurityIncident[]
+  messages                  AgentMessage[]
+  customaryMarriageRecords  CustomaryMarriageRecord[]
+  outOfFacilityBirthRecords OutOfFacilityBirthRecord[]
 
   @@map("users")
 }
@@ -252,4 +254,158 @@ model AgentMessage {
   agent User @relation(fields: [agentId], references: [id])
 
   @@map("agent_messages")
+}
+
+// ─── CUSTOMARY MARRIAGE (Mariage Coutumier) ──────────────────────────────────
+
+model CustomaryMarriageRecord {
+  id              String      @id @default(uuid())
+  spouse1Name     String      @map("spouse1_name")
+  spouse1Nni      String?     @map("spouse1_nni")
+  spouse1Village  String?     @map("spouse1_village")
+  spouse2Name     String      @map("spouse2_name")
+  spouse2Nni      String?     @map("spouse2_nni")
+  spouse2Village  String?     @map("spouse2_village")
+  marriageDate    DateTime    @map("marriage_date")
+  ceremonyPlace   String      @map("ceremony_place")
+  customaryChief  String?     @map("customary_chief")  // Chef coutumier
+  dotDescription  String?     @map("dot_description")  // Description de la dot
+  witnesses       Json?       @default("[]") @map("witnesses")
+  status          EventStatus @default(EN_ATTENTE_VALIDATION)
+  agentId         String?     @map("agent_id")
+  reviewedAt      DateTime?   @map("reviewed_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  agent User? @relation(fields: [agentId], references: [id])
+
+  @@map("customary_marriage_records")
+}
+
+// ─── OUT-OF-FACILITY BIRTH (Naissance hors établissement) ────────────────────
+
+model OutOfFacilityBirthRecord {
+  id               String      @id @default(uuid())
+  babyFirstName    String      @map("baby_first_name")
+  babyLastName     String      @map("baby_last_name")
+  gender           Gender
+  birthDate        DateTime    @map("birth_date")
+  birthPlace       String      @map("birth_place")  // Village, domicile, route...
+  birthCircumstance String?    @map("birth_circumstance") // Domicile, champ, route...
+  motherFullName   String      @map("mother_full_name")
+  motherNni        String?     @map("mother_nni")
+  fatherFullName   String?     @map("father_full_name")
+  fatherNni        String?     @map("father_nni")
+  declarantName    String      @map("declarant_name")
+  declarantRelation String?    @map("declarant_relation")
+  witnesses        Json?       @default("[]") @map("witnesses")
+  status           EventStatus @default(EN_ATTENTE_VALIDATION)
+  agentId          String?     @map("agent_id")
+  reviewedAt       DateTime?   @map("reviewed_at")
+  createdAt        DateTime    @default(now()) @map("created_at")
+
+  agent User? @relation(fields: [agentId], references: [id])
+
+  @@map("out_of_facility_birth_records")
+}
+
+// ─── CERTIFICATE REQUEST (Demande de certificat) ─────────────────────────────
+
+enum CertificateType {
+  EXTRAIT_NAISSANCE
+  ACTE_MARIAGE
+  ACTE_DECES
+  CERTIFICAT_RESIDENCE
+  CERTIFICAT_NATIONALITE
+  CERTIFICAT_CELIBAT
+  CASIER_JUDICIAIRE
+}
+
+enum CertificateStatus {
+  EN_ATTENTE
+  EN_TRAITEMENT
+  PRET
+  DELIVRE
+  REJETE
+}
+
+model CertificateRequest {
+  id              String            @id @default(uuid())
+  citizenId       String?           @map("citizen_id")
+  citizenName     String            @map("citizen_name")
+  citizenNni      String?           @map("citizen_nni")
+  type            CertificateType
+  purpose         String?           // Motif de la demande
+  status          CertificateStatus @default(EN_ATTENTE)
+  referenceNumber String?           @unique @map("reference_number")
+  processedBy     String?           @map("processed_by")
+  deliveredAt     DateTime?         @map("delivered_at")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@map("certificate_requests")
+}
+
+// ─── HEALTH ALERT (Alerte sanitaire) ─────────────────────────────────────────
+
+enum AlertSeverity {
+  FAIBLE
+  MODERE
+  ELEVE
+  CRITIQUE
+}
+
+enum AlertStatus {
+  ACTIVE
+  SURVEILLEE
+  RESOLUE
+}
+
+model HealthAlert {
+  id          String        @id @default(uuid())
+  title       String
+  type        String        // Epidémie, Contamination eau, Malnutrition...
+  severity    AlertSeverity
+  region      String
+  city        String?
+  description String
+  affectedCount Int?        @map("affected_count")
+  status      AlertStatus   @default(ACTIVE)
+  reportedBy  String?       @map("reported_by")
+  resolvedAt  DateTime?     @map("resolved_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  @@map("health_alerts")
+}
+
+// ─── SUPPORT TICKET ──────────────────────────────────────────────────────────
+
+enum TicketPriority {
+  FAIBLE
+  NORMALE
+  HAUTE
+  URGENTE
+}
+
+enum TicketStatus {
+  OUVERT
+  EN_COURS
+  RESOLU
+  FERME
+}
+
+model SupportTicket {
+  id          String         @id @default(uuid())
+  submittedBy String?        @map("submitted_by")  // userId
+  subject     String
+  category    String         // Technique, Acte civil, Accès, Autre
+  description String
+  priority    TicketPriority @default(NORMALE)
+  status      TicketStatus   @default(OUVERT)
+  assignedTo  String?        @map("assigned_to")
+  resolvedAt  DateTime?      @map("resolved_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@map("support_tickets")
 }

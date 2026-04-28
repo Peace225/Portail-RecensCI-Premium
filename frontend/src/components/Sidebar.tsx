@@ -20,8 +20,10 @@ const menuItems = [
     group: "État Civil", 
     items: [
       { name: "Naissances", path: "/dashboard/naissances", icon: <Baby size={20} /> },
+      { name: "Naissance Terrain", path: "/dashboard/naissance-terrain", icon: <MapPinned size={20} /> },
       { name: "Décès", path: "/dashboard/deces", icon: <Skull size={20} /> },
       { name: "Mariages", path: "/dashboard/mariages", icon: <Heart size={20} /> }, 
+      { name: "Mariage Coutumier", path: "/dashboard/mariage-coutumier", icon: <Scale size={20} /> },
       { name: "Divorces", path: "/dashboard/divorces", icon: <Scale size={20} /> },
     ]
   },
@@ -31,6 +33,7 @@ const menuItems = [
       { name: "Accidents Routiers", path: "/dashboard/accidents", icon: <Car size={20} /> },
       { name: "Homicides / Enquêtes", path: "/dashboard/securite", icon: <ShieldAlert size={20} /> },
       { name: "Mortalité Maternelle", path: "/dashboard/sante-maternelle", icon: <Hospital size={20} /> },
+      { name: "Alertes Sanitaires", path: "/dashboard/alertes-sante", icon: <ShieldAlert size={20} /> },
     ]
   },
   { 
@@ -41,11 +44,17 @@ const menuItems = [
     ]
   },
   { 
+    group: "Documents", 
+    items: [
+      { name: "Certificats", path: "/dashboard/certificats", icon: <FileOutput size={20} /> },
+      { name: "Exports INS", path: "/dashboard/exports", icon: <FileOutput size={20} /> },
+    ]
+  },
+  { 
     group: "Système", 
     items: [
-      // ✨ POINT VERS LE BACKOFFICE POUR LE LAYOUT ADMIN ✨
+      { name: "Support", path: "/dashboard/support", icon: <Settings size={20} /> },
       { name: "Paramètres", path: "/dashboard/parametres", icon: <Settings size={20} /> },
-      { name: "Exports INS", path: "/dashboard/exports", icon: <FileOutput size={20} /> },
     ]
   }
 ];
