@@ -5,7 +5,7 @@ import { Card, Metric, Text, AreaChart, Flex, BadgeDelta, Grid } from "@tremor/r
 
 const fetchStats = async () => {
   const data: any = await apiService.get('/analytics/dashboard');
-  return { total: data?.totalCitizens || data?.total || 0 };
+  return { total: data?.citizens?.total || data?.totalCitizens || 0 };
 };
 
 const fetchTrend = async () => {

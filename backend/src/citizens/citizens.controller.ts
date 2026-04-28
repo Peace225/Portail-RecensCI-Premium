@@ -13,6 +13,14 @@ import { UpdateCitizenDto, CitizenResponseDto, PaginatedCitizensDto } from './dt
 export class CitizensController {
   constructor(private citizensService: CitizensService) {}
 
+  @Post()
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN')
+  @ApiOperation({ summary: 'Créer un citoyen (recensement)', description: 'Utilisé par CensusForm.tsx' })
+  @ApiResponse({ status: 201, type: CitizenResponseDto })
+  create(@Body() body: any) {
+    return this.citizensService.create(body);
+  }
+
   @Get()
   @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
   @ApiOperation({ summary: 'Liste des citoyens' })

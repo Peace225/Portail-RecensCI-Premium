@@ -5,6 +5,22 @@ import { PrismaService } from '../prisma/prisma.service';
 export class CitizensService {
   constructor(private prisma: PrismaService) {}
 
+  async create(dto: any) {
+    const nni = dto.nni || `CI-${Date.now()}`;
+    return this.prisma.citizen.create({
+      data: {
+        nni,
+        fullName: dto.fullName || `${dto.firstName || ''} ${dto.lastName || ''}`.trim(),
+        email: dto.email || null,
+        city: dto.city || null,
+        address: dto.address || null,
+        phone: dto.phone || null,
+        gender: dto.gender || null,
+        birthDate: dto.birthDate ? new Date(dto.birthDate) : null,
+      },
+    });
+  }
+
   async findAll(filters: { search?: string; page?: number; limit?: number }) {
     const page = Number(filters.page) || 1;
     const limit = Number(filters.limit) || 20;
