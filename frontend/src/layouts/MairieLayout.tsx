@@ -4,11 +4,25 @@ import {
   Landmark, Users, FolderTree, Settings, LogOut, 
   ChevronRight, Activity, MapPin, Database, Bell
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function MairieLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useSelector((state: RootState) => state.user);
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
+  const initials = user.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'MA';
 
   // Les menus spécifiques au Maire / Admin Mairie
   const menuItems = [
@@ -83,14 +97,14 @@ export default function MairieLayout() {
           <div className="bg-black/40 p-4 rounded-2xl border border-white/5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-sm shadow-[0_0_10px_rgba(245,158,11,0.4)]">
-                KY
+                {initials}
               </div>
               <div>
-                <p className="text-xs font-black text-white uppercase">Kone Yacouba</p>
+                <p className="text-xs font-black text-white uppercase">{user.name || 'Admin Mairie'}</p>
                 <p className="text-[9px] text-amber-500 font-bold uppercase tracking-widest">Admin Mairie</p>
               </div>
             </div>
-            <button className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors justify-center group">
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors justify-center group">
               <LogOut size={14} className="group-hover:-translate-x-1 transition-transform" />
               <span className="text-[10px] font-black uppercase tracking-widest">Déconnexion</span>
             </button>
@@ -107,13 +121,15 @@ export default function MairieLayout() {
         <header className="shrink-0 z-50 bg-[#050914]/60 backdrop-blur-xl border-b border-amber-500/10 h-20 flex justify-between items-center px-8 shadow-md">
            <div className="flex items-center gap-2">
              <MapPin size={16} className="text-amber-500" />
-             <span className="text-xs font-black text-white uppercase tracking-widest">Mairie de Yopougon</span>
+             <span className="text-xs font-black text-white uppercase tracking-widest">
+               {user.name || 'Portail Mairie'}
+             </span>
            </div>
            
            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2 text-[9px] font-mono text-slate-400 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
                 <Database size={12} className="text-emerald-500" />
-                <span>SYNC HYPERVISEUR : <span className="text-emerald-400">ACTIF</span></span>
+                <span>STATUT : <span className="text-emerald-400">CONNECTÉ</span></span>
               </div>
               <button className="relative p-2 text-slate-400 hover:text-amber-500 transition-colors">
                 <Bell size={20} />

@@ -1,6 +1,6 @@
 // src/App.tsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 // --- Composants Communs ---
@@ -127,24 +127,51 @@ const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-[#020617]">
-        {/* Notifications HUD */}
-        <Toaster 
-          position="top-right" 
-          toastOptions={{
-            style: { background: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }
-          }} 
-        />
-        
-        {/* --- Monitoring global --- */}
-        <HeaderStats /> 
+      <AppContent />
+    </Router>
+  );
+};
 
+// Composant interne pour accéder à useLocation
+const AppContent: React.FC = () => {
+  const location = useLocation();
+  
+  // Routes qui ont leur propre layout complet — pas de Header/Footer/HeaderStats global
+  const isProtectedLayout = 
+    location.pathname.startsWith('/dashboard') ||
+    location.pathname.startsWith('/backoffice') ||
+    location.pathname.startsWith('/portail') ||
+    location.pathname.startsWith('/me') ||
+    location.pathname.startsWith('/mon-profil') ||
+    location.pathname.startsWith('/recensement-details') ||
+    location.pathname.startsWith('/migrations') ||
+    location.pathname.startsWith('/prestations') ||
+    location.pathname.startsWith('/declarer') ||
+    location.pathname.startsWith('/mes-demandes') ||
+    location.pathname.startsWith('/notifications') ||
+    location.pathname.startsWith('/aide') ||
+    location.pathname.startsWith('/certificats') ||
+    location.pathname.startsWith('/support');
+
+  return (
+    <div className="flex flex-col min-h-screen bg-[#020617]">
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          style: { background: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }
+        }} 
+      />
+      
+      {/* HeaderStats et Header uniquement sur les pages publiques */}
+      {!isProtectedLayout && <HeaderStats />}
+      {!isProtectedLayout && (
         <div className="pt-8">
           <Header />
         </div>
+      )}
 
-        <main className="flex-1">
-          <Routes>
+      <main className="flex-1">
+        <Routes>
             {/* 1. ROUTES PUBLIQUES */}
             <Route path="/" element={<Home />} />
             <Route path="/stats" element={<StatsDashboard />} />
@@ -311,9 +338,9 @@ const App: React.FC = () => {
           </Routes>
         </main>
 
-        <Footer />
+        {/* Footer uniquement sur les pages publiques */}
+        {!isProtectedLayout && <Footer />}
       </div>
-    </Router>
   );
 };
 
