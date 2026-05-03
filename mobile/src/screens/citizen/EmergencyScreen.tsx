@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, KeyboardAv
 import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const TYPES = ['Agression', 'Accident', 'Incendie', 'Autre'];
@@ -36,7 +37,7 @@ export default function EmergencyScreen({ navigation }: any) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.alertBanner}>
-          <Text style={styles.alertIcon}>🚨</Text>
+          <Ionicons name="alert-circle-outline" size={40} color={Colors.error} style={{ marginBottom: 8 }} />
           <Text style={styles.alertTitle}>Signalement d'Urgence</Text>
           <Text style={styles.alertSubtitle}>Ce formulaire alerte immédiatement les autorités</Text>
         </View>
@@ -78,7 +79,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 24, paddingBottom: 60 },
   alertBanner: { backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 20, padding: 20, alignItems: 'center', marginBottom: 24, borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)' },
-  alertIcon: { fontSize: 40, marginBottom: 8 },
   alertTitle: { fontSize: 18, fontWeight: '900', color: Colors.error, marginBottom: 4 },
   alertSubtitle: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center' },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },

@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import api from '../../services/api';
 import { Badge } from '../../components/ui/Badge';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const SEVERITY_COLORS: Record<string, string> = { LEGER: Colors.success, GRAVE: Colors.warning, FATAL: Colors.error };
-const TYPE_ICONS: Record<string, string> = { ACCIDENT: '🚗', HOMICIDE: '⚠️', AGRESSION: '🚨', AUTRE: '📍' };
+const TYPE_ICONS: Record<string, string> = { ACCIDENT: 'car-outline', HOMICIDE: 'warning-outline', AGRESSION: 'alert-circle-outline', AUTRE: 'location-outline' };
 
 export default function IncidentMapScreen() {
   const [incidents, setIncidents] = useState<any[]>([]);
@@ -31,7 +32,7 @@ export default function IncidentMapScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Carte des Incidents</Text>
       <View style={styles.mapPlaceholder}>
-        <Text style={styles.mapIcon}>🗺️</Text>
+        <Ionicons name="map-outline" size={40} color={Colors.textMuted} style={{ marginBottom: 8 }} />
         <Text style={styles.mapText}>Carte interactive — bientôt disponible</Text>
       </View>
       <Text style={styles.sectionTitle}>Liste des incidents ({incidents.length})</Text>
@@ -41,7 +42,7 @@ export default function IncidentMapScreen() {
         incidents.map((inc: any) => (
           <View key={inc.id} style={styles.card}>
             <View style={styles.cardRow}>
-              <Text style={styles.cardIcon}>{TYPE_ICONS[inc.type] || '📍'}</Text>
+              <Ionicons name={(TYPE_ICONS[inc.type] || 'location-outline') as any} size={28} color={Colors.orange} style={{ marginRight: 12 }} />
               <View style={styles.cardInfo}>
                 <Text style={styles.cardType}>{inc.type}</Text>
                 <Text style={styles.cardLocation}>📍 {inc.location}</Text>
@@ -65,14 +66,12 @@ const styles = StyleSheet.create({
   center: { flex: 1, backgroundColor: Colors.bg, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary, marginBottom: 16 },
   mapPlaceholder: { backgroundColor: Colors.bgCard, borderRadius: 20, height: 160, justifyContent: 'center', alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: Colors.border },
-  mapIcon: { fontSize: 40, marginBottom: 8 },
   mapText: { fontSize: 12, color: Colors.textMuted },
   sectionTitle: { fontSize: 11, fontWeight: '800', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 },
   empty: { alignItems: 'center', marginTop: 40 },
   emptyText: { fontSize: 14, color: Colors.textMuted },
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
   cardRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  cardIcon: { fontSize: 28, marginRight: 12 },
   cardInfo: { flex: 1 },
   cardType: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   cardLocation: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },

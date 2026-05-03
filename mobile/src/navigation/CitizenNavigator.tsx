@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 
 import CitizenHomeScreen from '../screens/citizen/CitizenHomeScreen';
@@ -19,7 +19,7 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const TAB_ICONS: Record<string, string> = {
-  Accueil: '🏠', Profil: '👤', Demandes: '📋', Notifs: '🔔',
+  Accueil: 'home-outline', Profil: 'person-outline', Demandes: 'list-outline', Notifs: 'notifications-outline',
 };
 
 function CitizenTabs() {
@@ -32,7 +32,7 @@ function CitizenTabs() {
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarLabelStyle: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
         tabBarIcon: ({ color }) => (
-          <Text style={{ fontSize: 22 }}>{TAB_ICONS[route.name] || '•'}</Text>
+          <Ionicons name={(TAB_ICONS[route.name] || 'ellipse-outline') as any} size={24} color={color} />
         ),
       })}
     >

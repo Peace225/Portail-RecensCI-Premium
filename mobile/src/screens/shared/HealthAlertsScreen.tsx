@@ -6,6 +6,7 @@ import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const SEVERITY_COLORS: Record<string, string> = { LOW: Colors.success, MEDIUM: Colors.warning, HIGH: Colors.error, CRITICAL: '#dc2626' };
@@ -62,7 +63,7 @@ export default function HealthAlertsScreen() {
           {canCreate && <Button title="+ Alerte" onPress={() => setModalVisible(true)} style={styles.newBtn} />}
         </View>
         {alerts.length === 0 ? (
-          <View style={styles.empty}><Text style={styles.emptyIcon}>⚕️</Text><Text style={styles.emptyText}>Aucune alerte</Text></View>
+          <View style={styles.empty}><Ionicons name="medkit-outline" size={48} color={Colors.textMuted} style={{ marginBottom: 12 }} /><Text style={styles.emptyText}>Aucune alerte</Text></View>
         ) : (
           alerts.map((a: any) => (
             <View key={a.id} style={styles.card}>
@@ -111,7 +112,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary },
   newBtn: { height: 40, paddingHorizontal: 16 },
   empty: { alignItems: 'center', marginTop: 80 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyText: { fontSize: 14, color: Colors.textMuted },
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 },

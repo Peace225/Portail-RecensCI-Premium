@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const STATUS_COLORS: Record<string, string> = { ACTIVE: Colors.success, REVOKED: Colors.error, EXPIRED: Colors.textMuted };
@@ -55,7 +56,7 @@ export default function ApiKeysScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Clés API</Text>
       {keys.length === 0 ? (
-        <View style={styles.empty}><Text style={styles.emptyIcon}>🔑</Text><Text style={styles.emptyText}>Aucune clé API</Text></View>
+        <View style={styles.empty}><Ionicons name="key-outline" size={48} color={Colors.textMuted} style={{ marginBottom: 12 }} /><Text style={styles.emptyText}>Aucune clé API</Text></View>
       ) : (
         keys.map((k: any) => (
           <View key={k.id} style={styles.card}>
@@ -89,7 +90,6 @@ const styles = StyleSheet.create({
   center: { flex: 1, backgroundColor: Colors.bg, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary, marginBottom: 20 },
   empty: { alignItems: 'center', marginTop: 80 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyText: { fontSize: 14, color: Colors.textMuted },
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },

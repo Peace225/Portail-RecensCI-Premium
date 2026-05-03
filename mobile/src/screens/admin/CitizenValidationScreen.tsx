@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 're
 import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 export default function CitizenValidationScreen() {
@@ -42,7 +43,7 @@ export default function CitizenValidationScreen() {
       <Text style={styles.title}>Validation Citoyens</Text>
       <Text style={styles.subtitle}>{citizens.length} citoyen(s) signalé(s)</Text>
       {citizens.length === 0 ? (
-        <View style={styles.empty}><Text style={styles.emptyIcon}>🔍</Text><Text style={styles.emptyText}>Aucun citoyen signalé</Text></View>
+        <View style={styles.empty}><Ionicons name="search-outline" size={48} color={Colors.textMuted} style={{ marginBottom: 12 }} /><Text style={styles.emptyText}>Aucun citoyen signalé</Text></View>
       ) : (
         citizens.map((c: any) => (
           <View key={c.id} style={styles.card}>
@@ -81,7 +82,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary, marginBottom: 4 },
   subtitle: { fontSize: 12, color: Colors.textMuted, marginBottom: 20 },
   empty: { alignItems: 'center', marginTop: 80 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyText: { fontSize: 14, color: Colors.textMuted },
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: `${Colors.error}30` },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },

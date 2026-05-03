@@ -5,21 +5,22 @@ import { RootState } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const MODULES = [
-  { label: 'Naissance', icon: '👶', route: 'BirthForm', color: '#10b981' },
-  { label: 'Décès', icon: '🕊️', route: 'DeathForm', color: '#64748b' },
-  { label: 'Mariage', icon: '💍', route: 'MarriageForm', color: '#ec4899' },
-  { label: 'Divorce', icon: '⚖️', route: 'DivorceForm', color: '#f59e0b' },
-  { label: 'Mariage Coutumier', icon: '🏺', route: 'CustomaryMarriage', color: '#d97706' },
-  { label: 'Naissance Terrain', icon: '🌿', route: 'OutOfFacilityBirth', color: '#16a34a' },
-  { label: 'Accident', icon: '🚗', route: 'AccidentForm', color: '#f97316' },
-  { label: 'Homicide', icon: '🔴', route: 'HomicideForm', color: '#ef4444' },
-  { label: 'Mort Maternelle', icon: '🏥', route: 'MaternalDeath', color: '#be185d' },
-  { label: 'Migration Int.', icon: '✈️', route: 'InternationalMigration', color: '#0ea5e9' },
-  { label: 'Migration Interne', icon: '🗺️', route: 'InternalMigration', color: '#6366f1' },
-  { label: 'Alerte Sanitaire', icon: '⚠️', route: 'HealthAlert', color: '#dc2626' },
+  { label: 'Naissance', icon: 'happy-outline', route: 'BirthForm', color: '#10b981' },
+  { label: 'Décès', icon: 'leaf-outline', route: 'DeathForm', color: '#64748b' },
+  { label: 'Mariage', icon: 'heart-outline', route: 'MarriageForm', color: '#ec4899' },
+  { label: 'Divorce', icon: 'scale-outline', route: 'DivorceForm', color: '#f59e0b' },
+  { label: 'Mariage Coutumier', icon: 'library-outline', route: 'CustomaryMarriage', color: '#d97706' },
+  { label: 'Naissance Terrain', icon: 'leaf-outline', route: 'OutOfFacilityBirth', color: '#16a34a' },
+  { label: 'Accident', icon: 'car-outline', route: 'AccidentForm', color: '#f97316' },
+  { label: 'Homicide', icon: 'warning-outline', route: 'HomicideForm', color: '#ef4444' },
+  { label: 'Mort Maternelle', icon: 'medical-outline', route: 'MaternalDeath', color: '#be185d' },
+  { label: 'Migration Int.', icon: 'airplane-outline', route: 'InternationalMigration', color: '#0ea5e9' },
+  { label: 'Migration Interne', icon: 'map-outline', route: 'InternalMigration', color: '#6366f1' },
+  { label: 'Alerte Sanitaire', icon: 'warning-outline', route: 'HealthAlert', color: '#dc2626' },
 ];
 
 export default function AgentHomeScreen({ navigation }: any) {
@@ -86,7 +87,7 @@ export default function AgentHomeScreen({ navigation }: any) {
             onPress={() => navigation.navigate(mod.route)}
             activeOpacity={0.7}
           >
-            <Text style={styles.moduleIcon}>{mod.icon}</Text>
+            <Ionicons name={mod.icon as any} size={26} color={mod.color} style={{ marginBottom: 6 }} />
             <Text style={[styles.moduleLabel, { color: mod.color }]}>{mod.label}</Text>
           </TouchableOpacity>
         ))}
@@ -96,13 +97,13 @@ export default function AgentHomeScreen({ navigation }: any) {
       <Text style={styles.sectionTitle}>Outils</Text>
       <View style={styles.toolsList}>
         {[
-          { label: 'Carte des Incidents', icon: '🗺️', route: 'IncidentMap' },
-          { label: 'Certificats', icon: '📄', route: 'CertificateRequest' },
-          { label: 'Alertes Sanitaires', icon: '⚠️', route: 'HealthAlerts' },
-          { label: 'Support', icon: '💬', route: 'Support' },
+          { label: 'Carte des Incidents', icon: 'map-outline', route: 'IncidentMap' },
+          { label: 'Certificats', icon: 'document-text-outline', route: 'CertificateRequest' },
+          { label: 'Alertes Sanitaires', icon: 'warning-outline', route: 'HealthAlerts' },
+          { label: 'Support', icon: 'chatbubble-outline', route: 'Support' },
         ].map((tool) => (
           <TouchableOpacity key={tool.route} style={styles.toolItem} onPress={() => navigation.navigate(tool.route)}>
-            <Text style={styles.toolIcon}>{tool.icon}</Text>
+            <Ionicons name={tool.icon as any} size={22} color={Colors.orange} style={{ marginRight: 14 }} />
             <Text style={styles.toolLabel}>{tool.label}</Text>
             <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
@@ -127,11 +128,9 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 11, fontWeight: '800', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginHorizontal: 24, marginBottom: 12, marginTop: 16 },
   modulesGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 10, marginBottom: 8 },
   moduleCard: { width: '30%', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 14, alignItems: 'center', borderWidth: 1 },
-  moduleIcon: { fontSize: 26, marginBottom: 6 },
   moduleLabel: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', letterSpacing: 0.5 },
   toolsList: { marginHorizontal: 24, marginBottom: 40 },
   toolItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: Colors.border },
-  toolIcon: { fontSize: 22, marginRight: 14 },
   toolLabel: { flex: 1, fontSize: 14, fontWeight: '700', color: '#fff' },
   chevron: { fontSize: 22, color: Colors.textMuted },
 });

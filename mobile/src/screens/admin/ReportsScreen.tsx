@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const STAT_CONFIG = [
-  { key: 'births', label: 'Naissances', icon: '👶', color: Colors.success },
-  { key: 'deaths', label: 'Décès', icon: '🕊️', color: Colors.textMuted },
-  { key: 'marriages', label: 'Mariages', icon: '💍', color: Colors.orange },
-  { key: 'divorces', label: 'Divorces', icon: '⚖️', color: Colors.warning },
-  { key: 'migrations', label: 'Migrations', icon: '🌍', color: Colors.info },
-  { key: 'citizens', label: 'Citoyens', icon: '👤', color: Colors.admin },
+  { key: 'births', label: 'Naissances', icon: 'happy-outline', color: Colors.success },
+  { key: 'deaths', label: 'Décès', icon: 'leaf-outline', color: Colors.textMuted },
+  { key: 'marriages', label: 'Mariages', icon: 'heart-outline', color: Colors.orange },
+  { key: 'divorces', label: 'Divorces', icon: 'scale-outline', color: Colors.warning },
+  { key: 'migrations', label: 'Migrations', icon: 'globe-outline', color: Colors.info },
+  { key: 'citizens', label: 'Citoyens', icon: 'person-outline', color: Colors.admin },
 ];
 
 export default function ReportsScreen() {
@@ -44,7 +45,7 @@ export default function ReportsScreen() {
       <View style={styles.grid}>
         {STAT_CONFIG.map(({ key, label, icon, color }) => (
           <Card key={key} style={styles.statCard} accent={color}>
-            <Text style={styles.statIcon}>{icon}</Text>
+            <Ionicons name={icon as any} size={32} color={color} style={{ marginBottom: 8 }} />
             <Text style={[styles.statValue, { color }]}>{stats?.[key] ?? 0}</Text>
             <Text style={styles.statLabel}>{label}</Text>
           </Card>
@@ -61,7 +62,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary, marginBottom: 24 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   statCard: { width: '47%', alignItems: 'center', paddingVertical: 20 },
-  statIcon: { fontSize: 32, marginBottom: 8 },
   statValue: { fontSize: 32, fontWeight: '900', marginBottom: 4 },
   statLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5 },
 });

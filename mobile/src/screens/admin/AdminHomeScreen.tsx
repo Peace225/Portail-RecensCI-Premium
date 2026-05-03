@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 export default function AdminHomeScreen({ navigation }: any) {
@@ -33,22 +34,22 @@ export default function AdminHomeScreen({ navigation }: any) {
 
   const SECTIONS = user.role === 'ENTITY_ADMIN'
     ? [
-        { label: 'Agents', icon: '👥', route: 'AgentList' },
-        { label: 'Directions & Services', icon: '🏛️', route: 'Departments' },
-        { label: 'Registres', icon: '📚', route: 'Registres' },
-        { label: 'Paramètres', icon: '⚙️', route: 'Settings' },
+        { label: 'Agents', icon: 'people-outline', route: 'AgentList' },
+        { label: 'Directions & Services', icon: 'business-outline', route: 'Departments' },
+        { label: 'Registres', icon: 'book-outline', route: 'Registres' },
+        { label: 'Paramètres', icon: 'settings-outline', route: 'Settings' },
       ]
     : [
-        { label: 'Citoyens', icon: '👤', route: 'CitizenDatabase' },
-        { label: 'Agents', icon: '👥', route: 'AgentList' },
-        { label: 'Flux Citoyens', icon: '🔄', route: 'CitizenFlux' },
-        { label: 'Validation', icon: '✅', route: 'CitizenValidation' },
-        { label: 'Incidents', icon: '🚨', route: 'IncidentMap' },
-        { label: 'Alertes Sanitaires', icon: '⚠️', route: 'HealthAlerts' },
-        { label: 'Rapports', icon: '📊', route: 'Reports' },
-        { label: 'Audit', icon: '🔍', route: 'AuditLogs' },
-        { label: 'Clés API', icon: '🔑', route: 'ApiKeys' },
-        { label: 'Support', icon: '💬', route: 'Support' },
+        { label: 'Citoyens', icon: 'person-outline', route: 'CitizenDatabase' },
+        { label: 'Agents', icon: 'people-outline', route: 'AgentList' },
+        { label: 'Flux Citoyens', icon: 'sync-outline', route: 'CitizenFlux' },
+        { label: 'Validation', icon: 'checkmark-circle-outline', route: 'CitizenValidation' },
+        { label: 'Incidents', icon: 'alert-circle-outline', route: 'IncidentMap' },
+        { label: 'Alertes Sanitaires', icon: 'warning-outline', route: 'HealthAlerts' },
+        { label: 'Rapports', icon: 'bar-chart-outline', route: 'Reports' },
+        { label: 'Audit', icon: 'search-outline', route: 'AuditLogs' },
+        { label: 'Clés API', icon: 'key-outline', route: 'ApiKeys' },
+        { label: 'Support', icon: 'chatbubble-outline', route: 'Support' },
       ];
 
   return (
@@ -103,7 +104,7 @@ export default function AdminHomeScreen({ navigation }: any) {
             onPress={() => navigation.navigate(section.route)}
             activeOpacity={0.7}
           >
-            <Text style={styles.sectionIcon}>{section.icon}</Text>
+            <Ionicons name={section.icon as any} size={26} color={accentColor} style={{ marginBottom: 6 }} />
             <Text style={[styles.sectionLabel, { color: accentColor }]}>{section.label}</Text>
           </TouchableOpacity>
         ))}
@@ -126,6 +127,5 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 11, fontWeight: '800', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginHorizontal: 24, marginBottom: 12 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 10, paddingBottom: 40 },
   sectionCard: { width: '30%', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 14, alignItems: 'center', borderWidth: 1 },
-  sectionIcon: { fontSize: 26, marginBottom: 6 },
   sectionLabel: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', letterSpacing: 0.5 },
 });

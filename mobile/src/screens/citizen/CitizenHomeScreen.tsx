@@ -6,15 +6,16 @@ import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const QUICK_ACTIONS = [
-  { label: 'Mes Demandes', icon: '📋', route: 'CitizenRequests', color: Colors.orange },
-  { label: 'Certificats', icon: '📄', route: 'CertificateRequest', color: '#10b981' },
-  { label: 'Notifications', icon: '🔔', route: 'Notifications', color: '#3b82f6' },
-  { label: 'Urgence', icon: '🚨', route: 'Emergency', color: '#ef4444' },
-  { label: 'Mon Profil', icon: '👤', route: 'CitizenProfile', color: '#a855f7' },
-  { label: 'Support', icon: '💬', route: 'Support', color: '#f59e0b' },
+  { label: 'Mes Demandes', icon: 'list-outline', route: 'CitizenRequests', color: Colors.orange },
+  { label: 'Certificats', icon: 'document-text-outline', route: 'CertificateRequest', color: '#10b981' },
+  { label: 'Notifications', icon: 'notifications-outline', route: 'Notifications', color: '#3b82f6' },
+  { label: 'Urgence', icon: 'alert-circle-outline', route: 'Emergency', color: '#ef4444' },
+  { label: 'Mon Profil', icon: 'person-outline', route: 'CitizenProfile', color: '#a855f7' },
+  { label: 'Support', icon: 'chatbubble-outline', route: 'Support', color: '#f59e0b' },
 ];
 
 export default function CitizenHomeScreen({ navigation }: any) {
@@ -82,7 +83,7 @@ export default function CitizenHomeScreen({ navigation }: any) {
             onPress={() => navigation.navigate(action.route)}
             activeOpacity={0.7}
           >
-            <Text style={styles.actionIcon}>{action.icon}</Text>
+            <Ionicons name={action.icon as any} size={28} color={action.color} style={{ marginBottom: 8 }} />
             <Text style={[styles.actionLabel, { color: action.color }]}>{action.label}</Text>
           </TouchableOpacity>
         ))}
@@ -92,16 +93,16 @@ export default function CitizenHomeScreen({ navigation }: any) {
       <Text style={styles.sectionTitle}>Déclarer un Événement</Text>
       <View style={styles.declarationList}>
         {[
-          { label: 'Naissance', icon: '👶', route: 'BirthDeclaration' },
-          { label: 'Décès', icon: '🕊️', route: 'DeathDeclaration' },
-          { label: 'Changement d\'adresse', icon: '🏠', route: 'AddressChange' },
+          { label: 'Naissance', icon: 'happy-outline', route: 'BirthDeclaration' },
+          { label: 'Décès', icon: 'leaf-outline', route: 'DeathDeclaration' },
+          { label: 'Changement d\'adresse', icon: 'home-outline', route: 'AddressChange' },
         ].map((item) => (
           <TouchableOpacity
             key={item.route}
             style={styles.declarationItem}
             onPress={() => navigation.navigate(item.route)}
           >
-            <Text style={styles.declarationIcon}>{item.icon}</Text>
+            <Ionicons name={item.icon as any} size={24} color={Colors.orange} style={{ marginRight: 16 }} />
             <Text style={styles.declarationLabel}>{item.label}</Text>
             <Text style={styles.chevron}>›</Text>
           </TouchableOpacity>
@@ -126,11 +127,9 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 12, fontWeight: '800', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginHorizontal: 24, marginBottom: 12, marginTop: 8 },
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 12, marginBottom: 24 },
   actionCard: { width: '30%', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 1 },
-  actionIcon: { fontSize: 28, marginBottom: 8 },
   actionLabel: { fontSize: 10, fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', letterSpacing: 0.5 },
   declarationList: { marginHorizontal: 24, marginBottom: 40 },
   declarationItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: Colors.border },
-  declarationIcon: { fontSize: 24, marginRight: 16 },
   declarationLabel: { flex: 1, fontSize: 14, fontWeight: '700', color: '#fff' },
   chevron: { fontSize: 24, color: Colors.textMuted },
 });

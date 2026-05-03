@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 
 import AdminHomeScreen from '../screens/admin/AdminHomeScreen';
@@ -29,11 +29,10 @@ function AdminTabs() {
         tabBarActiveTintColor: Colors.admin,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarLabelStyle: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-        tabBarIcon: () => (
-          <Text style={{ fontSize: 22 }}>
-            {route.name === 'Dashboard' ? '🏛️' : route.name === 'Notifs' ? '🔔' : '💬'}
-          </Text>
-        ),
+        tabBarIcon: ({ color }) => {
+          const name = route.name === 'Dashboard' ? 'grid-outline' : route.name === 'Notifs' ? 'notifications-outline' : 'chatbubble-outline';
+          return <Ionicons name={name as any} size={24} color={color} />;
+        },
       })}
     >
       <Tab.Screen name="Dashboard" component={AdminHomeScreen} />

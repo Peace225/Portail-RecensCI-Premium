@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
 const STATUS_COLORS: Record<string, string> = { ACTIVE: Colors.success, PENDING: Colors.warning, FLAGGED: Colors.error };
@@ -47,7 +48,7 @@ export default function CitizenDatabaseScreen() {
     <View style={styles.container}>
       <View style={styles.searchBar}>
         <Input label="" value={search} onChangeText={setSearch} placeholder="Rechercher par nom, NNI..." style={styles.searchInput} />
-        <Button title="🔍" onPress={() => fetchCitizens(search)} style={styles.searchBtn} />
+        <Button title="Chercher" onPress={() => fetchCitizens(search)} style={styles.searchBtn} />
       </View>
 
       {loading ? (
@@ -55,7 +56,7 @@ export default function CitizenDatabaseScreen() {
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
           {citizens.length === 0 ? (
-            <View style={styles.empty}><Text style={styles.emptyIcon}>👤</Text><Text style={styles.emptyText}>Aucun citoyen trouvé</Text></View>
+            <View style={styles.empty}><Ionicons name="person-outline" size={48} color={Colors.textMuted} style={{ marginBottom: 12 }} /><Text style={styles.emptyText}>Aucun citoyen trouvé</Text></View>
           ) : (
             citizens.map((c: any) => (
               <TouchableOpacity key={c.id} style={styles.card} onPress={() => setSelected(c)} activeOpacity={0.8}>
@@ -100,7 +101,6 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 60 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   empty: { alignItems: 'center', marginTop: 80 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyText: { fontSize: 14, color: Colors.textMuted },
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
