@@ -1,6 +1,7 @@
 // src/modules/BirthForm.tsx
 import React, { useState } from "react";
-import { apiService } from "../services/apiService";
+import { db } from "../firebase/firebaseConfig";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 
 const BirthForm: React.FC = () => {
@@ -56,10 +57,11 @@ const BirthForm: React.FC = () => {
     setLoading(true);
 
     try {
-      await apiService.post('/events/birth', {
+      await addDoc(collection(db, "birth_records"), {
         ...formData,
         motherPhoto: previews.mother,
         fatherPhoto: previews.father,
+        registeredAt: serverTimestamp(),
         status: "EN_ATTENTE_VALIDATION",
       });
       

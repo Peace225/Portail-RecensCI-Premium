@@ -1,6 +1,7 @@
 // src/modules/InternationalFlowForm.tsx
 import React, { useState } from "react";
-import { apiService } from "../services/apiService";
+import { db } from "../firebase/firebaseConfig";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { PlaneLanding, PlaneTakeoff, UserCheck, MapPin, Briefcase, ShieldCheck, UploadCloud, Globe2 } from "lucide-react";
 
@@ -54,11 +55,11 @@ const InternationalFlowForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await apiService.post('/events/migration', {
+      await addDoc(collection(db, "international_flows"), {
         ...formData,
         direction,
         passportScan: docPreview,
-        migrationType: 'INTERNATIONAL',
+        registeredAt: serverTimestamp(),
       });
       toast.success(`Mouvement d'${direction.toLowerCase()} enregistré au registre des frontières.`);
     } catch (error) {

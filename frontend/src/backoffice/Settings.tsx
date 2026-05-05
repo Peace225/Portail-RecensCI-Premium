@@ -1,6 +1,6 @@
 // src/backoffice/Settings.tsx
 import React, { useState, useEffect } from "react";
-import { apiService } from "../services/apiService";
+import { supabase } from "../supabaseClient";
 import { motion } from "framer-motion";
 import { 
   ShieldCheck, Lock, Wifi, Bell, 
@@ -20,10 +20,6 @@ const Settings: React.FC = () => {
     emailAlerts: true,
     maintenanceMode: false
   });
-
-  useEffect(() => {
-    apiService.get<any>('/auth/me').catch(() => null);
-  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

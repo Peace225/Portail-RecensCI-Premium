@@ -1,6 +1,7 @@
 // src/modules/DeathForm.tsx
 import React, { useState } from "react";
-import { apiService } from "../services/apiService";
+import { db } from "../firebase/firebaseConfig";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { Skull, FileText, UserMinus, UserCheck, Stethoscope, MapPin, UploadCloud } from "lucide-react";
 
@@ -54,9 +55,10 @@ const DeathForm: React.FC = () => {
 
     setLoading(true);
     try {
-      await apiService.post('/events/death', {
+      await addDoc(collection(db, "death_records"), {
         ...formData,
         medicalCertificateImage: certPreview,
+        registeredAt: serverTimestamp(),
         status: "A_VALIDER",
       });
       

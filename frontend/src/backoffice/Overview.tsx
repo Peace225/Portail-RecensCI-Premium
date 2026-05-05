@@ -1,31 +1,15 @@
 // src/backoffice/Overview.tsx
-import { useEffect, useState } from 'react';
-import { apiService } from '../services/apiService';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../supabaseClient';
 import { Card, Metric, Text, AreaChart, Flex, BadgeDelta, Grid } from "@tremor/react";
 
 const fetchStats = async () => {
-  const data: any = await apiService.get('/analytics/dashboard');
-  return { total: data?.citizens?.total || data?.totalCitizens || 0 };
-};
-
-const fetchTrend = async () => {
-  const data: any = await apiService.get('/analytics/trend');
-  return data || [];
+  const { count } = await supabase.from('citizens').select('*', { count: 'exact', head: true });
+  return { total: count || 0 };
 };
 
 export const Overview = () => {
-  const [data, setData] = useState<{ total: number } | null>(null);
-  const [chartdata, setChartdata] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([fetchStats(), fetchTrend()])
-      .then(([stats, trend]) => {
-        setData(stats);
-        setChartdata(trend);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
+  const { data, isLoading } = useQuery({ queryKey: ['stats'], queryFn: fetchStats });
 
   return (
     <Grid numItemsLg={3} className="gap-6">
@@ -42,7 +26,7 @@ export const Overview = () => {
         <Text className="font-bold">Flux de Recensement Mensuel</Text>
         <AreaChart
           className="h-72 mt-4"
-          data={chartdata}
+          data={chartdata} // Tes données Recharts fonctionnent ici aussi !
           index="date"
           categories={["Recensements"]}
           colors={["purple"]}

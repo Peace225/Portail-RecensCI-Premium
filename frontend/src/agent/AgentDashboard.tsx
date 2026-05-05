@@ -1,11 +1,10 @@
-// src/agent/AgentDashboard.tsx
 import React from "react";
-import { apiService } from "../services/apiService";
-import useOfflineSync from "./OfflineSync";
+import useOfflineSync from "./useOfflineSync";
 
 const AgentDashboard = () => {
   const { data: tasks, loading, error } = useOfflineSync("agentTasks", async () => {
-    return apiService.get<any[]>("/analytics/dashboard");
+    const res = await fetch("/api/agent/tasks");
+    return res.json();
   });
 
   if (loading) return <p>Chargement des tâches...</p>;
@@ -13,8 +12,12 @@ const AgentDashboard = () => {
 
   return (
     <div>
-      <h2>Tableau de bord Agent</h2>
-      <pre>{JSON.stringify(tasks, null, 2)}</pre>
+      <h2>Tâches de l'agent</h2>
+      <ul>
+        {tasks?.map((task: any) => (
+          <li key={task.id}>{task.title}</li>
+        ))}
+      </ul>
     </div>
   );
 };

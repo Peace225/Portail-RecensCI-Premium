@@ -1,6 +1,7 @@
 // src/modules/Security/HomicideForm.tsx
 import React, { useState } from "react";
-import { apiService } from "../../services/apiService";
+import { db } from "../../firebase/firebaseConfig";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { ShieldAlert, Crosshair, MapPin, UserX, Camera, BookOpen, Fingerprint, Siren } from "lucide-react";
 
@@ -53,11 +54,10 @@ const HomicideForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await apiService.post('/security/incidents', {
-        type: 'HOMICIDE',
-        severity: 'FATAL',
+      await addDoc(collection(db, "homicides"), {
         ...formData,
         photos: previews,
+        registeredAt: serverTimestamp(),
         status: "ENQUÊTE_OUVERTE",
       });
       toast.success("Rapport d'homicide enregistré. Dossier classifié transmis.");

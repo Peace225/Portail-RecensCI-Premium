@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { 
   Landmark, Users, FileText, DollarSign, 
   TrendingUp, ArrowUpRight, Calendar, Download 
@@ -7,7 +7,6 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, BarChart, Bar, Cell 
 } from 'recharts';
-import { apiService } from '../../../services/apiService';
 
 // --- DONNÉES FINANCIÈRES SIMULÉES ---
 const REVENUE_HISTORY = [
@@ -26,23 +25,7 @@ const TAX_BREAKDOWN = [
   { name: 'Voirie/Parking', value: 1800000, color: '#06b6d4' }, // Cyan
 ];
 
-interface MairieData {
-  births: number;
-  marriages: number;
-  divorces: number;
-  pendingEvents: number;
-  revenue: number;
-}
-
 export default function MairieDashboard() {
-  const [mairieData, setMairieData] = useState<MairieData | null>(null);
-
-  useEffect(() => {
-    apiService.get<MairieData>('/analytics/mairie').then(setMairieData).catch(() => {});
-  }, []);
-
-  const documentsDelivres = mairieData ? mairieData.births + mairieData.marriages : 1450;
-
   return (
     <div className="p-8 space-y-8 bg-[#020617] min-h-screen text-slate-300">
       
@@ -53,7 +36,7 @@ export default function MairieDashboard() {
             <Landmark className="text-amber-500" size={40} />
             DASHBOARD <span className="text-amber-500">FINANCIER</span>
           </h1>
-        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">
             République de Côte d'Ivoire • Trésorerie Communale
           </p>
         </div>
@@ -80,7 +63,7 @@ export default function MairieDashboard() {
         />
         <StatCard 
           title="Documents Délivrés" 
-          value={documentsDelivres.toLocaleString()} 
+          value="1 450" 
           unit="UNITÉS"
           trend="+5.2%" 
           icon={<FileText className="text-amber-500" />} 

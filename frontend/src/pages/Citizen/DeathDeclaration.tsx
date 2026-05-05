@@ -11,7 +11,6 @@ import { toast } from "react-hot-toast";
 
 // ---> IMPORT DU COMPOSANT D'UPLOAD CLOUDINARY <---
 import DocumentUploadHUD from "../../components/DocumentUploadHUD";
-import { apiService } from "../../services/apiService";
 
 const styles = `
   @keyframes scan-red { 0% { top: -100%; } 100% { top: 100%; } }
@@ -36,41 +35,24 @@ const DeathDeclaration: React.FC = () => {
     { name: "Kouhame Axel", relation: "Enfant (Mineur)", priority: "Priorité 2", amount: "87.500 CFA/mois" }
   ];
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    // Vérification des documents requis
     if (!deceasedPhotoUrl || !cmdDocUrl) {
       toast.error("Le scan biométrique et le Certificat Médical sont requis.");
       setLoading(false);
       return;
     }
 
-    const form = e.currentTarget;
-    const inputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select');
-    const fieldMap: Record<string, string> = {};
-    inputs.forEach(el => { if (el.name) fieldMap[el.name] = el.value; });
-
-    const formData = {
-      deceasedName: fieldMap['deceasedName'] || '',
-      deathDate: fieldMap['deathDate'] || '',
-      deathPlace: fieldMap['deathPlace'] || '',
-      cause: fieldMap['cause'] || '',
-      declarantName: fieldMap['declarantName'] || '',
-      deceasedPhotoUrl,
-      cmdDocUrl,
-    };
-
-    try {
-      await apiService.post('/events/death', formData);
+    setTimeout(() => {
       toast.success("Dossier de succession initialisé.", {
         style: { borderRadius: '20px', background: '#450a0a', color: '#fff', border: '1px solid #dc2626' }
       });
-    } catch {
-      toast.error("Erreur lors de l'initialisation du dossier.");
-    } finally {
       setLoading(false);
-    }
+      console.log("Documents Cloudinary :", { deceasedPhotoUrl, cmdDocUrl });
+    }, 3000);
   };
 
   return (

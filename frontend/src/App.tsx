@@ -1,6 +1,6 @@
 // src/App.tsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 // --- Composants Communs ---
@@ -57,20 +57,6 @@ import DeathForm from "./modules/DeathForm";
 import MarriageForm from "./modules/MarriageForm";
 import DivorceForm from "./modules/DivorceForm";
 import DataExportModule from "./pages/Exports/DataExportModule";
-import IncidentReportForm from "./pages/Security/IncidentReportForm";
-import IncidentMap from "./pages/Security/IncidentMap";
-import MigrationFlowForm from "./pages/Migration/MigrationFlowForm";
-import AccidentForm from "./modules/AccidentForm";
-import HomicideForm from "./modules/Security/HomicideForm";
-import MaternalHealthForm from "./modules/MaternalHealthForm";
-import InternationalFlowForm from "./modules/InternationalFlowForm";
-import InternalMigrationForm from "./modules/InternalMigrationForm";
-import ComingSoon from "./pages/ComingSoon";
-import CertificateRequest from "./pages/Citizen/CertificateRequest";
-import HealthAlerts from "./pages/Health/HealthAlerts";
-import Support from "./pages/Support";
-import CustomaryMarriageForm from "./modules/CustomaryMarriageForm";
-import OutOfFacilityBirthForm from "./modules/OutOfFacilityBirthForm";
 
 // --- Imports Backoffice (Accréditation & Citoyen) ---
 import AddAgent from "./backoffice/agents/AddAgent";
@@ -80,10 +66,6 @@ import AgentMessages from "./backoffice/agents/AgentMessages";
 import CitizenFlux from "./backoffice/citoyen/CitizenFlux";
 import CitizenDatabase from "./backoffice/citoyen/CitizenDatabase";
 import CitizenValidation from "./backoffice/citoyen/CitizenValidation";
-import AnalyticsPanel from "./backoffice/AnalyticsPanel";
-import EventFeed from "./backoffice/EventFeed";
-import Reports from "./backoffice/Reports";
-import UsersManagement from "./backoffice/UsersManagement";
 
 /* ==========================================
    🛡️ GARDIEN DE SÉCURITÉ UNIFIÉ (RBAC)
@@ -98,7 +80,6 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
   // Si le rôle de l'utilisateur n'est pas autorisé pour cette zone
   if (role && !allowedRoles.includes(role)) {
     if (role === 'ADMIN' || role === 'SUPER_ADMIN') return <Navigate to="/backoffice" replace />;
-    if (role === 'ENTITY_ADMIN') return <Navigate to="/portail/mairie" replace />;
     if (role === 'AGENT') return <Navigate to="/dashboard" replace />;
     return <Navigate to="/me" replace />;
   }
@@ -116,7 +97,6 @@ const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoggedIn) {
     if (role === 'ADMIN' || role === 'SUPER_ADMIN') return <Navigate to="/backoffice" replace />;
-    if (role === 'ENTITY_ADMIN') return <Navigate to="/portail/mairie" replace />;
     if (role === 'AGENT') return <Navigate to="/dashboard" replace />;
     return <Navigate to="/me" replace />;
   }
@@ -127,51 +107,24 @@ const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
 const App: React.FC = () => {
   return (
     <Router>
-      <AppContent />
-    </Router>
-  );
-};
+      <div className="flex flex-col min-h-screen bg-[#020617]">
+        {/* Notifications HUD */}
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: { background: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }
+          }} 
+        />
+        
+        {/* --- Monitoring global --- */}
+        <HeaderStats /> 
 
-// Composant interne pour accéder à useLocation
-const AppContent: React.FC = () => {
-  const location = useLocation();
-  
-  // Routes qui ont leur propre layout complet — pas de Header/Footer/HeaderStats global
-  const isProtectedLayout = 
-    location.pathname.startsWith('/dashboard') ||
-    location.pathname.startsWith('/backoffice') ||
-    location.pathname.startsWith('/portail') ||
-    location.pathname.startsWith('/me') ||
-    location.pathname.startsWith('/mon-profil') ||
-    location.pathname.startsWith('/recensement-details') ||
-    location.pathname.startsWith('/migrations') ||
-    location.pathname.startsWith('/prestations') ||
-    location.pathname.startsWith('/declarer') ||
-    location.pathname.startsWith('/mes-demandes') ||
-    location.pathname.startsWith('/notifications') ||
-    location.pathname.startsWith('/aide') ||
-    location.pathname.startsWith('/certificats') ||
-    location.pathname.startsWith('/support');
-
-  return (
-    <div className="flex flex-col min-h-screen bg-[#020617]">
-      <Toaster 
-        position="top-right" 
-        toastOptions={{
-          style: { background: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }
-        }} 
-      />
-      
-      {/* HeaderStats et Header uniquement sur les pages publiques */}
-      {!isProtectedLayout && <HeaderStats />}
-      {!isProtectedLayout && (
         <div className="pt-8">
           <Header />
         </div>
-      )}
 
-      <main className="flex-1">
-        <Routes>
+        <main className="flex-1">
+          <Routes>
             {/* 1. ROUTES PUBLIQUES */}
             <Route path="/" element={<Home />} />
             <Route path="/stats" element={<StatsDashboard />} />
@@ -203,8 +156,6 @@ const AppContent: React.FC = () => {
               <Route path="/mes-demandes" element={<CitizenRequests />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/aide" element={<CitizenEmergency />} />
-              <Route path="/certificats" element={<CertificateRequest />} />
-              <Route path="/support" element={<Support />} />
             </Route>
 
             {/* ======================================================
@@ -221,8 +172,6 @@ const AppContent: React.FC = () => {
               <Route index element={<MairieDashboard />} />
               <Route path="departements" element={<MairieDepartments />} />
               <Route path="agents" element={<MairieAgents />} />
-              <Route path="registres" element={<ComingSoon />} />
-              <Route path="parametres" element={<ComingSoon />} />
             </Route>
 
             {/* ======================================================
@@ -254,21 +203,7 @@ const AppContent: React.FC = () => {
               <Route path="naissances" element={<BirthForm />} />
               <Route path="mariages" element={<MarriageForm />} />
               <Route path="deces" element={<DeathForm />} />
-              <Route path="divorces" element={<DivorceForm />} />
-              <Route path="migrations" element={<MigrationFlowForm />} />
-              <Route path="migrations-int" element={<InternalMigrationForm />} />
-              <Route path="migrations-ext" element={<InternationalFlowForm />} />
-              <Route path="accidents" element={<AccidentForm />} />
-              <Route path="securite" element={<HomicideForm />} />
-              <Route path="sante-maternelle" element={<MaternalHealthForm />} />
-              <Route path="mariage-coutumier" element={<CustomaryMarriageForm />} />
-              <Route path="naissance-terrain" element={<OutOfFacilityBirthForm />} />
-              <Route path="alertes-sante" element={<HealthAlerts />} />
-              <Route path="incidents" element={<IncidentReportForm />} />
-              <Route path="carte-incidents" element={<IncidentMap />} />
               <Route path="exports" element={<DataExportModule />} />
-              <Route path="certificats" element={<CertificateRequest />} />
-              <Route path="support" element={<Support />} />
               <Route path="parametres" element={<Settings />} />
             </Route>
 
@@ -296,41 +231,6 @@ const AppContent: React.FC = () => {
               <Route path="citoyen/flux" element={<CitizenFlux />} />
               <Route path="citoyen/database" element={<CitizenDatabase />} />
               <Route path="citoyen/validation" element={<CitizenValidation />} />
-
-              {/* --- Modules Analytics & Admin --- */}
-              <Route path="analytics" element={<AnalyticsPanel />} />
-              <Route path="events" element={<EventFeed />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="users" element={<UsersManagement />} />
-
-              {/* --- Surveillance --- */}
-              <Route path="surveillance/video" element={<ComingSoon />} />
-              <Route path="surveillance/heatmap" element={<IncidentMap />} />
-              <Route path="surveillance/alertes" element={<ComingSoon />} />
-              <Route path="surveillance/cyber" element={<ComingSoon />} />
-
-              {/* --- Zones & Terrain --- */}
-              <Route path="zones/mapping" element={<ComingSoon />} />
-              <Route path="zones/tracking" element={<ComingSoon />} />
-              <Route path="zones/logistique" element={<ComingSoon />} />
-              <Route path="zones/rendement" element={<ComingSoon />} />
-
-              {/* --- Technique & DevOps --- */}
-              <Route path="technique/serveurs" element={<ComingSoon />} />
-              <Route path="technique/database" element={<ComingSoon />} />
-              <Route path="technique/api" element={<ComingSoon />} />
-              <Route path="technique/deployments" element={<ComingSoon />} />
-
-              {/* --- Logs & Réseau --- */}
-              <Route path="logs/terminal" element={<ComingSoon />} />
-              <Route path="logs/audit" element={<ComingSoon />} />
-              <Route path="logs/security" element={<ComingSoon />} />
-
-              {/* --- Paramètres Système --- */}
-              <Route path="settings/rules" element={<ComingSoon />} />
-              <Route path="settings/iam" element={<ComingSoon />} />
-              <Route path="settings/integrations" element={<ComingSoon />} />
-              <Route path="settings/display" element={<ComingSoon />} />
             </Route>
 
             {/* Redirection automatique pour les URLs inconnues vers l'accueil ou 404 */}
@@ -338,9 +238,9 @@ const AppContent: React.FC = () => {
           </Routes>
         </main>
 
-        {/* Footer uniquement sur les pages publiques */}
-        {!isProtectedLayout && <Footer />}
+        <Footer />
       </div>
+    </Router>
   );
 };
 

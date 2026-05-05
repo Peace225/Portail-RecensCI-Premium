@@ -11,7 +11,6 @@ import { toast } from "react-hot-toast";
 
 // ---> IMPORT DU COMPOSANT D'UPLOAD <---
 import DocumentUploadHUD from "../../components/DocumentUploadHUD";
-import { apiService } from "../../services/apiService";
 
 const styles = `
   @keyframes scan-v { 0% { top: -100%; } 100% { top: 100%; } }
@@ -31,43 +30,23 @@ const BirthDeclaration: React.FC = () => {
   const [fatherPhotoUrl, setFatherPhotoUrl] = useState<string>("");
   const [motherPhotoUrl, setMotherPhotoUrl] = useState<string>("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
+    // Test basique pour s'assurer que les photos sont uploadées
     if (!childPhotoUrl || !fatherPhotoUrl || !motherPhotoUrl) {
         toast.error("Veuillez fournir les 3 scans biométriques.");
         setLoading(false);
         return;
     }
 
-    const form = e.currentTarget;
-    const inputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select');
-    const fieldMap: Record<string, string> = {};
-    inputs.forEach(el => { if (el.name) fieldMap[el.name] = el.value; });
-
-    const formData = {
-      babyFirstName: fieldMap['babyFirstName'] || '',
-      babyLastName: fieldMap['babyLastName'] || '',
-      gender: fieldMap['gender'] || '',
-      birthDate: fieldMap['birthDate'] || '',
-      cityOfBirth: fieldMap['cityOfBirth'] || '',
-      motherFullName: fieldMap['motherFullName'] || '',
-      fatherFullName: fieldMap['fatherFullName'] || '',
-      doctorName: fieldMap['doctorName'] || '',
-      childPhotoUrl,
-      fatherPhotoUrl,
-      motherPhotoUrl,
-    };
-
-    try {
-      await apiService.post('/events/birth', formData);
+    setTimeout(() => {
       toast.success("Dossier Biométrique Synchronisé 🧬");
-    } catch {
-      toast.error("Erreur lors de la synchronisation du dossier.");
-    } finally {
       setLoading(false);
-    }
+      // Ici, on enverra plus tard les données vers la BDD
+      console.log("URLs sauvegardées :", { childPhotoUrl, fatherPhotoUrl, motherPhotoUrl });
+    }, 2500);
   };
 
   return (

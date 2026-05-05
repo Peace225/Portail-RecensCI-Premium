@@ -9,7 +9,6 @@ import {
   Hash, UserCheck
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { apiService } from "../../services/apiService";
 
 // ---> IMPORT DU COMPOSANT D'UPLOAD CLOUDINARY <---
 import DocumentUploadHUD from "../../components/DocumentUploadHUD";
@@ -41,10 +40,11 @@ const StatusDeclaration: React.FC = () => {
   const [partnerPhotoUrl, setPartnerPhotoUrl] = useState<string>("");
   const [divorceDocUrl, setDivorceDocUrl] = useState<string>("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    // Vérifications de sécurité avant l'envoi
     if (eventType === "MARRIAGE" && !partnerPhotoUrl) {
       toast.error("Le scan biométrique du conjoint est requis.");
       setLoading(false);
@@ -56,30 +56,13 @@ const StatusDeclaration: React.FC = () => {
       return;
     }
 
-    try {
-      if (eventType === "MARRIAGE") {
-        await apiService.post('/events/marriage', {
-          spouse1Name: '',
-          spouse2Name: '',
-          marriageDate: new Date().toISOString(),
-          partnerPhotoUrl,
-          regime,
-        });
-        toast.success("Union civile synchronisée");
-      } else {
-        await apiService.post('/events/divorce', {
-          spouse1Name: '',
-          spouse2Name: '',
-          divorceDate: new Date().toISOString(),
-          judgmentDocUrl: divorceDocUrl,
-        });
-        toast.success("Dissociation enregistrée");
-      }
-    } catch {
-      toast.error("Erreur lors de l'enregistrement");
-    } finally {
+    setTimeout(() => {
+      toast.success(eventType === "MARRIAGE" ? "Union civile synchronisée 💍" : "Dissociation enregistrée 📄");
       setLoading(false);
-    }
+      
+      // Affichage console pour vérifier que les liens Cloudinary sont bien là
+      console.log("Fichiers joints :", eventType === "MARRIAGE" ? partnerPhotoUrl : divorceDocUrl);
+    }, 2500);
   };
 
   return (

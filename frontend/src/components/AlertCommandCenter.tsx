@@ -1,11 +1,10 @@
 // src/backoffice/components/AlertCommandCenter.tsx
 import React, { useState, useEffect } from 'react';
 import useSound from 'use-sound';
-import { ShieldAlert, X, Radio, Terminal } from 'lucide-react';
+import { ShieldAlert, Zap, X, Radio, Terminal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { apiService } from '../services/apiService';
 
-// --- SOUND ASSETS ---
+// --- SOUND ASSETS (Utilisez des sons courts et "tech") ---
 const ALARM_SOUND = 'https://codesandbox.io/api/v1/sandboxes/8p2x9/assets/alarm.mp3'; 
 const CLICK_SOUND = 'https://codesandbox.io/api/v1/sandboxes/8p2x9/assets/click.mp3';
 
@@ -13,21 +12,6 @@ const AlertCommandCenter = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [playAlarm] = useSound(ALARM_SOUND, { volume: 0.5 });
   const [playClick] = useSound(CLICK_SOUND, { volume: 0.2 });
-
-  useEffect(() => {
-    apiService.get<any[]>('/security/incidents?limit=5&status=OUVERT').then((data) => {
-      if (data && data.length > 0) {
-        const mapped = data.map((inc: any) => ({
-          id: inc.id,
-          type: inc.severity === 'FATAL' || inc.severity === 'CRITIQUE' ? 'CRITICAL' : 'WARN',
-          msg: inc.description || inc.type || 'INCIDENT DÉTECTÉ',
-          time: inc.createdAt ? new Date(inc.createdAt).toLocaleTimeString() : '',
-          code: `INC_${inc.id}`,
-        }));
-        setAlerts(mapped);
-      }
-    }).catch(() => {});
-  }, []);
 
   // Simulation d'une alerte entrante (Backend WebSocket simulé)
   const triggerAlert = (type: 'INFO' | 'WARN' | 'CRITICAL') => {
@@ -41,7 +25,7 @@ const AlertCommandCenter = () => {
       time: new Date().toLocaleTimeString(),
       code: `ERR_${Math.floor(Math.random() * 9000 + 1000)}`
     };
-    setAlerts(prev => [newAlert, ...prev].slice(0, 5));
+    setAlerts([newAlert, ...alerts].slice(0, 5));
   };
 
   return (
@@ -77,6 +61,7 @@ const AlertCommandCenter = () => {
                 : 'bg-slate-900/60 border-white/10'
               }`}
             >
+              {/* Scanline Effect pour le mode critique */}
               {alert.type === 'CRITICAL' && (
                 <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] animate-pulse" />
               )}
@@ -97,7 +82,7 @@ const AlertCommandCenter = () => {
                   </div>
                 </div>
                 <button 
-                  onClick={() => setAlerts(prev => prev.filter(a => a.id !== alert.id))}
+                  onClick={() => setAlerts(alerts.filter(a => a.id !== alert.id))}
                   className="text-slate-600 hover:text-white transition-colors"
                 >
                   <X size={14} />
@@ -128,6 +113,10 @@ const AlertCommandCenter = () => {
           </div>
         )}
       </div>
+      {/* Dans BackofficeDashboard.tsx (Colonne Droite) */}
+<GlassCard title="Console d'Intervention" icon={<ShieldAlert size={16} />}>
+   <AlertCommandCenter />
+</GlassCard>
     </div>
   );
 };
