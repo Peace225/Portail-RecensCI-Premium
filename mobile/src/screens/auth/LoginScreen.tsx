@@ -34,7 +34,8 @@ export default function LoginScreen() {
         email,
         role: data.user.role,
         nni: null,
-        institutionId: data.user.institutionId || null,
+        photoUrl: null,
+        structureId: data.user.institutionId || null,
       }));
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Email ou mot de passe incorrect.';

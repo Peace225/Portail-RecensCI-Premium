@@ -7,8 +7,9 @@ export interface UserState {
   nni: string | null;
   name: string;
   email: string;
+  photoUrl: string | null;
   role: UserRole | null;
-  institutionId: string | null;
+  structureId: string | null;  // structureId = institutionId
   isLoggedIn: boolean;
   isAuthReady: boolean;
 }
@@ -18,8 +19,9 @@ const initialState: UserState = {
   nni: null,
   name: '',
   email: '',
+  photoUrl: null,
   role: null,
-  institutionId: null,
+  structureId: null,
   isLoggedIn: false,
   isAuthReady: false,
 };

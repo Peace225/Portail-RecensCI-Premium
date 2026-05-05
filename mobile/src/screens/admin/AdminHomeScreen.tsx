@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
+import { DynamicChart } from '../../components/DynamicChart';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
@@ -72,26 +73,44 @@ export default function AdminHomeScreen({ navigation }: any) {
 
       {/* KPIs */}
       {stats && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsContent}>
-          {user.role === 'ENTITY_ADMIN'
-            ? [
-                { label: 'Naissances', value: stats.births || 0 },
-                { label: 'Mariages', value: stats.marriages || 0 },
-                { label: 'En attente', value: stats.pendingEvents || 0 },
-              ]
-            : [
-                { label: 'Citoyens', value: stats.citizens?.total || 0 },
-                { label: 'En attente', value: stats.citizens?.pending || 0 },
-                { label: 'Agents', value: stats.agents || 0 },
-                { label: 'Incidents', value: stats.incidents || 0 },
-              ]
-          }.map((s: any) => (
-            <Card key={s.label} style={styles.statCard} accent={accentColor}>
-              <Text style={[styles.statValue, { color: accentColor }]}>{s.value}</Text>
-              <Text style={styles.statLabel}>{s.label}</Text>
-            </Card>
-          ))}
-        </ScrollView>
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsContent}>
+            {user.role === 'ENTITY_ADMIN'
+              ? [
+                  { label: 'Naissances', value: stats.births || 0 },
+                  { label: 'Mariages', value: stats.marriages || 0 },
+                  { label: 'En attente', value: stats.pendingEvents || 0 },
+                ]
+              : [
+                  { label: 'Citoyens', value: stats.citizens?.total || 0 },
+                  { label: 'En attente', value: stats.citizens?.pending || 0 },
+                  { label: 'Agents', value: stats.agents || 0 },
+                  { label: 'Incidents', value: stats.incidents || 0 },
+                ]
+            }.map((s: any) => (
+              <Card key={s.label} style={styles.statCard} accent={accentColor}>
+                <Text style={[styles.statValue, { color: accentColor }]}>{s.value}</Text>
+                <Text style={styles.statLabel}>{s.label}</Text>
+              </Card>
+            ))}
+          </ScrollView>
+
+          {/* Graphique */}
+          {user.role !== 'ENTITY_ADMIN' && stats.vitalEvents && (
+            <View style={styles.chartSection}>
+              <DynamicChart
+                title="Événements Vitaux"
+                color={accentColor}
+                data={[
+                  { label: 'Naissances', value: stats.vitalEvents.births || 0, color: '#10b981' },
+                  { label: 'Décès', value: stats.vitalEvents.deaths || 0, color: '#64748b' },
+                  { label: 'Mariages', value: stats.vitalEvents.marriages || 0, color: '#ec4899' },
+                  { label: 'Migrations', value: stats.vitalEvents.migrations || 0, color: '#6366f1' },
+                ]}
+              />
+            </View>
+          )}
+        </>
       )}
 
       {/* Sections */}
@@ -121,6 +140,7 @@ const styles = StyleSheet.create({
   logoutBtn: { padding: 8, backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239,68,68,0.2)' },
   logoutText: { fontSize: 11, color: Colors.error, fontWeight: '800', textTransform: 'uppercase' },
   statsContent: { paddingHorizontal: 24, gap: 12, paddingBottom: 16 },
+  chartSection: { paddingHorizontal: 24, marginBottom: 8 },
   statCard: { width: 110, alignItems: 'center', paddingVertical: 16 },
   statValue: { fontSize: 24, fontWeight: '900' },
   statLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 },

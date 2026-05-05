@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useAuth } from '../hooks/useAuth';
 import { Colors } from '../theme/colors';
+import { ChatFAB } from '../components/ChatFAB';
 
 // Auth
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -29,7 +30,6 @@ export default function RootNavigator() {
     );
   }
 
-  // Sélectionner le navigateur selon le rôle
   const getNavigator = () => {
     if (!isLoggedIn) return null;
     switch (role) {
@@ -44,13 +44,17 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!isLoggedIn ? (
-          <Stack.Screen name="Login" component={LoginScreen} />
-        ) : (
-          <Stack.Screen name="App" component={() => getNavigator()} />
-        )}
-      </Stack.Navigator>
+      <View style={{ flex: 1 }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {!isLoggedIn ? (
+            <Stack.Screen name="Login" component={LoginScreen} />
+          ) : (
+            <Stack.Screen name="App" component={() => getNavigator()} />
+          )}
+        </Stack.Navigator>
+        {/* Chatbot IA disponible sur toutes les pages connectées */}
+        {isLoggedIn && <ChatFAB />}
+      </View>
     </NavigationContainer>
   );
 }

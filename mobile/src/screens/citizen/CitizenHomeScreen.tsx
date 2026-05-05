@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { DynamicChart, PopCounter } from '../../components/DynamicChart';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
@@ -66,6 +67,11 @@ export default function CitizenHomeScreen({ navigation }: any) {
         </Card>
       )}
 
+      {/* Compteur population */}
+      <View style={styles.section}>
+        <PopCounter value={29389142} label="Population Côte d'Ivoire (Live)" />
+      </View>
+
       {/* Notifications badge */}
       {unreadCount > 0 && (
         <TouchableOpacity style={styles.notifBanner} onPress={() => navigation.navigate('Notifications')}>
@@ -119,6 +125,7 @@ const styles = StyleSheet.create({
   userName: { fontSize: 24, fontWeight: '900', color: '#fff', marginBottom: 8 },
   logoutBtn: { padding: 8, backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239,68,68,0.2)' },
   logoutText: { fontSize: 11, color: Colors.error, fontWeight: '800', textTransform: 'uppercase' },
+  section: { paddingHorizontal: 24, marginBottom: 16 },
   nniCard: { marginHorizontal: 24, marginBottom: 16 },
   nniLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 },
   nniValue: { fontSize: 18, fontWeight: '900', color: Colors.orange, fontFamily: 'monospace' },

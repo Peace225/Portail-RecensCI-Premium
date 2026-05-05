@@ -25,7 +25,8 @@ export const useAuth = () => {
           email: data.email || '',
           role: data.role,
           nni: data.nni || null,
-          institutionId: data.institutionId || data.institution_id || null,
+          photoUrl: data.photoUrl || data.photo_url || null,
+          structureId: data.institutionId || data.institution_id || data.structureId || null,
         }));
       } catch {
         await SecureStore.deleteItemAsync('recensci_token');

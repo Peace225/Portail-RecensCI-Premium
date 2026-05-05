@@ -16,6 +16,7 @@ export default function CitizenProfileScreen() {
     { label: 'Nom complet', value: user.name },
     { label: 'Email', value: user.email },
     { label: 'NNI', value: user.nni || 'Non renseigné' },
+    { label: 'Structure', value: user.structureId || 'Non renseigné' },
   ];
 
   return (

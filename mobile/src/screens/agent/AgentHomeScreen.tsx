@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
+import { DynamicChart } from '../../components/DynamicChart';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
@@ -62,19 +63,35 @@ export default function AgentHomeScreen({ navigation }: any) {
 
       {/* Stats rapides */}
       {stats && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsRow} contentContainerStyle={styles.statsContent}>
-          {[
-            { label: 'Citoyens', value: stats.citizens?.total || 0, color: Colors.orange },
-            { label: 'Naissances', value: stats.vitalEvents?.births || 0, color: '#10b981' },
-            { label: 'Décès', value: stats.vitalEvents?.deaths || 0, color: '#64748b' },
-            { label: 'Incidents', value: stats.incidents || 0, color: '#ef4444' },
-          ].map((s) => (
-            <Card key={s.label} style={styles.statCard} accent={s.color}>
-              <Text style={[styles.statValue, { color: s.color }]}>{s.value}</Text>
-              <Text style={styles.statLabel}>{s.label}</Text>
-            </Card>
-          ))}
-        </ScrollView>
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsRow} contentContainerStyle={styles.statsContent}>
+            {[
+              { label: 'Citoyens', value: stats.citizens?.total || 0, color: Colors.orange },
+              { label: 'Naissances', value: stats.vitalEvents?.births || 0, color: '#10b981' },
+              { label: 'Décès', value: stats.vitalEvents?.deaths || 0, color: '#64748b' },
+              { label: 'Incidents', value: stats.incidents || 0, color: '#ef4444' },
+            ].map((s) => (
+              <Card key={s.label} style={styles.statCard} accent={s.color}>
+                <Text style={[styles.statValue, { color: s.color }]}>{s.value}</Text>
+                <Text style={styles.statLabel}>{s.label}</Text>
+              </Card>
+            ))}
+          </ScrollView>
+
+          {/* Graphique événements vitaux */}
+          <View style={styles.chartSection}>
+            <DynamicChart
+              title="Événements Vitaux"
+              data={[
+                { label: 'Naissances', value: stats.vitalEvents?.births || 0, color: '#10b981' },
+                { label: 'Décès', value: stats.vitalEvents?.deaths || 0, color: '#64748b' },
+                { label: 'Mariages', value: stats.vitalEvents?.marriages || 0, color: '#ec4899' },
+                { label: 'Divorces', value: stats.vitalEvents?.divorces || 0, color: '#f59e0b' },
+                { label: 'Migrations', value: stats.vitalEvents?.migrations || 0, color: '#6366f1' },
+              ]}
+            />
+          </View>
+        </>
       )}
 
       {/* Modules de saisie */}
@@ -122,6 +139,7 @@ const styles = StyleSheet.create({
   logoutText: { fontSize: 11, color: Colors.error, fontWeight: '800', textTransform: 'uppercase' },
   statsRow: { marginBottom: 8 },
   statsContent: { paddingHorizontal: 24, gap: 12 },
+  chartSection: { paddingHorizontal: 24, marginBottom: 8 },
   statCard: { width: 110, alignItems: 'center', paddingVertical: 16 },
   statValue: { fontSize: 24, fontWeight: '900' },
   statLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 },
