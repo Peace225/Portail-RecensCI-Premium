@@ -1,8 +1,7 @@
 // src/store/userSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// Définition stricte des rôles du système RecensCI
-export type UserRole = "CITIZEN" | "AGENT" | "ADMIN" | "SUPER_ADMIN";
+export type UserRole = "CITIZEN" | "AGENT" | "ADMIN" | "ENTITY_ADMIN" | "SUPER_ADMIN";
 
 export interface UserState {
   id: string | null;         // L'UID Supabase (UUID)
@@ -12,6 +11,7 @@ export interface UserState {
   photoUrl: string | null;   // URL de la photo Cloudinary
   role: UserRole | null;
   structureId: string | null; // Code de la structure (Mairie, ONECI...)
+  commune: string | null;    // 👉 NOUVEAU : Le nom de la commune (ex: "San-Pédro")
   isLoggedIn: boolean;
   isAuthReady: boolean;      // True quand Supabase a terminé la vérification initiale
 }
@@ -24,6 +24,7 @@ const initialState: UserState = {
   photoUrl: null,
   role: null,
   structureId: null,
+  commune: null,             // 👉 NOUVEAU : Initialisé à null
   isLoggedIn: false,
   isAuthReady: false, 
 };
@@ -37,13 +38,14 @@ interface LoginPayload {
   nni?: string;
   photoUrl?: string;
   structureId?: string;
+  commune?: string;          // 👉 NOUVEAU : Reçu depuis le Login
 }
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    // Appelée quand Supabase confirme la session et que le profil 'citizens' est chargé
+    // Appelée quand Supabase confirme la session
     login: (state, action: PayloadAction<LoginPayload>) => {
       state.id = action.payload.id;
       state.name = action.payload.name;
@@ -52,6 +54,7 @@ const userSlice = createSlice({
       state.nni = action.payload.nni || null;
       state.photoUrl = action.payload.photoUrl || null;
       state.structureId = action.payload.structureId || null;
+      state.commune = action.payload.commune || null; // 👉 NOUVEAU : Stockage de la donnée
       state.isLoggedIn = true;
       state.isAuthReady = true;
     },

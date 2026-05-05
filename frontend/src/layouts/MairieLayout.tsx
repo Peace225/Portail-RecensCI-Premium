@@ -1,14 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux"; 
+import { RootState } from "../store"; 
 import { 
-  Landmark, Users, FolderTree, Settings, LogOut, 
+  Landmark, Users, FolderTree, Settings, 
   ChevronRight, Activity, MapPin, Database, Bell
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function MairieLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // 👉 On récupère le nom de l'utilisateur ET la commune
+  const { name, commune } = useSelector((state: RootState) => state.user); 
+
+  // 👉 Récupération dynamique de la commune (Redux -> LocalStorage -> Défaut)
+  const communeName = (commune && commune !== "Inconnue") 
+    ? commune 
+    : (localStorage.getItem('commune_secours') || "Inconnue");
 
   // Les menus spécifiques au Maire / Admin Mairie
   const menuItems = [
@@ -25,7 +35,7 @@ export default function MairieLayout() {
       {/* ==========================================
           SIDEBAR SPÉCIFIQUE MAIRIE (Thème AMBRE)
       ========================================== */}
-      <aside className="w-[300px] bg-[#050914] border-r border-amber-500/10 flex flex-col p-6 relative z-20 shadow-2xl">
+      <aside className="w-[300px] bg-[#050914] border-r border-amber-500/10 flex flex-col p-6 relative z-20 shadow-2xl shrink-0">
         {/* Glow effet latéral */}
         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-500 via-amber-400 to-transparent opacity-50 shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
 
@@ -39,7 +49,7 @@ export default function MairieLayout() {
               Portail <span className="text-amber-500">Mairie</span>
             </h2>
             <p className="text-[9px] font-black text-amber-500/70 uppercase tracking-[0.2em] mt-0.5">
-              Entité Connectée
+              {communeName !== "Inconnue" ? `Commune de ${communeName}` : "Entité Connectée"}
             </p>
           </div>
         </div>
@@ -82,18 +92,14 @@ export default function MairieLayout() {
         <div className="mt-6 pt-6 border-t border-white/5">
           <div className="bg-black/40 p-4 rounded-2xl border border-white/5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-sm shadow-[0_0_10px_rgba(245,158,11,0.4)]">
-                KY
+              <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-black font-black text-sm shadow-[0_0_10px_rgba(245,158,11,0.4)] uppercase">
+                {name ? name.substring(0, 2) : "AD"} {/* Initiales dynamiques */}
               </div>
-              <div>
-                <p className="text-xs font-black text-white uppercase">Kone Yacouba</p>
+              <div className="overflow-hidden">
+                <p className="text-xs font-black text-white uppercase truncate">{name || "Administrateur"}</p>
                 <p className="text-[9px] text-amber-500 font-bold uppercase tracking-widest">Admin Mairie</p>
               </div>
             </div>
-            <button className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors justify-center group">
-              <LogOut size={14} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Déconnexion</span>
-            </button>
           </div>
         </div>
       </aside>
@@ -107,7 +113,9 @@ export default function MairieLayout() {
         <header className="shrink-0 z-50 bg-[#050914]/60 backdrop-blur-xl border-b border-amber-500/10 h-20 flex justify-between items-center px-8 shadow-md">
            <div className="flex items-center gap-2">
              <MapPin size={16} className="text-amber-500" />
-             <span className="text-xs font-black text-white uppercase tracking-widest">Mairie de Yopougon</span>
+             <span className="text-xs font-black text-white uppercase tracking-widest">
+                Portail {communeName !== "Inconnue" ? `- ${communeName}` : "de Mairie"}
+             </span>
            </div>
            
            <div className="flex items-center gap-6">

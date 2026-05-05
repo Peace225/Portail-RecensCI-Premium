@@ -1,121 +1,236 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSelector } from 'react-redux'; 
+import { RootState } from "../../../store"; 
 import { 
   Building2, FileText, HardHat, Landmark, HeartHandshake, 
-  ShieldAlert, ChevronRight, UserCheck, ArrowLeft, CheckCircle2, 
-  XCircle, Clock, Smartphone, QrCode, TrendingUp, MapPin, 
-  User, Zap, Scale, GraduationCap, Gavel, Construction
+  ShieldAlert, ChevronRight, ArrowLeft, CheckCircle2, 
+  XCircle, Clock, Smartphone, QrCode, Layers,
+  User, FolderOpen, UserCog, Users, Leaf, Bus
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-// --- 1. CONFIGURATION DES DIRECTIONS ET SERVICES ---
-const DIRECTIONS = [
+// --- 1. GÉNÉRATEUR DE DONNÉES DYNAMIQUES (Simule la base de données Supabase) ---
+const getDirectionsForCommune = (commune: string) => [
   {
     id: "dsa",
-    name: "Direction des Services Administratifs (DSA)",
-    director: "M. Bakary TOURE",
-    icon: <FileText className="text-orange-500" size={24} />,
-    color: "orange",
-    pendingDocs: 142,
+    name: "Direction des Services Administratifs",
+    director: commune === "Cocody" ? "M. Jean KOUADIO" : "M. Bakary TOURE", 
+    icon: <FileText size={32} />,
+    colorClass: "text-blue-400",
+    bgClass: "bg-blue-400/10",
+    borderClass: "border-blue-400/30",
+    glowClass: "shadow-[0_0_30px_rgba(96,165,250,0.1)]",
+    pendingDocs: Math.floor(Math.random() * 200) + 50, 
     services: [
-      { name: "Déclaration de Naissance", desc: "Enregistrement des nouveaux-nés." },
-      { name: "Célébration de Mariage", desc: "Dépôt de dossier et réservation de date." },
-      { name: "Demande d'Extrait d'Acte", desc: "Naissance, Mariage ou Décès." },
-      { name: "Légalisation de Signature", desc: "Certification de documents officiels." }
+      { 
+        name: "Déclaration de Naissance", 
+        desc: "Enregistrement sécurisé des nouveaux-nés.",
+        chef: commune === "Cocody" ? "Mme. YACE" : "S. TRAORE",
+        agents: [{ name: "Agt. Bamba", status: "online" }, { name: "Agt. Koné", status: "busy" }]
+      },
+      { 
+        name: "Célébration de Mariage", 
+        desc: "Dépôt de dossier et réservation de date.",
+        chef: "A. DIALLO",
+        agents: [{ name: "Agt. Yao", status: "online" }]
+      },
+      { 
+        name: "Extrait d'Acte", 
+        desc: "Délivrance certifiée d'actes.",
+        chef: "K. N'GUESSAN",
+        agents: [{ name: "Agt. Sylla", status: "offline" }, { name: "Agt. Cissé", status: "online" }]
+      }
     ]
   },
   {
     id: "dst",
-    name: "Direction des Services Techniques (DST)",
-    director: "Mme. Fatoumata KONE",
-    icon: <HardHat className="text-emerald-500" size={24} />,
-    color: "emerald",
-    pendingDocs: 56,
+    name: "Direction des Services Techniques",
+    director: commune === "Bouaké" ? "M. SANOGO" : "Mme. Fatoumata KONE",
+    icon: <HardHat size={32} />,
+    colorClass: "text-emerald-500",
+    bgClass: "bg-emerald-500/10",
+    borderClass: "border-emerald-500/30",
+    glowClass: "shadow-[0_0_30px_rgba(16,185,129,0.1)]",
+    pendingDocs: Math.floor(Math.random() * 100) + 20,
     services: [
-      { name: "Permis de Construire", desc: "Approbation de plans architecturaux." },
-      { name: "Certificat d'Urbanisme", desc: "Vérification de constructibilité." },
-      { name: "Occupation Domaine Public", desc: "Installation de commerces ou chantiers." }
+      { 
+        name: "Permis de Construire", 
+        desc: "Approbation technique des plans.",
+        chef: "P. KOFFI",
+        agents: [{ name: "Agt. Ouattara", status: "online" }]
+      },
+      { 
+        name: "Occupation Domaine Public", 
+        desc: "Autorisation d'installation et voirie.",
+        chef: "E. TAPE",
+        agents: [{ name: "Agt. Diabaté", status: "online" }, { name: "Agt. Coulibaly", status: "busy" }]
+      }
+    ]
+  },
+  {
+    id: "dtc",
+    name: "Direction des Transports Communaux",
+    director: "M. Cissé MAMADOU",
+    icon: <Bus size={32} />,
+    colorClass: "text-orange-500",
+    bgClass: "bg-orange-500/10",
+    borderClass: "border-orange-500/30",
+    glowClass: "shadow-[0_0_30px_rgba(249,115,22,0.1)]",
+    pendingDocs: 89,
+    services: [
+      { 
+        name: "Autorisation Taxis & Gbakas", 
+        desc: "Agréments de transporteurs et macarons.",
+        chef: "M. KOUADIO",
+        agents: [{ name: "Agt. Touré", status: "online" }, { name: "Agt. Fofana", status: "online" }]
+      },
+      { 
+        name: "Gestion des Gares Routières", 
+        desc: "Attribution des lignes et contrôle des syndicats.",
+        chef: "L. DIARRASSOUBA",
+        agents: [{ name: "Agt. Camara", status: "busy" }]
+      }
     ]
   },
   {
     id: "dsf",
-    name: "Direction des Services Financiers (DSF)",
+    name: "Direction des Services Financiers",
     director: "M. Kouassi N'GUESSAN",
-    icon: <Landmark className="text-blue-500" size={24} />,
-    color: "blue",
+    icon: <Landmark size={32} />,
+    colorClass: "text-amber-500",
+    bgClass: "bg-amber-500/10",
+    borderClass: "border-amber-500/30",
+    glowClass: "shadow-[0_0_30px_rgba(245,158,11,0.1)]",
     pendingDocs: 23,
     services: [
-      { name: "Paiement Taxe Marché", desc: "Tickets journaliers et mensuels." },
-      { name: "Publicité Foncière", desc: "Enseignes et panneaux publicitaires." },
-      { name: "Droits de Stationnement", desc: "Abonnements Taxis et Gbakas." }
+      { 
+        name: "Paiement Taxe Marché", 
+        desc: "Gestion des tickets journaliers et mensuels.",
+        chef: "A. KOUASSI",
+        agents: [{ name: "Agt. Koffi", status: "online" }]
+      },
+      { 
+        name: "Publicité Foncière", 
+        desc: "Taxation des enseignes et panneaux publicitaires.",
+        chef: "B. N'DRI",
+        agents: [{ name: "Agt. Dago", status: "offline" }]
+      }
+    ]
+  },
+  {
+    id: "desu",
+    name: "Direction Salubrité et Environnement",
+    director: "M. Yapo KOUADIO",
+    icon: <Leaf size={32} />,
+    colorClass: "text-lime-500",
+    bgClass: "bg-lime-500/10",
+    borderClass: "border-lime-500/30",
+    glowClass: "shadow-[0_0_30px_rgba(132,204,22,0.1)]",
+    pendingDocs: 34,
+    services: [
+      { 
+        name: "Contrôle Hygiène (Maquis)", 
+        desc: "Inspection sanitaire des commerces alimentaires.",
+        chef: "S. KOFFI",
+        agents: [{ name: "Agt. Diomandé", status: "online" }]
+      },
+      { 
+        name: "Gestion des Déchets", 
+        desc: "Coordination pré-collecte et curage caniveaux.",
+        chef: "M. GUEI",
+        agents: [{ name: "Agt. Soro", status: "busy" }]
+      }
     ]
   },
   {
     id: "ddh",
     name: "Développement Humain (DDH)",
     director: "Mme. Aminata DIALLO",
-    icon: <HeartHandshake className="text-purple-500" size={24} />,
-    color: "purple",
+    icon: <HeartHandshake size={32} />,
+    colorClass: "text-purple-500",
+    bgClass: "bg-purple-500/10",
+    borderClass: "border-purple-500/30",
+    glowClass: "shadow-[0_0_30px_rgba(168,85,247,0.1)]",
     pendingDocs: 18,
     services: [
-      { name: "Aide Sociale & Indigence", desc: "Certificats pour soins médicaux." },
-      { name: "Bourses Communales", desc: "Soutien aux étudiants de la commune." },
-      { name: "Subvention Association", desc: "Appui aux clubs sportifs et culturels." }
+      { 
+        name: "Aide Sociale & Indigence", 
+        desc: "Évaluation et certificats pour soins médicaux.",
+        chef: "F. KONE",
+        agents: [{ name: "Agt. N'Dri", status: "online" }]
+      }
     ]
   },
   {
     id: "pm",
-    name: "Police Municipale (PM)",
+    name: "Police Municipale",
     director: "Cdt Lassina DIABATE",
-    icon: <ShieldAlert className="text-red-500" size={24} />,
-    color: "red",
+    icon: <ShieldAlert size={32} />,
+    colorClass: "text-rose-500",
+    bgClass: "bg-rose-500/10",
+    borderClass: "border-rose-500/30",
+    glowClass: "shadow-[0_0_30px_rgba(244,63,94,0.1)]",
     pendingDocs: 5,
     services: [
-      { name: "Rapport de Nuisance", desc: "Plaintes pour tapage nocturne." },
-      { name: "Sécurité des Marchés", desc: "Rapports de patrouille et saisies." }
+      { 
+        name: "Rapport de Nuisance", 
+        desc: "Gestion des plaintes pour tapage et troubles.",
+        chef: "Ltn. GBA",
+        agents: [{ name: "Agt. Ouéhi", status: "online" }]
+      }
     ]
   }
 ];
 
 // --- 2. COMPOSANTS D'INTERFACE "PAPIER" ---
 const PaperField = ({ label, value }: { label: string, value: string }) => (
-  <div className="border-b border-slate-200 pb-2">
-    <label className="text-[7px] font-black text-slate-400 uppercase tracking-[0.2em] block">{label}</label>
-    <p className="text-xs font-bold text-slate-800 uppercase tracking-tight">{value || "Non renseigné"}</p>
+  <div className="border-b border-slate-300/50 pb-2">
+    <label className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">{label}</label>
+    <p className="text-sm font-bold text-slate-800 tracking-tight">{value || "Non renseigné"}</p>
   </div>
 );
 
 const PaperSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
-  <div className="space-y-4">
-    <h4 className="text-[9px] font-black text-orange-600 uppercase border-l-2 border-orange-500 pl-3 tracking-widest">{title}</h4>
-    <div className="grid grid-cols-2 gap-6 pl-4">{children}</div>
+  <div className="space-y-5">
+    <h4 className="text-[10px] font-black text-amber-600 uppercase border-l-4 border-amber-500 pl-3 tracking-widest">{title}</h4>
+    <div className="grid grid-cols-2 gap-8 pl-4">{children}</div>
   </div>
 );
 
 export default function MairieDepartments() {
-  const [activeDirection, setActiveDirection] = useState<string>(DIRECTIONS[0].id);
+  // 👉 1. On récupère le profil utilisateur stocké dans Redux
+  const userState = useSelector((state: RootState) => state.user);
+
+  // 👉 2. Récupération dynamique de la commune (Redux -> LocalStorage -> Défaut)
+  const communeName = (userState?.commune && userState.commune !== "Inconnue") 
+    ? userState.commune 
+    : (localStorage.getItem('commune_secours') || "Yopougon");
+
+  // On génère l'organigramme en fonction de la commune
+  const directionsList = useMemo(() => getDirectionsForCommune(communeName), [communeName]);
+
+  const [activeDirection, setActiveDirection] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [tickets, setTickets] = useState([1, 2, 3]);
 
-  const activeData = DIRECTIONS.find(d => d.id === activeDirection) || DIRECTIONS[0];
+  const activeData = activeDirection ? directionsList.find(d => d.id === activeDirection) || directionsList[0] : null;
 
   const handleAction = (id: number, type: 'APPROVE' | 'REJECT') => {
     toast.success(type === 'APPROVE' ? "SCELLÉ OFFICIEL APPOSÉ" : "DOSSIER CLASSÉ SANS SUITE", {
-      style: { background: '#0f172a', color: type === 'APPROVE' ? '#10b981' : '#ef4444', fontWeight: 'bold' }
+      style: { background: '#0f172a', color: type === 'APPROVE' ? '#10b981' : '#ef4444', fontWeight: 'bold', border: '1px solid rgba(255,255,255,0.1)' }
     });
     setTickets(prev => prev.filter(t => t !== id));
   };
 
-  // --- 3. LOGIQUE MÉTIER : LE CONTENU DES DOSSIERS ---
   const renderDossierContent = () => {
     switch (selectedService) {
-      // --- ÉTAT CIVIL ---
       case "Déclaration de Naissance":
         return (
-          <div className="space-y-8">
-            <PaperSection title="Identité de l'Enfant">
+          <div className="space-y-10">
+            <PaperSection title={`Mairie de ${communeName} - Identité Enfant`}>
               <PaperField label="Nom Complet" value="KOUHAME KEVIN GAEL" />
-              <PaperField label="Né le" value="19/03/2026 à 08:30" />
+              <PaperField label="Lieu de Naissance" value={`CHU de ${communeName}`} />
             </PaperSection>
             <PaperSection title="Filiation">
               <PaperField label="Père" value="KOUAME YAO" />
@@ -123,170 +238,102 @@ export default function MairieDepartments() {
             </PaperSection>
           </div>
         );
-      case "Célébration de Mariage":
+      case "Autorisation Taxis & Gbakas":
         return (
-          <div className="space-y-8">
-            <PaperSection title="Futurs Époux">
-              <PaperField label="Époux" value="TRAORE Moussa" />
-              <PaperField label="Épouse" value="DIALLO Fatim" />
+          <div className="space-y-10">
+            <PaperSection title="Identité du Chauffeur">
+              <PaperField label="Nom Complet" value="SYLLA ABOUBACAR" />
+              <PaperField label="Permis de Conduire" value="Catégorie Toutes (Validé)" />
             </PaperSection>
-            <PaperSection title="Cérémonie">
-              <PaperField label="Date prévue" value="12 JUIN 2026" />
-              <PaperField label="Régime Matrimonial" value="Communauté de biens" />
+            <PaperSection title="Détails du Véhicule (Gbaka)">
+              <PaperField label="Immatriculation" value="4592 KN 01" />
+              <PaperField label="Ligne d'exploitation" value={`Gare de ${communeName} - Adjamé`} />
             </PaperSection>
           </div>
         );
-
-      // --- URBANISME ---
-      case "Permis de Construire":
-        return (
-          <div className="space-y-8">
-            <PaperSection title="Détails du Projet">
-              <PaperField label="Type" value="Immeuble R+4 avec sous-sol" />
-              <PaperField label="Localisation" value="Yopougon Niangon Nord" />
-            </PaperSection>
-            <PaperSection title="Technique">
-              <PaperField label="Architecte" value="Elite-Archi Studio" />
-              <PaperField label="Surface Terrain" value="600 m²" />
-            </PaperSection>
-          </div>
-        );
-
-      // --- FINANCES ---
-      case "Paiement Taxe Marché":
-        return (
-          <div className="space-y-8">
-            <PaperSection title="Contribuable">
-              <PaperField label="Nom Commerçant" value="Dame KOFFI Awa" />
-              <PaperField label="N° Place" value="MARCHÉ-YOP-A14" />
-            </PaperSection>
-            <PaperSection title="Finances">
-              <PaperField label="Montant Journalier" value="500 FCFA" />
-              <PaperField label="Total à Recouvrer" value="15 000 FCFA (Mois)" />
-            </PaperSection>
-          </div>
-        );
-
-      // --- SOCIAL ---
-      case "Bourses Communales":
-        return (
-          <div className="space-y-8">
-            <PaperSection title="Étudiant">
-              <PaperField label="Nom" value="SYLLA Aboubacar" />
-              <PaperField label="Établissement" value="INP-HB Yamoussoukro" />
-            </PaperSection>
-            <PaperSection title="Critères">
-              <PaperField label="Niveau" value="Master 2 Finance" />
-              <PaperField label="Score Social" value="Indigence Niveau 2" />
-            </PaperSection>
-          </div>
-        );
-
-      // --- POLICE ---
-      case "Rapport de Nuisance":
-        return (
-          <div className="space-y-8">
-            <PaperSection title="Plaignant">
-              <PaperField label="Déposé par" value="M. KONÉ Brahima" />
-              <PaperField label="Quartier" value="Selmer - Cité Verte" />
-            </PaperSection>
-            <PaperSection title="Faits">
-              <PaperField label="Nature" value="Nuisances sonores répétées (Maquis)" />
-              <PaperField label="Heure Constat" value="23:45" />
-            </PaperSection>
-          </div>
-        );
-
       default:
         return (
-          <div className="h-40 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Examen du dossier en cours...</p>
+          <div className="h-48 flex items-center justify-center border-2 border-dashed border-slate-300 rounded-3xl bg-slate-50">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Examen du dossier en cours...</p>
           </div>
         );
     }
   };
 
-  // --- 4. AFFICHAGE DU GUICHET ---
-  if (selectedService) {
+  // ==========================================
+  // NIVEAU 3 : LE GUICHET (Dossier Papier)
+  // ==========================================
+  if (selectedService && activeData) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 h-full flex flex-col bg-[#050810] min-h-screen">
-        <header className="flex justify-between items-center mb-8">
-          <button onClick={() => setSelectedService(null)} className="flex items-center gap-2 text-slate-500 font-black text-[10px] uppercase hover:text-orange-500 transition-all">
-            <ArrowLeft size={16} /> Retour Organigramme
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 h-full flex flex-col min-h-screen">
+        <header className="flex justify-between items-center mb-8 bg-[#050914] p-4 rounded-3xl border border-white/5 shadow-lg">
+          <button onClick={() => setSelectedService(null)} className="flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-amber-500 bg-white/5 hover:bg-amber-500/10 rounded-xl transition-all text-xs font-black uppercase tracking-widest">
+            <ArrowLeft size={16} /> Retour à l'Organigramme
           </button>
           <div className="flex items-center gap-4">
-            <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full">
-              <span className="text-[10px] font-black text-blue-400 uppercase italic">Opérateur : {activeData.director.split(' ').pop()}</span>
+            <div className="px-5 py-2.5 bg-[#020617] border border-white/10 rounded-xl">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mairie de <span className="text-amber-500">{communeName}</span></span>
             </div>
-            <div className="px-5 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
+            <div className="px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black text-emerald-500 uppercase">Guichet Ouvert</span>
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Guichet Ouvert</span>
             </div>
           </div>
         </header>
 
-        <div className="grid grid-cols-12 gap-10 flex-1 min-h-0">
-          {/* File d'attente */}
-          <div className="col-span-3 space-y-4">
-            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2"><Clock size={14}/> File de service</h3>
+        <div className="grid grid-cols-12 gap-8 flex-1 min-h-0">
+          <div className="col-span-12 lg:col-span-3 space-y-4">
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-6 ml-2">
+              <Clock size={14} className="text-amber-500"/> File de traitement
+            </h3>
             <AnimatePresence>
-              {tickets.map((t) => (
-                <motion.div key={t} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
-                  className={`p-6 rounded-[2.5rem] border ${t === tickets[0] ? 'bg-orange-600 border-orange-400 shadow-2xl' : 'bg-slate-900 border-white/5 opacity-40'}`}>
-                  <span className="text-[9px] font-black text-white/60 uppercase">Ticket #00{t}</span>
-                  <h4 className="text-xs font-black text-white uppercase mt-1">Usager ID-{t*102}</h4>
-                </motion.div>
-              ))}
+              {tickets.length === 0 ? (
+                <div className="text-center p-8 border border-white/5 rounded-3xl bg-white/5">
+                  <p className="text-xs text-slate-500 font-bold">Aucun dossier en attente.</p>
+                </div>
+              ) : (
+                tickets.map((t, index) => (
+                  <motion.div key={t} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9 }}
+                    className={`p-6 rounded-[2rem] border transition-all ${index === 0 ? 'bg-amber-500/10 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-[#050914] border-white/5 opacity-60'}`}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Ticket #{String(t).padStart(3, '0')}</span>
+                      {index === 0 && <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />}
+                    </div>
+                    <h4 className={`text-sm font-black uppercase ${index === 0 ? 'text-amber-400' : 'text-white'}`}>Usager ID-{t*102}</h4>
+                  </motion.div>
+                ))
+              )}
             </AnimatePresence>
           </div>
 
-          {/* BUREAU DU MAIRE / DOSSIER PAPIER */}
-          <div className="col-span-9 bg-[#fdfdfd] rounded-[4rem] shadow-2xl relative flex flex-col border border-slate-300 overflow-hidden">
-            <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/notebook.png')]" />
-            <div className="p-20 flex-1 flex flex-col relative z-10">
-              
-              {/* Entête Document d'État */}
-              <div className="flex justify-between items-start mb-16 border-b-2 border-slate-200 pb-10">
-                <div className="text-center w-36 uppercase text-[7px] font-black flex flex-col gap-1">
+          <div className="col-span-12 lg:col-span-9 bg-[#f8fafc] rounded-[3rem] shadow-2xl relative flex flex-col overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]" />
+            <div className="p-12 md:p-16 flex-1 flex flex-col relative z-10 overflow-y-auto custom-scrollbar">
+              <div className="flex justify-between items-start mb-16 border-b-2 border-slate-800 pb-10">
+                <div className="text-center w-40 uppercase text-[9px] font-black flex flex-col gap-1.5 text-slate-800">
                   <p>République de Côte d'Ivoire</p>
-                  <div className="h-0.5 bg-slate-800 w-full" />
-                  <p className="italic text-slate-500">Union - Discipline - Travail</p>
+                  <div className="h-[3px] bg-slate-800 w-full" />
+                  <p className="italic text-slate-500 text-[7px] tracking-widest mt-1">Commune de {communeName}</p>
                 </div>
-                <div className="text-center">
-                  <h2 className="text-3xl font-serif font-black text-slate-800 uppercase tracking-tighter leading-none">{selectedService}</h2>
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mt-3 italic">Validation Souveraine RecensCI</p>
+                <div className="text-center flex-1 px-8">
+                  <h2 className="text-2xl md:text-3xl font-serif font-black text-slate-900 uppercase tracking-tight">{selectedService}</h2>
+                  <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em] mt-3 bg-amber-100 inline-block px-4 py-1 rounded-full">Procédure Numérique Officielle</p>
                 </div>
-                <div className="w-16 h-16 bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-center opacity-60">
-                   <QrCode size={40} className="text-slate-300"/>
+                <div className="w-20 h-20 bg-white border-2 border-slate-200 rounded-2xl flex items-center justify-center shadow-inner">
+                   <QrCode size={48} className="text-slate-800"/>
                 </div>
               </div>
 
-              {/* Contenu de chaque service */}
-              <div className="flex-1">
+              <div className="flex-1 max-w-4xl mx-auto w-full">
                 {renderDossierContent()}
-                
-                {/* Visualisation de l'upload Cloudinary */}
-                <div className="mt-12 p-8 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 flex items-center justify-between group hover:border-orange-500 transition-all cursor-pointer">
-                   <div className="flex items-center gap-6">
-                      <div className="p-4 bg-white rounded-2xl shadow-sm"><Smartphone size={24} className="text-orange-500" /></div>
-                      <div>
-                        <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest italic">Document d'identité lié</p>
-                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Hébergé sur le cloud souverain • Chiffrement 256bits</p>
-                      </div>
-                   </div>
-                   <button className="px-8 py-3 bg-slate-200 text-slate-600 text-[10px] font-black uppercase rounded-full hover:bg-orange-600 hover:text-white transition-all shadow-lg active:scale-95">Visualiser l'original</button>
-                </div>
               </div>
 
-              {/* TAMPON OFFICIEL */}
-              <div className="mt-12 pt-10 border-t-2 border-dotted border-slate-200 flex justify-end gap-10">
-                 <button onClick={() => handleAction(tickets[0], 'REJECT')} className="group flex flex-col items-center gap-3">
-                    <div className="w-20 h-20 rounded-full border-4 border-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"><XCircle size={36}/></div>
-                    <span className="text-[9px] font-black text-red-500 uppercase tracking-[0.2em]">Refuser</span>
+              <div className="mt-16 pt-8 border-t-2 border-dashed border-slate-300 flex justify-end gap-6">
+                 <button onClick={() => handleAction(tickets[0], 'REJECT')} disabled={tickets.length === 0} className="flex items-center gap-3 px-8 py-4 bg-white border-2 border-rose-200 text-rose-600 rounded-2xl hover:bg-rose-50 hover:border-rose-300 transition-all font-black uppercase text-xs tracking-widest disabled:opacity-50">
+                    <XCircle size={20}/> Rejeter
                  </button>
-                 <button onClick={() => handleAction(tickets[0], 'APPROVE')} className="group flex flex-col items-center gap-3">
-                    <div className="w-20 h-20 rounded-full border-4 border-emerald-500/10 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-[0_20px_40px_rgba(16,185,129,0.2)]"><CheckCircle2 size={36}/></div>
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em]">Tamponner</span>
+                 <button onClick={() => handleAction(tickets[0], 'APPROVE')} disabled={tickets.length === 0} className="flex items-center gap-3 px-10 py-4 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-50 transition-all font-black uppercase text-xs tracking-widest shadow-xl shadow-emerald-600/20 disabled:opacity-50">
+                    <CheckCircle2 size={20}/> Valider & Tamponner
                  </button>
               </div>
             </div>
@@ -296,74 +343,142 @@ export default function MairieDepartments() {
     );
   }
 
-  // --- VUE PAR DÉFAUT : ORGANIGRAMME ---
-  return (
-    <div className="p-8 max-w-[1600px] mx-auto h-full flex flex-col min-h-screen">
-      <header className="mb-12 flex justify-between items-end border-b border-orange-500/20 pb-10">
-        <div>
-          <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase mb-2 flex items-center gap-5">
-            <Building2 className="text-orange-500" size={48} />
-            Hôtel de Ville <span className="text-orange-400">Services</span>
-          </h1>
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.5em] ml-1">Administration & Souveraineté Digitale</p>
+  // ==========================================
+  // NIVEAU 2 : VUE D'UNE DIRECTION (Organigramme)
+  // ==========================================
+  if (activeData) {
+    return (
+      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="p-8 max-w-[1600px] mx-auto min-h-full flex flex-col">
+        <header className="mb-12 flex justify-between items-center border-b border-white/5 pb-6">
+          <button onClick={() => setActiveDirection(null)} className="flex items-center gap-2 text-amber-500 hover:text-amber-400 font-black text-[10px] uppercase tracking-widest transition-colors">
+            <ArrowLeft size={16} /> Retour aux Directions
+          </button>
+          <div className="bg-[#050914] border border-white/5 px-6 py-3 rounded-2xl flex items-center gap-4 shadow-xl">
+            <div>
+              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1 text-right">Mairie de {communeName}</p>
+              <span className="text-2xl font-black text-white">{activeData.pendingDocs} Dossiers</span>
+            </div>
+            <Layers className="text-amber-500" size={24} />
+          </div>
+        </header>
+
+        {/* --- DÉBUT ORGANIGRAMME --- */}
+        <div className="flex flex-col items-center relative pb-20">
+          
+          {/* NŒUD CENTRAL : LE DIRECTEUR */}
+          <div className="bg-[#050914] border border-white/10 rounded-[3rem] p-8 w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-20 flex flex-col items-center text-center">
+            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-2xl ${activeData.bgClass} ${activeData.colorClass} border border-white/10`}>
+              {activeData.icon}
+            </div>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">{activeData.name}</h1>
+            <div className="flex items-center gap-2 text-amber-500 bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/20">
+              <UserCog size={16} />
+              <p className="text-xs font-black uppercase tracking-widest">Directeur : {activeData.director}</p>
+            </div>
+          </div>
+
+          {/* LIGNE VERTICALE DE L'ORGANIGRAMME */}
+          <div className="w-px h-16 bg-gradient-to-b from-white/20 to-white/5 relative z-10" />
+
+          {/* GRILLE DES SERVICES (Chefs & Agents) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 w-full relative z-20">
+            {/* Ligne horizontale de connexion */}
+            <div className="hidden xl:block absolute top-0 left-[16.66%] right-[16.66%] h-px bg-white/10 -mt-px" />
+
+            {activeData.services.map((service, idx) => (
+              <div key={idx} className="relative flex flex-col items-center">
+                <div className="hidden xl:block w-px h-6 bg-white/10 absolute -top-6" />
+
+                <div className="bg-[#050914] border border-white/5 rounded-[2.5rem] w-full shadow-2xl flex flex-col overflow-hidden hover:border-amber-500/30 transition-colors group">
+                  
+                  {/* Tête de Service (Chef) */}
+                  <div className="p-6 border-b border-white/5 bg-black/40 text-center">
+                    <h4 className="text-sm font-black text-white uppercase mb-4 tracking-tight">{service.name}</h4>
+                    <div className="flex items-center justify-center gap-2 text-slate-300">
+                      <User size={14} className="text-blue-400" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">Chef: <span className="text-blue-400">{service.chef}</span></p>
+                    </div>
+                  </div>
+
+                  {/* Corps du Service (Agents) */}
+                  <div className="p-6 flex-1 bg-[#020617]">
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                      <Users size={12}/> Équipe Opérationnelle
+                    </p>
+                    <div className="space-y-3">
+                      {service.agents.map((agent, aIdx) => (
+                        <div key={aIdx} className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                          <span className="text-xs font-bold text-slate-300">{agent.name}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-2 h-2 rounded-full ${agent.status === 'online' ? 'bg-emerald-500' : agent.status === 'busy' ? 'bg-amber-500' : 'bg-slate-500'}`} />
+                            <span className="text-[8px] font-black uppercase text-slate-500">{agent.status}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setSelectedService(service.name)} 
+                    className="w-full p-5 bg-amber-500 text-black text-[10px] font-black uppercase tracking-widest flex justify-center items-center gap-2 hover:bg-amber-400 transition-colors"
+                  >
+                    Ouvrir ce Guichet <ChevronRight size={16} />
+                  </button>
+
+                </div>
+              </div>
+            ))}
+          </div>
+
         </div>
-        <div className="flex gap-4 p-5 bg-blue-500/5 border border-blue-500/10 rounded-[2rem] shadow-inner">
-           <div className="text-right">
-              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Recettes Communales</p>
-              <p className="text-sm font-black text-blue-400">7 500 000 FCFA</p>
-           </div>
-           <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20"><TrendingUp size={24} /></div>
+      </motion.div>
+    );
+  }
+
+  // ==========================================
+  // NIVEAU 1 : VUE GLOBALE (Grille des Directions)
+  // ==========================================
+  return (
+    <div className="p-8 max-w-[1600px] mx-auto min-h-full flex flex-col">
+      <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-white/5 pb-8">
+        <div>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase mb-2 flex items-center gap-4">
+            <Building2 className="text-amber-500" size={36} />
+            Mairie de <span className="text-amber-500">{communeName}</span>
+          </h1>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] ml-1">Départements & Organigramme</p>
         </div>
       </header>
 
-      <div className="flex-1 grid grid-cols-12 gap-10 min-h-0">
-        {/* Directions */}
-        <div className="col-span-4 space-y-4 overflow-y-auto pr-4 custom-scrollbar">
-          {DIRECTIONS.map((dir) => (
-            <button key={dir.id} onClick={() => setActiveDirection(dir.id)} className={`w-full p-8 rounded-[3.5rem] border transition-all text-left flex gap-6 items-center group ${activeDirection === dir.id ? 'bg-orange-600 border-orange-400 shadow-2xl' : 'bg-[#0f172a] border-white/5 hover:bg-white/5'}`}>
-              <div className={`w-16 h-16 rounded-3xl flex items-center justify-center border transition-all ${activeDirection === dir.id ? 'bg-white/20 border-white/20 scale-110' : 'bg-black/20 border-white/10 group-hover:border-orange-500/30'}`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        {directionsList.map((dir, index) => (
+          <motion.button 
+            key={dir.id}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.05 }}
+            onClick={() => setActiveDirection(dir.id)} 
+            className={`text-left p-8 bg-[#050914] border border-white/5 rounded-[3rem] group transition-all hover:-translate-y-2 hover:${dir.glowClass} hover:${dir.borderClass}`}
+          >
+            <div className="flex justify-between items-start mb-6">
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${dir.bgClass} ${dir.colorClass}`}>
                 {dir.icon}
               </div>
-              <div className="flex-1">
-                <h3 className="text-xs font-black uppercase text-white mb-1 group-hover:tracking-widest transition-all">{dir.name}</h3>
-                <p className={`text-[9px] font-black uppercase tracking-widest ${activeDirection === dir.id ? 'text-white/60' : 'text-slate-600'}`}>{dir.director}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Services */}
-        <div className="col-span-8 bg-[#0f172a] border border-white/5 rounded-[4.5rem] p-12 flex flex-col shadow-2xl relative overflow-hidden group">
-          <div className="absolute -top-10 -right-10 opacity-5 group-hover:scale-110 transition-transform duration-1000"><Building2 size={350} /></div>
-          {activeData && (
-            <div className="h-full flex flex-col relative z-10">
-              <div className="flex justify-between items-center mb-12 pb-8 border-b border-white/5">
-                <div>
-                  <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">{activeData.name}</h2>
-                  <p className="text-[11px] text-orange-400 font-bold uppercase mt-2">Sous la responsabilité de {activeData.director}</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-[3rem] font-black text-white leading-none tracking-tighter">{activeData.pendingDocs}</span>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">En attente</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 overflow-y-auto pr-3 custom-scrollbar flex-1">
-                {activeData.services.map((service, idx) => (
-                  <div key={idx} className="bg-black/40 border border-white/5 p-8 rounded-[3rem] flex items-center justify-between group/card hover:bg-orange-500/5 hover:border-orange-500/30 transition-all">
-                    <div className="max-w-[70%]">
-                      <h4 className="text-lg font-black text-white uppercase mb-1 tracking-tight group-hover/card:text-orange-400 transition-colors">{service.name}</h4>
-                      <p className="text-xs text-slate-500 font-bold leading-relaxed">{service.desc}</p>
-                    </div>
-                    <button onClick={() => setSelectedService(service.name)} className="flex items-center gap-4 px-10 py-5 bg-orange-600 text-white rounded-[2.5rem] text-[11px] font-black uppercase tracking-widest hover:bg-orange-500 transition-all shadow-xl active:scale-95">
-                      Ouvrir le Guichet <ChevronRight size={18} />
-                    </button>
-                  </div>
-                ))}
-              </div>
             </div>
-          )}
-        </div>
+            
+            <h3 className="text-xl font-black uppercase text-white mb-2 group-hover:text-slate-200 transition-colors">
+              {dir.name}
+            </h3>
+            
+            <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+               <div className="flex items-center gap-2 text-amber-500">
+                 <UserCog size={14} />
+                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-amber-500 transition-colors">Dir: {dir.director}</span>
+               </div>
+               <ChevronRight size={20} className="text-slate-600 group-hover:text-white transition-colors" />
+            </div>
+          </motion.button>
+        ))}
       </div>
     </div>
   );

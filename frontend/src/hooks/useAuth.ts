@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { login, logout, setAuthReady } from "../store/userSlice";
 import { supabase } from "../supabaseClient"; 
-import { UserRole } from "../types";
+import { UserRole } from "../store/userSlice";
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -36,7 +36,7 @@ export const useAuth = () => {
       dispatch(setAuthReady(true));
     });
 
-    // 3. LA FONCTION CORRIGÉE : Double vérification (Profiles puis Citizens)
+    // 3. LA FONCTION CORRIGÉE : Utilisation de maybeSingle()
     async function handleAuthChange(session: any) {
       try {
         const user = session.user;
@@ -51,7 +51,7 @@ export const useAuth = () => {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle(); // CORRECTION ICI : Ne plante pas si 0 résultat
 
         if (adminProfile && adminProfile.role) {
           // BINGO ! C'est un officiel de l'état.
@@ -64,7 +64,7 @@ export const useAuth = () => {
             .from('citizens')
             .select('*')
             .eq('id', user.id)
-            .single();
+            .maybeSingle(); // CORRECTION ICI : Ne plante pas si 0 résultat
 
           if (citizenProfile) {
             finalRole = citizenProfile.role || "CITIZEN";
@@ -80,14 +80,15 @@ export const useAuth = () => {
             id: user.id,
             name: finalName,
             email: user.email || "",
-            role: finalRole as UserRole, // Redux va enfin recevoir "ENTITY_ADMIN"
+            role: finalRole as UserRole,
             nni: finalNni,
             photoUrl: finalPhoto, 
           })
         );
       } catch (error) {
         console.error("Erreur lors de la synchronisation du profil", error);
-        dispatch(logout());
+        // On ne déconnecte plus brutalement ici si c'est juste un profil introuvable
+        dispatch(setAuthReady(true));
       }
     }
 

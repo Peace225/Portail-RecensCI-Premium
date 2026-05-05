@@ -1,8 +1,7 @@
 // src/layouts/CitizenLayout.tsx
 import React from "react";
 import { Outlet } from "react-router-dom";
-import CitizenSidebar from "../components/CitizenSidebar"; 
-
+import CitizenSidebar from "../pages/Citizen/CitizenSidebar"; // (Vérifie juste ce chemin si tu as déplacé le fichier dans 'components')
 
 const CitizenLayout: React.FC = () => {
   return (
@@ -13,17 +12,18 @@ const CitizenLayout: React.FC = () => {
         <div className="absolute inset-0 [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:40px_40px]" />
       </div>
 
-      {/* --- SIDEBAR (CYBER HUD) --- */}
-      <aside className="hidden md:flex md:flex-shrink-0 z-50 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl">
-        <CitizenSidebar />
-      </aside>
+      {/* --- SIDEBAR & NAVBAR --- 
+          CORRECTION : On enlève le <aside className="hidden">. 
+          Le composant gère lui-même son affichage !
+      */}
+      <CitizenSidebar />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative z-10">
         
-
         {/* --- MAIN CONTENT AREA --- */}
-        <main className="flex-1 relative overflow-y-auto focus:outline-none custom-scrollbar bg-transparent">
-          {/* On ajoute un padding-top (pt-32) pour laisser de la place au Header fixed */}
+        {/* CORRECTION : Ajout de pb-24 sur mobile (et md:pb-0 sur PC) */}
+        <main className="flex-1 relative overflow-y-auto focus:outline-none custom-scrollbar bg-transparent pb-24 md:pb-0">
+          
           <div className="py-24 md:py-32 px-4 sm:px-6 md:px-10 lg:px-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="max-w-7xl mx-auto">
               <Outlet />
