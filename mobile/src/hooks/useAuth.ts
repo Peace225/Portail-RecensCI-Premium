@@ -17,6 +17,13 @@ export const useAuth = () => {
         dispatch(setAuthReady(true));
         return;
       }
+
+      // Mode démo — token fictif, pas d'appel API
+      if (token.startsWith('demo_token_')) {
+        dispatch(setAuthReady(true));
+        return;
+      }
+
       try {
         const { data } = await api.get('/auth/me');
         dispatch(login({

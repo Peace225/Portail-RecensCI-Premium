@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import { RootState } from '../store';
 import { useAuth } from '../hooks/useAuth';
 import { Colors } from '../theme/colors';
 import { ChatFAB } from '../components/ChatFAB';
+import SplashScreen from '../screens/SplashScreen';
 
 // Auth
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -20,7 +21,12 @@ const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
   const { loading, isLoggedIn, role } = useAuth();
-  const user = useSelector((state: RootState) => state.user);
+  const [splashDone, setSplashDone] = useState(false);
+
+  // Splash au premier lancement
+  if (!splashDone) {
+    return <SplashScreen onEnter={() => setSplashDone(true)} />;
+  }
 
   if (loading) {
     return (
@@ -52,7 +58,6 @@ export default function RootNavigator() {
             <Stack.Screen name="App" component={() => getNavigator()} />
           )}
         </Stack.Navigator>
-        {/* Chatbot IA disponible sur toutes les pages connectées */}
         {isLoggedIn && <ChatFAB />}
       </View>
     </NavigationContainer>
