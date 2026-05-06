@@ -40,13 +40,13 @@ export default function InternalMigrationFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👤 Citoyen</Text>
+          <Text style={styles.sectionTitle}>Citoyen</Text>
           <Input label="Nom complet *" value={form.citizenName} onChangeText={set('citizenName')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.citizenNni} onChangeText={set('citizenNni')} placeholder="CI-XXXX-XXXX" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🗺️ Déplacement</Text>
+          <Text style={styles.sectionTitle}>Déplacement</Text>
           <Input label="Ville d'origine *" value={form.originCity} onChangeText={set('originCity')} placeholder="Ex: Bouaké" />
           <Input label="Ville de destination *" value={form.destinationCity} onChangeText={set('destinationCity')} placeholder="Ex: Abidjan" />
           <Input label="Date de migration *" value={form.migrationDate} onChangeText={set('migrationDate')} placeholder="AAAA-MM-JJ" />
@@ -64,8 +64,10 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   header: { marginBottom: 24 },
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
-  subtitle: { fontSize: 11, color: Colors.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
+  subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
+
+

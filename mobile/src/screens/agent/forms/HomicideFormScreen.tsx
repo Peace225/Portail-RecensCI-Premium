@@ -40,20 +40,20 @@ export default function HomicideFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👤 Victime</Text>
+          <Text style={styles.sectionTitle}>Victime</Text>
           <Input label="Nom complet *" value={form.victimName} onChangeText={set('victimName')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.victimNni} onChangeText={set('victimNni')} placeholder="CI-XXXX-XXXX" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📋 Détails de l'Incident</Text>
+          <Text style={styles.sectionTitle}>Détails de l'Incident</Text>
           <Input label="Lieu *" value={form.location} onChangeText={set('location')} placeholder="Ex: Quartier Yopougon" />
           <Input label="Date *" value={form.incidentDate} onChangeText={set('incidentDate')} placeholder="AAAA-MM-JJ" />
           <Input label="Description *" value={form.description} onChangeText={set('description')} placeholder="Circonstances de l'incident..." multiline numberOfLines={3} />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚖️ Suivi Judiciaire</Text>
+          <Text style={styles.sectionTitle}>Suivi Judiciaire</Text>
           <TouchableOpacity
             style={[styles.toggleBtn, form.judicialFollowup && styles.toggleBtnActive]}
             onPress={() => setForm(f => ({ ...f, judicialFollowup: !f.judicialFollowup }))}
@@ -88,3 +88,5 @@ const styles = StyleSheet.create({
   toggleTextActive: { color: Colors.success },
   submitBtn: { marginTop: 8 },
 });
+
+

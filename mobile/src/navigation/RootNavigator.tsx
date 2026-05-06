@@ -31,7 +31,7 @@ export default function RootNavigator() {
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color={Colors.orange} />
+        <ActivityIndicator size="large" color={Colors.ciOrange} />
       </View>
     );
   }
@@ -48,6 +48,8 @@ export default function RootNavigator() {
     }
   };
 
+  const AppNavigator = React.useCallback(() => getNavigator(), [role, isLoggedIn]);
+
   return (
     <NavigationContainer>
       <View style={{ flex: 1 }}>
@@ -55,7 +57,7 @@ export default function RootNavigator() {
           {!isLoggedIn ? (
             <Stack.Screen name="Login" component={LoginScreen} />
           ) : (
-            <Stack.Screen name="App" component={() => getNavigator()} />
+            <Stack.Screen name="App" component={AppNavigator} />
           )}
         </Stack.Navigator>
         {isLoggedIn && <ChatFAB />}
@@ -67,3 +69,5 @@ export default function RootNavigator() {
 const styles = StyleSheet.create({
   loader: { flex: 1, backgroundColor: Colors.bg, alignItems: 'center', justifyContent: 'center' },
 });
+
+

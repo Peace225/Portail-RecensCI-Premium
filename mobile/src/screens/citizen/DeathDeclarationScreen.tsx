@@ -39,7 +39,7 @@ export default function DeathDeclarationScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🕊️ Défunt</Text>
+          <Text style={styles.sectionTitle}>Défunt</Text>
           <Input label="Nom complet du défunt *" value={form.deceasedName} onChangeText={set('deceasedName')} placeholder="Nom et prénoms" />
           <Input label="Date du décès *" value={form.deathDate} onChangeText={set('deathDate')} placeholder="AAAA-MM-JJ" />
           <Input label="Lieu du décès *" value={form.deathPlace} onChangeText={set('deathPlace')} placeholder="Ex: CHU Cocody, Abidjan" />
@@ -47,7 +47,7 @@ export default function DeathDeclarationScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👤 Déclarant</Text>
+          <Text style={styles.sectionTitle}>Déclarant</Text>
           <Input label="Nom du déclarant *" value={form.declarantName} onChangeText={set('declarantName')} placeholder="Votre nom complet" />
         </View>
 
@@ -63,8 +63,10 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   header: { marginBottom: 24 },
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary },
-  subtitle: { fontSize: 11, color: Colors.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
+  subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
+
+

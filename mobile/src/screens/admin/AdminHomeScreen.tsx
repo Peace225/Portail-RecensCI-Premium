@@ -149,3 +149,5 @@ const styles = StyleSheet.create({
   sectionCard: { width: '30%', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 14, alignItems: 'center', borderWidth: 1 },
   sectionLabel: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', letterSpacing: 0.5 },
 });
+
+

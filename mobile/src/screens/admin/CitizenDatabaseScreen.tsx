@@ -52,7 +52,7 @@ export default function CitizenDatabaseScreen() {
       </View>
 
       {loading ? (
-        <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>
+        <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
           {citizens.length === 0 ? (
@@ -106,14 +106,16 @@ const styles = StyleSheet.create({
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardInfo: { flex: 1, marginRight: 12 },
   cardName: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
-  cardNni: { fontSize: 11, color: Colors.orange, fontFamily: 'monospace', marginTop: 2 },
+  cardNni: { fontSize: 11, color: Colors.ciOrange, fontFamily: 'monospace', marginTop: 2 },
   cardCity: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modal: { backgroundColor: Colors.bgCard, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
   modalTitle: { fontSize: 18, fontWeight: '900', color: Colors.textPrimary, marginBottom: 8 },
-  modalNni: { fontSize: 13, color: Colors.orange, marginBottom: 4 },
+  modalNni: { fontSize: 13, color: Colors.ciOrange, marginBottom: 4 },
   modalCity: { fontSize: 13, color: Colors.textSecondary, marginBottom: 12 },
   modalActions: { flexDirection: 'row', gap: 12, marginTop: 20 },
   modalBtn: { flex: 1 },
   closeBtn: { marginTop: 10 },
 });
+
+

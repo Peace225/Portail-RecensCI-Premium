@@ -77,7 +77,7 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
 
   return (
     <LinearGradient
-      colors={['#020617', '#0a0f1c', '#020617']}
+      colors={['#0A0F0D', '#0F1A12', '#0A0F0D']}
       style={styles.container}
     >
       {/* Grille cyber */}
@@ -142,7 +142,7 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
             { label: 'Sécurité', value: 'AES-256', icon: 'lock-closed-outline' },
           ].map((s, i) => (
             <View key={i} style={styles.statCard}>
-              <Ionicons name={s.icon as any} size={20} color={Colors.orange} />
+              <Ionicons name={s.icon as any} size={20} color={Colors.ciOrange} />
               <Text style={styles.statValue}>{s.value}</Text>
               <Text style={styles.statLabel}>{s.label}</Text>
             </View>
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   scanLine: {
     position: 'absolute', left: 0, right: 0, height: 2,
     backgroundColor: 'rgba(249,115,22,0.3)',
-    shadowColor: Colors.orange, shadowOpacity: 0.8, shadowRadius: 10,
+    shadowColor: Colors.ciOrange, shadowOpacity: 0.8, shadowRadius: 10,
   },
 
   content: { width: '100%', paddingHorizontal: 24, alignItems: 'center', gap: 24 },
@@ -189,29 +189,29 @@ const styles = StyleSheet.create({
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   logoBox: {
     width: 56, height: 56, borderRadius: 16,
-    backgroundColor: Colors.orange, alignItems: 'center', justifyContent: 'center',
-    shadowColor: Colors.orange, shadowOpacity: 0.5, shadowRadius: 20, elevation: 10,
+    backgroundColor: Colors.ciOrange, alignItems: 'center', justifyContent: 'center',
+    shadowColor: Colors.ciOrange, shadowOpacity: 0.5, shadowRadius: 20, elevation: 10,
   },
   logoLetter: { fontSize: 28, fontWeight: '900', color: '#fff' },
   appName: { fontSize: 28, fontWeight: '900', color: '#fff', letterSpacing: -1 },
-  appNameAccent: { color: Colors.orange },
+  appNameAccent: { color: Colors.ciOrange },
   tagline: { fontSize: 9, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 2, marginTop: 2 },
 
   ticker: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
   tickerItem: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(249,115,22,0.08)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(249,115,22,0.2)' },
-  tickerDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: Colors.orange },
-  tickerText: { fontSize: 8, color: Colors.orange, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8 },
+  tickerDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: Colors.ciOrange },
+  tickerText: { fontSize: 8, color: Colors.ciOrange, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8 },
 
   counterCard: {
     width: '100%', backgroundColor: 'rgba(5,9,20,0.9)',
     borderRadius: 24, padding: 24,
-    borderWidth: 1, borderColor: `${Colors.orange}30`,
-    borderLeftWidth: 4, borderLeftColor: Colors.orange,
+    borderWidth: 1, borderColor: `${Colors.ciOrange}30`,
+    borderLeftWidth: 4, borderLeftColor: Colors.ciOrange,
     alignItems: 'flex-start',
-    shadowColor: Colors.orange, shadowOpacity: 0.15, shadowRadius: 20, elevation: 8,
+    shadowColor: Colors.ciOrange, shadowOpacity: 0.15, shadowRadius: 20, elevation: 8,
   },
   counterHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
-  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.orange },
+  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.ciOrange },
   counterLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, fontWeight: '700' },
   counterValue: { fontSize: 38, fontWeight: '900', color: '#fff', fontFamily: 'monospace', letterSpacing: -1 },
   counterSub: { fontSize: 11, color: Colors.textMuted, marginTop: 4 },
@@ -227,12 +227,14 @@ const styles = StyleSheet.create({
 
   enterBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: Colors.orange, paddingHorizontal: 32, paddingVertical: 16,
-    borderRadius: 20, shadowColor: Colors.orange, shadowOpacity: 0.4, shadowRadius: 20, elevation: 10,
+    backgroundColor: Colors.ciOrange, paddingHorizontal: 32, paddingVertical: 16,
+    borderRadius: 20, shadowColor: Colors.ciOrange, shadowOpacity: 0.4, shadowRadius: 20, elevation: 10,
   },
   enterBtnText: { fontSize: 13, fontWeight: '900', color: '#fff', textTransform: 'uppercase', letterSpacing: 1.5 },
 
   loadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  loadingDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.orange },
+  loadingDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.ciOrange },
   loadingText: { fontSize: 10, color: Colors.textMuted, fontFamily: 'monospace' },
 });
+
+

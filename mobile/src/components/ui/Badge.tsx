@@ -21,3 +21,5 @@ const styles = StyleSheet.create({
   },
   text: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.2 },
 });
+
+

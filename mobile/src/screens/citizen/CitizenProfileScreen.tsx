@@ -26,10 +26,10 @@ export default function CitizenProfileScreen() {
           <Text style={styles.avatarText}>{user.name?.charAt(0)?.toUpperCase() || '?'}</Text>
         </View>
         <Text style={styles.name}>{user.name}</Text>
-        <Badge label="Citoyen" color={Colors.orange} />
+        <Badge label="Citoyen" color={Colors.ciOrange} />
       </View>
 
-      <Card style={styles.infoCard} accent={Colors.orange}>
+      <Card style={styles.infoCard} accent={Colors.ciOrange}>
         <Text style={styles.sectionTitle}>Informations personnelles</Text>
         {fields.map(f => (
           <View key={f.label} style={styles.fieldRow}>
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   content: { padding: 24, paddingBottom: 60 },
   avatarSection: { alignItems: 'center', marginBottom: 28, marginTop: 16 },
-  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: `${Colors.orange}20`, borderWidth: 2, borderColor: Colors.orange, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  avatarText: { fontSize: 32, fontWeight: '900', color: Colors.orange },
+  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: `${Colors.ciOrange}20`, borderWidth: 2, borderColor: Colors.ciOrange, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  avatarText: { fontSize: 32, fontWeight: '900', color: Colors.ciOrange },
   name: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary, marginBottom: 8 },
   infoCard: { marginBottom: 24 },
   sectionTitle: { fontSize: 11, fontWeight: '800', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 },
@@ -58,3 +58,5 @@ const styles = StyleSheet.create({
   fieldValue: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   logoutBtn: { marginTop: 8 },
 });
+
+

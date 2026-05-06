@@ -36,7 +36,7 @@ export default function CitizenValidationScreen() {
     }
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -52,7 +52,7 @@ export default function CitizenValidationScreen() {
               <Badge label="SIGNALÉ" color={Colors.error} />
             </View>
             <Text style={styles.cardNni}>{c.nni}</Text>
-            {c.flagReason && <Text style={styles.cardReason}>⚠️ {c.flagReason}</Text>}
+            {c.flagReason && <Text style={styles.cardReason}>{c.flagReason}</Text>}
             <View style={styles.actions}>
               <Button
                 title="Valider"
@@ -86,8 +86,10 @@ const styles = StyleSheet.create({
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: `${Colors.error}30` },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   cardName: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, flex: 1, marginRight: 8 },
-  cardNni: { fontSize: 12, color: Colors.orange, fontFamily: 'monospace', marginBottom: 4 },
+  cardNni: { fontSize: 12, color: Colors.ciOrange, fontFamily: 'monospace', marginBottom: 4 },
   cardReason: { fontSize: 12, color: Colors.error, marginBottom: 12 },
   actions: { flexDirection: 'row', gap: 10, marginTop: 8 },
   actionBtn: { flex: 1, height: 42 },
 });
+
+

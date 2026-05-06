@@ -39,13 +39,13 @@ export default function DivorceFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚖️ Parties</Text>
+          <Text style={styles.sectionTitle}>Parties</Text>
           <Input label="Nom de l'époux 1 *" value={form.spouse1Name} onChangeText={set('spouse1Name')} placeholder="Nom et prénoms" />
           <Input label="Nom de l'époux 2 *" value={form.spouse2Name} onChangeText={set('spouse2Name')} placeholder="Nom et prénoms" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📋 Détails du Divorce</Text>
+          <Text style={styles.sectionTitle}>Détails du Divorce</Text>
           <Input label="Date du divorce *" value={form.divorceDate} onChangeText={set('divorceDate')} placeholder="AAAA-MM-JJ" />
           <Input label="Tribunal *" value={form.courtName} onChangeText={set('courtName')} placeholder="Ex: Tribunal de Grande Instance d'Abidjan" />
         </View>
@@ -62,8 +62,10 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   header: { marginBottom: 24 },
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
-  subtitle: { fontSize: 11, color: Colors.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
+  subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
+
+

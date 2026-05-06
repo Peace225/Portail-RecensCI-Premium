@@ -29,7 +29,7 @@ export default function NotificationsScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+    return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
   }
 
   return (
@@ -69,10 +69,12 @@ const styles = StyleSheet.create({
   empty: { alignItems: 'center', marginTop: 80 },
   emptyText: { fontSize: 14, color: Colors.textMuted },
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
-  cardUnread: { borderColor: `${Colors.orange}40` },
+  cardUnread: { borderColor: `${Colors.ciOrange}40` },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   cardTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.orange },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.ciOrange },
   cardContent: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
   cardDate: { fontSize: 10, color: Colors.textMuted, marginTop: 8, textTransform: 'uppercase', letterSpacing: 1 },
 });
+
+

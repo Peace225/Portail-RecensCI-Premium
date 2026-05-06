@@ -30,7 +30,7 @@ export default function AgentListScreen() {
     fetchAgents();
   }, []);
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -44,7 +44,7 @@ export default function AgentListScreen() {
               <View style={styles.cardInfo}>
                 <Text style={styles.cardName}>{a.fullName || a.name}</Text>
                 <Text style={styles.cardEmail}>{a.email}</Text>
-                {a.institution && <Text style={styles.cardInstitution}>🏛️ {a.institution?.name || a.institutionName}</Text>}
+                {a.institution && <Text style={styles.cardInstitution}>{a.institution?.name || a.institutionName}</Text>}
               </View>
               <Badge label={a.role} color={ROLE_COLORS[a.role] || Colors.textMuted} />
             </View>
@@ -69,3 +69,5 @@ const styles = StyleSheet.create({
   cardEmail: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
   cardInstitution: { fontSize: 11, color: Colors.textMuted, marginTop: 4 },
 });
+
+

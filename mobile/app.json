@@ -22,9 +22,9 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font",
-      "expo-asset"
+      "expo-font"
     ],
+    "newArchEnabled": true,
     "extra": {
       "eas": {
         "projectId": "5d355430-3d23-407a-83d5-6f22a5a4a152"

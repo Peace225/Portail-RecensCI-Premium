@@ -36,7 +36,7 @@ export default function CitizenFluxScreen() {
     }
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -86,8 +86,10 @@ const styles = StyleSheet.create({
   card: { backgroundColor: Colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   cardName: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, flex: 1, marginRight: 8 },
-  cardNni: { fontSize: 12, color: Colors.orange, fontFamily: 'monospace', marginBottom: 4 },
+  cardNni: { fontSize: 12, color: Colors.ciOrange, fontFamily: 'monospace', marginBottom: 4 },
   cardDate: { fontSize: 11, color: Colors.textMuted, marginBottom: 12 },
   actions: { flexDirection: 'row', gap: 10 },
   actionBtn: { flex: 1, height: 42 },
 });
+
+

@@ -44,7 +44,7 @@ export default function OutOfFacilityBirthFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👶 Nouveau-né</Text>
+          <Text style={styles.sectionTitle}>Nouveau-né</Text>
           <Input label="Prénom(s) *" value={form.babyFirstName} onChangeText={set('babyFirstName')} placeholder="Ex: Aya" />
           <Input label="Nom de famille *" value={form.babyLastName} onChangeText={set('babyLastName')} placeholder="Ex: Koné" />
           <Text style={styles.fieldLabel}>Genre *</Text>
@@ -68,7 +68,7 @@ export default function OutOfFacilityBirthFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👩 Mère & Déclarant</Text>
+          <Text style={styles.sectionTitle}>Mère & Déclarant</Text>
           <Input label="Nom complet de la mère *" value={form.motherFullName} onChangeText={set('motherFullName')} placeholder="Nom et prénoms" />
           <Input label="Nom du déclarant" value={form.declarantName} onChangeText={set('declarantName')} placeholder="Nom complet" />
         </View>
@@ -85,14 +85,16 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   header: { marginBottom: 24 },
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
-  subtitle: { fontSize: 11, color: Colors.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
+  subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   fieldLabel: { fontSize: 10, fontWeight: '800', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, marginLeft: 4 },
   optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   optBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
-  optBtnActive: { backgroundColor: Colors.orange, borderColor: Colors.orange },
+  optBtnActive: { backgroundColor: Colors.ciOrange, borderColor: Colors.ciOrange },
   optBtnText: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary },
   optBtnTextActive: { color: '#fff' },
   submitBtn: { marginTop: 8 },
 });
+
+

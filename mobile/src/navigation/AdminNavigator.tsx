@@ -25,8 +25,8 @@ function AdminTabs() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: { backgroundColor: Colors.bgCard, borderTopColor: Colors.border, height: 64 },
-        tabBarActiveTintColor: Colors.admin,
+        tabBarStyle: { backgroundColor: Colors.bgCard, borderTopColor: Colors.border, height: 64, paddingBottom: 8 },
+        tabBarActiveTintColor: Colors.ciOrange,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarLabelStyle: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
         tabBarIcon: ({ color }) => {
@@ -44,7 +44,7 @@ function AdminTabs() {
 
 const HEADER_OPTS = {
   headerStyle: { backgroundColor: Colors.bgCard },
-  headerTintColor: Colors.admin,
+  headerTintColor: Colors.ciOrange,
   headerTitleStyle: { fontWeight: '800' as const, fontSize: 14, textTransform: 'uppercase' as const, letterSpacing: 1 },
 };
 
@@ -64,3 +64,5 @@ export default function AdminNavigator() {
     </Stack.Navigator>
   );
 }
+
+

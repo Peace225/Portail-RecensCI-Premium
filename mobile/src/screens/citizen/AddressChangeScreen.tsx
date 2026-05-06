@@ -40,7 +40,7 @@ export default function AddressChangeScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🏠 Nouvelle adresse</Text>
+          <Text style={styles.sectionTitle}>Nouvelle adresse</Text>
           <Input
             label="Adresse *"
             value={form.address}
@@ -67,8 +67,10 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   header: { marginBottom: 24 },
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary },
-  subtitle: { fontSize: 11, color: Colors.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
+  subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
+
+

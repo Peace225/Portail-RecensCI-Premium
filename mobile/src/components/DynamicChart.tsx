@@ -19,7 +19,7 @@ interface DynamicChartProps {
 
 // Graphique en barres natif (sans librairie externe)
 export const DynamicChart: React.FC<DynamicChartProps> = ({
-  title, data, type = 'bar', color = Colors.orange,
+  title, data, type = 'bar', color = Colors.ciOrange,
 }) => {
   const maxVal = Math.max(...data.map(d => d.value), 1);
 
@@ -60,7 +60,7 @@ interface TrendChartProps {
 }
 
 export const TrendChart: React.FC<TrendChartProps> = ({
-  data, color = Colors.orange, height = 60,
+  data, color = Colors.ciOrange, height = 60,
 }) => {
   const maxVal = Math.max(...data.map(d => d.value), 1);
   const chartWidth = width - 80;
@@ -212,9 +212,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: `${Colors.orange}30`,
+    borderColor: `${Colors.ciOrange}30`,
     borderLeftWidth: 3,
-    borderLeftColor: Colors.orange,
+    borderLeftColor: Colors.ciOrange,
   },
   counterLabel: {
     fontSize: 10,
@@ -238,6 +238,8 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.orange,
+    backgroundColor: Colors.ciOrange,
   },
 });
+
+

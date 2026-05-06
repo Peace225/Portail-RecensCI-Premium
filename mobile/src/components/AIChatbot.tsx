@@ -125,7 +125,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ visible, onClose }) => {
         ))}
         {isTyping && (
           <View style={styles.typingRow}>
-            <Ionicons name="terminal-outline" size={12} color={Colors.orange} />
+            <Ionicons name="terminal-outline" size={12} color={Colors.ciOrange} />
             <Text style={styles.typingText}>Recherche dans la base RNPP...</Text>
           </View>
         )}
@@ -164,12 +164,12 @@ const styles = StyleSheet.create({
   overlay: {
     position: 'absolute', bottom: 80, right: 16, left: 16,
     backgroundColor: 'rgba(5,9,20,0.97)', borderRadius: 24,
-    borderWidth: 1, borderColor: `${Colors.orange}30`,
+    borderWidth: 1, borderColor: `${Colors.ciOrange}30`,
     maxHeight: 480, overflow: 'hidden',
-    shadowColor: Colors.orange, shadowOpacity: 0.3, shadowRadius: 20, elevation: 20,
+    shadowColor: Colors.ciOrange, shadowOpacity: 0.3, shadowRadius: 20, elevation: 20,
   },
   header: {
-    backgroundColor: Colors.orange, padding: 14,
+    backgroundColor: Colors.ciOrange, padding: 14,
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -182,18 +182,20 @@ const styles = StyleSheet.create({
   msgRowUser: { alignItems: 'flex-end' },
   msgRowAI: { alignItems: 'flex-start' },
   bubble: { maxWidth: '85%', padding: 10, borderRadius: 14 },
-  bubbleUser: { backgroundColor: Colors.orange, borderTopRightRadius: 4 },
+  bubbleUser: { backgroundColor: Colors.ciOrange, borderTopRightRadius: 4 },
   bubbleAI: { backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: Colors.border, borderTopLeftRadius: 4 },
   bubbleText: { fontSize: 11, lineHeight: 16, fontFamily: 'monospace' },
   bubbleTextUser: { color: '#fff' },
-  bubbleTextAI: { color: Colors.orange },
+  bubbleTextAI: { color: Colors.ciOrange },
   msgTime: { fontSize: 8, color: Colors.textMuted, textTransform: 'uppercase' },
   typingRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  typingText: { fontSize: 10, color: Colors.orange, fontFamily: 'monospace' },
+  typingText: { fontSize: 10, color: Colors.ciOrange, fontFamily: 'monospace' },
   suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, padding: 10, borderTopWidth: 1, borderTopColor: Colors.border },
   suggestionBtn: { paddingHorizontal: 10, paddingVertical: 5, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
   suggestionText: { fontSize: 9, color: Colors.textSecondary, fontWeight: '700', textTransform: 'uppercase' },
   inputRow: { flexDirection: 'row', padding: 10, gap: 8, borderTopWidth: 1, borderTopColor: Colors.border },
   input: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, color: '#fff', fontSize: 11, fontFamily: 'monospace' },
-  sendBtn: { width: 40, height: 40, backgroundColor: Colors.orange, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  sendBtn: { width: 40, height: 40, backgroundColor: Colors.ciOrange, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
 });
+
+

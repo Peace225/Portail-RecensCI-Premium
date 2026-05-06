@@ -1,33 +1,46 @@
-export const Colors = {
-  // Fond principal
-  bg: '#020617',
-  bgCard: '#050914',
-  bgInput: '#0f172a',
+// Palette couleurs RecensCI — inspirée du drapeau de Côte d'Ivoire
+// Orange (gauche) | Blanc (centre) | Vert (droite)
 
-  // Accents
-  orange: '#f97316',
-  orangeLight: '#fb923c',
-  orangeDark: '#ea580c',
+export const Colors = {
+  // Couleurs nationales CI
+  ciOrange: '#F77F00',      // Orange du drapeau
+  ciWhite: '#FFFFFF',       // Blanc du drapeau
+  ciGreen: '#009A44',       // Vert du drapeau
+
+  // Fond principal (sombre pour lisibilité)
+  bg: '#0A0F0D',            // Très sombre teinté vert
+  bgCard: '#0F1A12',        // Carte sombre verte
+  bgInput: '#0D1510',       // Input sombre
+
+  // Accent principal = Orange CI
+  orange: '#F77F00',
+  orangeLight: '#FF9A2E',
+  orangeDark: '#D96B00',
+
+  // Accent secondaire = Vert CI
+  green: '#009A44',
+  greenLight: '#00C457',
+  greenDark: '#007A35',
 
   // Rôles
-  agent: '#f97316',      // Orange
-  citizen: '#f97316',    // Orange
-  mairie: '#f59e0b',     // Amber
-  police: '#3b82f6',     // Blue
-  admin: '#a855f7',      // Purple
+  agent: '#F77F00',         // Orange
+  citizen: '#009A44',       // Vert
+  mairie: '#F77F00',        // Orange
+  police: '#1A3A6B',        // Bleu marine (police)
+  admin: '#8B5CF6',         // Violet
 
   // Statuts
-  success: '#10b981',
-  warning: '#f59e0b',
-  error: '#ef4444',
-  info: '#3b82f6',
+  success: '#009A44',       // Vert CI
+  warning: '#F77F00',       // Orange CI
+  error: '#DC2626',
+  info: '#3B82F6',
 
   // Textes
-  textPrimary: '#ffffff',
-  textSecondary: '#94a3b8',
-  textMuted: '#475569',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#A8C4A8',  // Blanc teinté vert
+  textMuted: '#5A7A5A',
 
   // Bordures
-  border: 'rgba(255,255,255,0.08)',
-  borderActive: '#f97316',
+  border: 'rgba(0,154,68,0.15)',    // Vert CI transparent
+  borderActive: '#F77F00',           // Orange CI
 };

@@ -22,7 +22,7 @@ export default function AuditLogsScreen() {
     fetchLogs();
   }, []);
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -37,7 +37,7 @@ export default function AuditLogsScreen() {
               <Text style={styles.cardDate}>{new Date(log.createdAt).toLocaleDateString('fr-FR')}</Text>
             </View>
             <Text style={styles.cardResource}>Ressource: {log.resource}</Text>
-            <Text style={styles.cardUser}>👤 {log.userEmail}</Text>
+            <Text style={styles.cardUser}>{log.userEmail}</Text>
           </View>
         ))
       )}
@@ -54,8 +54,10 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 14, color: Colors.textMuted },
   card: { backgroundColor: Colors.bgCard, borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: Colors.border },
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  cardAction: { fontSize: 13, fontWeight: '800', color: Colors.orange, flex: 1 },
+  cardAction: { fontSize: 13, fontWeight: '800', color: Colors.ciOrange, flex: 1 },
   cardDate: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.8 },
   cardResource: { fontSize: 12, color: Colors.textSecondary, marginBottom: 4 },
   cardUser: { fontSize: 11, color: Colors.textMuted },
 });
+
+

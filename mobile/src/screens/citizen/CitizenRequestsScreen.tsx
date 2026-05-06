@@ -33,7 +33,7 @@ export default function CitizenRequestsScreen() {
     if (user.id) fetchRequests();
   }, [user.id]);
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -75,5 +75,7 @@ const styles = StyleSheet.create({
   cardInfo: { flex: 1, marginRight: 12 },
   cardType: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   cardDate: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
-  cardRef: { fontSize: 11, color: Colors.orange, marginTop: 8, fontFamily: 'monospace' },
+  cardRef: { fontSize: 11, color: Colors.ciOrange, marginTop: 8, fontFamily: 'monospace' },
 });
+
+

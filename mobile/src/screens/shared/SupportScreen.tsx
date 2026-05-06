@@ -50,7 +50,7 @@ export default function SupportScreen() {
     }
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <View style={styles.container}>
@@ -127,9 +127,11 @@ const styles = StyleSheet.create({
   pickerLabel: { fontSize: 10, fontWeight: '800', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 },
   optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   optBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
-  optBtnActive: { backgroundColor: Colors.orange, borderColor: Colors.orange },
+  optBtnActive: { backgroundColor: Colors.ciOrange, borderColor: Colors.ciOrange },
   optBtnText: { fontSize: 11, color: Colors.textSecondary, fontWeight: '700' },
   optBtnTextActive: { color: '#fff' },
   modalActions: { flexDirection: 'row', gap: 12, marginTop: 8 },
   modalBtn: { flex: 1 },
 });
+
+

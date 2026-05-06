@@ -43,7 +43,7 @@ export default function AccidentFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🚗 Détails de l'Accident</Text>
+          <Text style={styles.sectionTitle}>Détails de l'Accident</Text>
           <Input label="Lieu *" value={form.location} onChangeText={set('location')} placeholder="Ex: Carrefour Marcory" />
           <Input label="Date *" value={form.accidentDate} onChangeText={set('accidentDate')} placeholder="AAAA-MM-JJ" />
           <View style={styles.row}>
@@ -58,7 +58,7 @@ export default function AccidentFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚠️ Gravité</Text>
+          <Text style={styles.sectionTitle}>Gravité</Text>
           <View style={styles.optionRow}>
             {SEVERITIES.map(s => (
               <TouchableOpacity
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   header: { marginBottom: 24 },
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
-  subtitle: { fontSize: 11, color: Colors.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
+  subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   row: { flexDirection: 'row', gap: 12 },
@@ -95,3 +95,5 @@ const styles = StyleSheet.create({
   optBtnTextActive: { color: '#fff' },
   submitBtn: { marginTop: 8 },
 });
+
+

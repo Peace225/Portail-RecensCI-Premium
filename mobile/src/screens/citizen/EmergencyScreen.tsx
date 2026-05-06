@@ -22,7 +22,7 @@ export default function EmergencyScreen({ navigation }: any) {
     try {
       await api.post('/security/emergency', form);
       Alert.alert(
-        '🚨 Urgence signalée',
+        'Urgence signalée',
         'Votre signalement a été transmis aux autorités compétentes. Les secours ont été alertés.',
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
@@ -68,7 +68,7 @@ export default function EmergencyScreen({ navigation }: any) {
           />
         </View>
 
-        <Button title="🚨 Envoyer le signalement" onPress={handleSubmit} loading={loading} style={styles.submitBtn} />
+        <Button title="Envoyer le signalement" onPress={handleSubmit} loading={loading} style={styles.submitBtn} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -90,3 +90,5 @@ const styles = StyleSheet.create({
   typeBtnTextActive: { color: '#fff' },
   submitBtn: { backgroundColor: Colors.error },
 });
+
+

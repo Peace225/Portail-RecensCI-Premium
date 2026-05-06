@@ -54,7 +54,7 @@ export default function CertificateRequestScreen({ navigation }: any) {
         <Text style={styles.title}>Demande de Certificat</Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📄 Type de certificat</Text>
+          <Text style={styles.sectionTitle}>Type de certificat</Text>
           <View style={styles.typeRow}>
             {TYPES.map(t => (
               <TouchableOpacity key={t} style={[styles.typeBtn, form.type === t && styles.typeBtnActive]} onPress={() => set('type')(t)}>
@@ -69,11 +69,11 @@ export default function CertificateRequestScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔍 Suivre une demande</Text>
+          <Text style={styles.sectionTitle}>Suivre une demande</Text>
           <Input label="Numéro de référence" value={refNumber} onChangeText={setRefNumber} placeholder="Ex: CERT-2024-001" />
           <Button title="Rechercher" onPress={handleTrack} loading={trackLoading} variant="secondary" />
           {trackResult && (
-            <Card style={styles.trackCard} accent={Colors.orange}>
+            <Card style={styles.trackCard} accent={Colors.ciOrange}>
               <Text style={styles.trackLabel}>Statut</Text>
               <Text style={styles.trackValue}>{trackResult.status}</Text>
               <Text style={styles.trackLabel}>Type</Text>
@@ -95,10 +95,12 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginBottom: 16 },
   typeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   typeBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
-  typeBtnActive: { backgroundColor: Colors.orange, borderColor: Colors.orange },
+  typeBtnActive: { backgroundColor: Colors.ciOrange, borderColor: Colors.ciOrange },
   typeBtnText: { fontSize: 11, color: Colors.textSecondary, fontWeight: '700' },
   typeBtnTextActive: { color: '#fff' },
   trackCard: { marginTop: 12 },
   trackLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginTop: 8 },
   trackValue: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
 });
+
+

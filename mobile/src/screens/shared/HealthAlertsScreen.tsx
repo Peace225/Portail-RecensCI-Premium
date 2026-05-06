@@ -53,7 +53,7 @@ export default function HealthAlertsScreen() {
     }
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <View style={styles.container}>
@@ -71,7 +71,7 @@ export default function HealthAlertsScreen() {
                 <Text style={styles.cardTitle}>{a.title}</Text>
                 <Badge label={a.severity} color={SEVERITY_COLORS[a.severity] || Colors.warning} />
               </View>
-              <Text style={styles.cardRegion}>📍 {a.region}</Text>
+              <Text style={styles.cardRegion}>{a.region}</Text>
               <Badge label={a.status || 'ACTIVE'} color={Colors.info} />
             </View>
           ))
@@ -128,3 +128,5 @@ const styles = StyleSheet.create({
   modalActions: { flexDirection: 'row', gap: 12, marginTop: 8 },
   modalBtn: { flex: 1 },
 });
+
+

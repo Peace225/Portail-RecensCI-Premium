@@ -12,8 +12,7 @@ import { Input } from '../../components/ui/Input';
 import { Colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
 
-// ─── MODE DÉMO ────────────────────────────────────────────────────────────────
-// Chaque profil simule un rôle sans appel API
+// MODE DÉMO // Chaque profil simule un rôle sans appel API
 const DEMO_PROFILES = [
   {
     label: 'Super Admin',
@@ -87,7 +86,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <LinearGradient colors={['#020617', '#0f172a', '#020617']} style={styles.gradient}>
+    <LinearGradient colors={['#0A0F0D', '#0F1A12', '#0A0F0D']} style={styles.gradient}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
@@ -107,7 +106,7 @@ export default function LoginScreen() {
 
           {/* Badge démo */}
           <View style={styles.demoBadge}>
-            <Ionicons name="flash-outline" size={14} color={Colors.orange} />
+            <Ionicons name="flash-outline" size={14} color={Colors.ciOrange} />
             <Text style={styles.demoBadgeText}>MODE DÉMONSTRATION — Accès direct par rôle</Text>
           </View>
 
@@ -169,22 +168,22 @@ const styles = StyleSheet.create({
   logoContainer: { alignItems: 'center', marginBottom: 32 },
   logoBox: {
     width: 64, height: 64, borderRadius: 18,
-    backgroundColor: Colors.orange, alignItems: 'center', justifyContent: 'center',
-    marginBottom: 12, shadowColor: Colors.orange, shadowOpacity: 0.4, shadowRadius: 20, elevation: 8,
+    backgroundColor: Colors.ciOrange, alignItems: 'center', justifyContent: 'center',
+    marginBottom: 12, shadowColor: Colors.ciOrange, shadowOpacity: 0.4, shadowRadius: 20, elevation: 8,
   },
   logoText: { fontSize: 32, fontWeight: '900', color: '#fff' },
   appName: { fontSize: 32, fontWeight: '900', color: '#fff', letterSpacing: -1 },
-  appNameAccent: { color: Colors.orange },
+  appNameAccent: { color: Colors.ciOrange },
   tagline: { fontSize: 11, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 2, marginTop: 4 },
 
   demoBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: `${Colors.orange}15`, borderRadius: 20,
+    backgroundColor: `${Colors.ciOrange}15`, borderRadius: 20,
     paddingHorizontal: 16, paddingVertical: 8,
-    borderWidth: 1, borderColor: `${Colors.orange}30`,
+    borderWidth: 1, borderColor: `${Colors.ciOrange}30`,
     alignSelf: 'center', marginBottom: 24,
   },
-  demoBadgeText: { fontSize: 10, color: Colors.orange, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
+  demoBadgeText: { fontSize: 10, color: Colors.ciOrange, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
 
   demoGrid: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 12,
@@ -213,3 +212,5 @@ const styles = StyleSheet.create({
   securityBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center' },
   securityText: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1 },
 });
+
+

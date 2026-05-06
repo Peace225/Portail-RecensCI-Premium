@@ -8,7 +8,7 @@ import { Colors } from '../../theme/colors';
 const STAT_CONFIG = [
   { key: 'births', label: 'Naissances', icon: 'happy-outline', color: Colors.success },
   { key: 'deaths', label: 'Décès', icon: 'leaf-outline', color: Colors.textMuted },
-  { key: 'marriages', label: 'Mariages', icon: 'heart-outline', color: Colors.orange },
+  { key: 'marriages', label: 'Mariages', icon: 'heart-outline', color: Colors.ciOrange },
   { key: 'divorces', label: 'Divorces', icon: 'scale-outline', color: Colors.warning },
   { key: 'migrations', label: 'Migrations', icon: 'globe-outline', color: Colors.info },
   { key: 'citizens', label: 'Citoyens', icon: 'person-outline', color: Colors.admin },
@@ -33,13 +33,13 @@ export default function ReportsScreen() {
 
   useEffect(() => { fetchStats(); }, []);
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchStats(); }} tintColor={Colors.orange} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchStats(); }} tintColor={Colors.ciOrange} />}
     >
       <Text style={styles.title}>Rapports & Statistiques</Text>
       <View style={styles.grid}>
@@ -65,3 +65,5 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 32, fontWeight: '900', marginBottom: 4 },
   statLabel: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1.5 },
 });
+
+

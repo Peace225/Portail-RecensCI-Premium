@@ -50,7 +50,7 @@ export default function ApiKeysScreen() {
     ]);
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -64,7 +64,7 @@ export default function ApiKeysScreen() {
               <View style={styles.cardInfo}>
                 <Text style={styles.cardName}>{k.name}</Text>
                 <Text style={styles.cardPrefix}>{k.keyPrefix}••••••••</Text>
-                {k.organizationName && <Text style={styles.cardOrg}>🏢 {k.organizationName}</Text>}
+                {k.organizationName && <Text style={styles.cardOrg}>{k.organizationName}</Text>}
               </View>
               <Badge label={k.status || 'ACTIVE'} color={STATUS_COLORS[k.status] || Colors.success} />
             </View>
@@ -95,7 +95,9 @@ const styles = StyleSheet.create({
   cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   cardInfo: { flex: 1, marginRight: 12 },
   cardName: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
-  cardPrefix: { fontSize: 12, color: Colors.orange, fontFamily: 'monospace', marginTop: 2 },
+  cardPrefix: { fontSize: 12, color: Colors.ciOrange, fontFamily: 'monospace', marginTop: 2 },
   cardOrg: { fontSize: 11, color: Colors.textMuted, marginTop: 4 },
   revokeBtn: { height: 40, marginTop: 4 },
 });
+
+

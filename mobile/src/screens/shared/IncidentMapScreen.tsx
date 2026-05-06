@@ -26,7 +26,7 @@ export default function IncidentMapScreen() {
     fetchIncidents();
   }, []);
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.orange} size="large" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator color={Colors.ciOrange} size="large" /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -42,10 +42,10 @@ export default function IncidentMapScreen() {
         incidents.map((inc: any) => (
           <View key={inc.id} style={styles.card}>
             <View style={styles.cardRow}>
-              <Ionicons name={(TYPE_ICONS[inc.type] || 'location-outline') as any} size={28} color={Colors.orange} style={{ marginRight: 12 }} />
+              <Ionicons name={(TYPE_ICONS[inc.type] || 'location-outline') as any} size={28} color={Colors.ciOrange} style={{ marginRight: 12 }} />
               <View style={styles.cardInfo}>
                 <Text style={styles.cardType}>{inc.type}</Text>
-                <Text style={styles.cardLocation}>📍 {inc.location}</Text>
+                <Text style={styles.cardLocation}>{inc.location}</Text>
               </View>
               <Badge label={inc.severity || 'N/A'} color={SEVERITY_COLORS[inc.severity] || Colors.textMuted} />
             </View>
@@ -78,3 +78,5 @@ const styles = StyleSheet.create({
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardDate: { fontSize: 10, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1 },
 });
+
+

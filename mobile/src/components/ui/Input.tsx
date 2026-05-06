@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgInput, borderRadius: 14,
     borderWidth: 1, borderColor: Colors.border, height: 52,
   },
-  focused: { borderColor: Colors.orange },
+  focused: { borderColor: Colors.ciOrange },
   errorBorder: { borderColor: Colors.error },
   iconLeft: { paddingLeft: 16, paddingRight: 8 },
   iconRight: { paddingRight: 16, paddingLeft: 8 },
@@ -58,3 +58,5 @@ const styles = StyleSheet.create({
   inputWithIcon: { paddingLeft: 0 },
   error: { fontSize: 11, color: Colors.error, marginTop: 4, marginLeft: 4 },
 });
+
+

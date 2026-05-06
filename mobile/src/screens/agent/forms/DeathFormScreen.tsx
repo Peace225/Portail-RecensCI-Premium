@@ -41,7 +41,7 @@ export default function DeathFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🕊️ Identité du Défunt</Text>
+          <Text style={styles.sectionTitle}>Identité du Défunt</Text>
           <Input label="Nom *" value={form.deceasedLastName} onChangeText={set('deceasedLastName')} placeholder="Nom de famille" />
           <Input label="Prénom(s) *" value={form.deceasedFirstName} onChangeText={set('deceasedFirstName')} placeholder="Prénom(s)" />
           <Input label="NNI" value={form.deceasedNni} onChangeText={set('deceasedNni')} placeholder="CI-XXXX-XXXX" />
@@ -51,7 +51,7 @@ export default function DeathFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👤 Déclarant</Text>
+          <Text style={styles.sectionTitle}>Déclarant</Text>
           <Input label="Nom du déclarant *" value={form.declarantName} onChangeText={set('declarantName')} placeholder="Nom complet" />
           <Input label="NNI du déclarant" value={form.declarantNni} onChangeText={set('declarantNni')} placeholder="CI-XXXX-XXXX" />
         </View>
@@ -68,8 +68,10 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   header: { marginBottom: 24 },
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
-  subtitle: { fontSize: 11, color: Colors.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
+  subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
+
+
