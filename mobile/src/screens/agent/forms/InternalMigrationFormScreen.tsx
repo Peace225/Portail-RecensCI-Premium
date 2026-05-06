@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platfo
 import api from '../../../services/api';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 import { Colors } from '../../../theme/colors';
 
 export default function InternalMigrationFormScreen({ navigation }: any) {
@@ -40,13 +41,13 @@ export default function InternalMigrationFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Citoyen</Text>
+          <SectionHeader icon="person-outline" title="Citoyen" />
           <Input label="Nom complet *" value={form.citizenName} onChangeText={set('citizenName')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.citizenNni} onChangeText={set('citizenNni')} placeholder="CI-XXXX-XXXX" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Déplacement</Text>
+          <SectionHeader icon="map-outline" title="Déplacement" />
           <Input label="Ville d'origine *" value={form.originCity} onChangeText={set('originCity')} placeholder="Ex: Bouaké" />
           <Input label="Ville de destination *" value={form.destinationCity} onChangeText={set('destinationCity')} placeholder="Ex: Abidjan" />
           <Input label="Date de migration *" value={form.migrationDate} onChangeText={set('migrationDate')} placeholder="AAAA-MM-JJ" />
@@ -66,7 +67,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
   subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
 

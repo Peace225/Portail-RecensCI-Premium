@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platfo
 import api from '../../../services/api';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 import { Colors } from '../../../theme/colors';
 
 export default function BirthFormScreen({ navigation }: any) {
@@ -47,7 +48,7 @@ export default function BirthFormScreen({ navigation }: any) {
 
         {/* Nouveau-né */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Identité du Nouveau-né</Text>
+          <SectionHeader icon="happy-outline" title="Identité du Nouveau-né" />
           <Input label="Prénom(s) *" value={form.babyFirstName} onChangeText={set('babyFirstName')} placeholder="Ex: Aya" />
           <Input label="Nom de famille *" value={form.babyLastName} onChangeText={set('babyLastName')} placeholder="Ex: Koné" />
           <View style={styles.row}>
@@ -72,7 +73,7 @@ export default function BirthFormScreen({ navigation }: any) {
 
         {/* Mère */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Identité de la Mère</Text>
+          <SectionHeader icon="woman-outline" title="Identité de la Mère" />
           <Input label="Nom complet *" value={form.motherFullName} onChangeText={set('motherFullName')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.motherNni} onChangeText={set('motherNni')} placeholder="CI-XXXX-XXXX" />
           <Input label="Profession" value={form.motherProfession} onChangeText={set('motherProfession')} placeholder="Ex: Commerçante" />
@@ -80,7 +81,7 @@ export default function BirthFormScreen({ navigation }: any) {
 
         {/* Père */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Identité du Père</Text>
+          <SectionHeader icon="man-outline" title="Identité du Père" />
           <Input label="Nom complet" value={form.fatherFullName} onChangeText={set('fatherFullName')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.fatherNni} onChangeText={set('fatherNni')} placeholder="CI-XXXX-XXXX" />
           <Input label="Profession" value={form.fatherProfession} onChangeText={set('fatherProfession')} placeholder="Ex: Ingénieur" />
@@ -88,7 +89,7 @@ export default function BirthFormScreen({ navigation }: any) {
 
         {/* Médecin */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Médecin / Sage-femme</Text>
+          <SectionHeader icon="medical-outline" title="Médecin / Sage-femme" />
           <Input label="Nom du médecin" value={form.doctorName} onChangeText={set('doctorName')} placeholder="Dr. Nom Prénom" />
         </View>
 
@@ -106,7 +107,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
   subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   row: { flexDirection: 'row', gap: 12 },
   half: { flex: 1 },
   submitBtn: { marginTop: 8 },

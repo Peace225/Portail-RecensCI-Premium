@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, KeyboardAv
 import api from '../../../services/api';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 import { Colors } from '../../../theme/colors';
 
 export default function HomicideFormScreen({ navigation }: any) {
@@ -40,20 +41,20 @@ export default function HomicideFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Victime</Text>
+          <SectionHeader icon="person-outline" title="Victime" />
           <Input label="Nom complet *" value={form.victimName} onChangeText={set('victimName')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.victimNni} onChangeText={set('victimNni')} placeholder="CI-XXXX-XXXX" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Détails de l'Incident</Text>
+          <SectionHeader icon="alert-circle-outline" title="Détails de l'Incident" />
           <Input label="Lieu *" value={form.location} onChangeText={set('location')} placeholder="Ex: Quartier Yopougon" />
           <Input label="Date *" value={form.incidentDate} onChangeText={set('incidentDate')} placeholder="AAAA-MM-JJ" />
           <Input label="Description *" value={form.description} onChangeText={set('description')} placeholder="Circonstances de l'incident..." multiline numberOfLines={3} />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Suivi Judiciaire</Text>
+          <SectionHeader icon="scale-outline" title="Suivi Judiciaire" />
           <TouchableOpacity
             style={[styles.toggleBtn, form.judicialFollowup && styles.toggleBtnActive]}
             onPress={() => setForm(f => ({ ...f, judicialFollowup: !f.judicialFollowup }))}
@@ -79,7 +80,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
   subtitle: { fontSize: 11, color: Colors.error, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   toggleBtn: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 14, borderWidth: 1, borderColor: Colors.border, gap: 12 },
   toggleBtnActive: { borderColor: Colors.success, backgroundColor: `${Colors.success}10` },
   toggleDot: { width: 20, height: 20, borderRadius: 10, backgroundColor: Colors.textMuted },

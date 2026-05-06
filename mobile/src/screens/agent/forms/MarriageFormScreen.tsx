@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platfo
 import api from '../../../services/api';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 import { Colors } from '../../../theme/colors';
 
 export default function MarriageFormScreen({ navigation }: any) {
@@ -40,19 +41,19 @@ export default function MarriageFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Époux 1</Text>
+          <SectionHeader icon="person-outline" title="Époux 1" />
           <Input label="Nom complet *" value={form.spouse1Name} onChangeText={set('spouse1Name')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.spouse1Nni} onChangeText={set('spouse1Nni')} placeholder="CI-XXXX-XXXX" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Époux 2</Text>
+          <SectionHeader icon="person-outline" title="Époux 2" />
           <Input label="Nom complet *" value={form.spouse2Name} onChangeText={set('spouse2Name')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.spouse2Nni} onChangeText={set('spouse2Nni')} placeholder="CI-XXXX-XXXX" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Détails du Mariage</Text>
+          <SectionHeader icon="document-text-outline" title="Détails du Mariage" />
           <Input label="Date du mariage *" value={form.marriageDate} onChangeText={set('marriageDate')} placeholder="AAAA-MM-JJ" />
           <Input label="Lieu du mariage *" value={form.marriagePlace} onChangeText={set('marriagePlace')} placeholder="Ex: Mairie d'Abidjan" />
           <Input label="Témoin 1" value={form.witness1Name} onChangeText={set('witness1Name')} placeholder="Nom complet" />
@@ -73,7 +74,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
   subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
 

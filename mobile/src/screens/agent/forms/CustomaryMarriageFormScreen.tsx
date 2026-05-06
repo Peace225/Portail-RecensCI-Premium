@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platfo
 import api from '../../../services/api';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 import { Colors } from '../../../theme/colors';
 
 export default function CustomaryMarriageFormScreen({ navigation }: any) {
@@ -40,19 +41,19 @@ export default function CustomaryMarriageFormScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Époux 1</Text>
+          <SectionHeader icon="person-outline" title="Époux 1" />
           <Input label="Nom complet *" value={form.spouse1Name} onChangeText={set('spouse1Name')} placeholder="Nom et prénoms" />
           <Input label="Village d'origine" value={form.spouse1Village} onChangeText={set('spouse1Village')} placeholder="Ex: Tiébissou" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Épouse 2</Text>
+          <SectionHeader icon="person-outline" title="Épouse 2" />
           <Input label="Nom complet *" value={form.spouse2Name} onChangeText={set('spouse2Name')} placeholder="Nom et prénoms" />
           <Input label="Village d'origine" value={form.spouse2Village} onChangeText={set('spouse2Village')} placeholder="Ex: Daoukro" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Cérémonie</Text>
+          <SectionHeader icon="leaf-outline" title="Cérémonie" />
           <Input label="Date du mariage *" value={form.marriageDate} onChangeText={set('marriageDate')} placeholder="AAAA-MM-JJ" />
           <Input label="Lieu de la cérémonie *" value={form.ceremonyPlace} onChangeText={set('ceremonyPlace')} placeholder="Ex: Village de Tiébissou" />
           <Input label="Chef coutumier" value={form.customaryChief} onChangeText={set('customaryChief')} placeholder="Nom du chef" />
@@ -73,7 +74,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '900', color: '#fff' },
   subtitle: { fontSize: 11, color: Colors.ciOrange, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
   submitBtn: { marginTop: 8 },
 });
 

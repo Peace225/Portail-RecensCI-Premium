@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 
 type EventType = 'MARRIAGE' | 'DIVORCE';
 
@@ -67,17 +68,13 @@ export default function CitizenDeclarationScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            {eventType === 'MARRIAGE' ? 'Époux 1' : 'Époux / Épouse 1'}
-          </Text>
+          <SectionHeader icon="person-outline" title={eventType === 'MARRIAGE' ? 'Époux 1' : 'Époux / Épouse 1'} />
           <Input label="Nom complet *" value={form.spouse1Name} onChangeText={set('spouse1Name')} placeholder="Nom et prénoms" />
           <Input label="NNI" value={form.spouse1Nni} onChangeText={set('spouse1Nni')} placeholder="CI-XXXX-XXXX" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            {eventType === 'MARRIAGE' ? 'Époux 2' : 'Époux / Épouse 2'}
-          </Text>
+          <SectionHeader icon="person-outline" title={eventType === 'MARRIAGE' ? 'Époux 2' : 'Époux / Épouse 2'} />
           <Input label="Nom complet *" value={form.spouse2Name} onChangeText={set('spouse2Name')} placeholder="Nom et prénoms" />
           {eventType === 'MARRIAGE' && (
             <Input label="NNI" value={form.spouse2Nni} onChangeText={set('spouse2Nni')} placeholder="CI-XXXX-XXXX" />
@@ -85,7 +82,7 @@ export default function CitizenDeclarationScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Détails</Text>
+          <SectionHeader icon="document-text-outline" title="Détails" />
           {eventType === 'MARRIAGE' ? (
             <>
               <Input label="Date du mariage *" value={form.marriageDate} onChangeText={set('marriageDate')} placeholder="AAAA-MM-JJ" />
@@ -119,7 +116,6 @@ const styles = StyleSheet.create({
   toggleText: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase' },
   toggleTextActive: { color: '#fff' },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
 });
 
 

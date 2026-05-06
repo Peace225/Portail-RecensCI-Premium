@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Ionicons } from '@expo/vector-icons';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 import { Colors } from '../../theme/colors';
 
 const TYPES = ['Agression', 'Accident', 'Incendie', 'Autre'];
@@ -43,7 +44,7 @@ export default function EmergencyScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Type d'urgence</Text>
+          <SectionHeader icon="alert-circle-outline" title="Type d'urgence" />
           <View style={styles.typeGrid}>
             {TYPES.map(t => (
               <TouchableOpacity
@@ -82,7 +83,6 @@ const styles = StyleSheet.create({
   alertTitle: { fontSize: 18, fontWeight: '900', color: Colors.error, marginBottom: 4 },
   alertSubtitle: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center' },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginBottom: 16 },
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   typeBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.bg },
   typeBtnActive: { backgroundColor: Colors.error, borderColor: Colors.error },

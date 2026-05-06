@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 import { Colors } from '../../theme/colors';
 
 export default function InternalMigrationScreen({ navigation }: any) {
@@ -43,7 +44,7 @@ export default function InternalMigrationScreen({ navigation }: any) {
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <Text style={styles.subtitle}>Déclarez votre déplacement à l'intérieur du pays</Text>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Votre déplacement</Text>
+          <SectionHeader icon="map-outline" title="Votre déplacement" />
           <Input label="Ville d'origine *" value={form.originCity} onChangeText={set('originCity')} placeholder="Ex: Bouaké" />
           <Input label="Ville de destination *" value={form.destinationCity} onChangeText={set('destinationCity')} placeholder="Ex: Abidjan" />
           <Input label="Date de migration *" value={form.migrationDate} onChangeText={set('migrationDate')} placeholder="AAAA-MM-JJ" />
@@ -60,7 +61,6 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   subtitle: { fontSize: 13, color: Colors.textMuted, marginBottom: 20, lineHeight: 20 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
 });
 
 

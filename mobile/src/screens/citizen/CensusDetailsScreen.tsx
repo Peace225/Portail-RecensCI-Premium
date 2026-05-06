@@ -5,6 +5,7 @@ import { RootState } from '../../store';
 import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 import { Colors } from '../../theme/colors';
 
 export default function CensusDetailsScreen({ navigation }: any) {
@@ -43,14 +44,14 @@ export default function CensusDetailsScreen({ navigation }: any) {
         <Text style={styles.subtitle}>Mettez à jour vos informations de résidence pour le recensement national.</Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Résidence</Text>
+          <SectionHeader icon="home-outline" title="Résidence" />
           <Input label="Adresse" value={form.address} onChangeText={set('address')} placeholder="Rue, quartier..." />
           <Input label="Ville *" value={form.city} onChangeText={set('city')} placeholder="Ex: Abidjan - Cocody" />
           <Input label="Téléphone" value={form.phone} onChangeText={set('phone')} placeholder="+225 07 00 00 00 00" keyboardType="phone-pad" />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ménage</Text>
+          <SectionHeader icon="people-outline" title="Ménage" />
           <Input label="Nombre de personnes" value={form.householdSize} onChangeText={set('householdSize')} placeholder="Ex: 4" keyboardType="numeric" />
           <Input label="Type de logement" value={form.housingType} onChangeText={set('housingType')} placeholder="Ex: Appartement, Villa..." />
         </View>
@@ -67,7 +68,6 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   subtitle: { fontSize: 13, color: Colors.textMuted, marginBottom: 20, lineHeight: 20 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#fff', marginBottom: 16 },
 });
 
 

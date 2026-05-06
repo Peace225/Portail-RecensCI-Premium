@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 import { Colors } from '../../theme/colors';
 
 const TYPES = ['Naissance', 'Mariage', 'Décès', 'Résidence', 'Nationalité'];
@@ -54,7 +55,7 @@ export default function CertificateRequestScreen({ navigation }: any) {
         <Text style={styles.title}>Demande de Certificat</Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Type de certificat</Text>
+          <SectionHeader icon="document-text-outline" title="Type de certificat" />
           <View style={styles.typeRow}>
             {TYPES.map(t => (
               <TouchableOpacity key={t} style={[styles.typeBtn, form.type === t && styles.typeBtnActive]} onPress={() => set('type')(t)}>
@@ -69,7 +70,7 @@ export default function CertificateRequestScreen({ navigation }: any) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Suivre une demande</Text>
+          <SectionHeader icon="search-outline" title="Suivre une demande" />
           <Input label="Numéro de référence" value={refNumber} onChangeText={setRefNumber} placeholder="Ex: CERT-2024-001" />
           <Button title="Rechercher" onPress={handleTrack} loading={trackLoading} variant="secondary" />
           {trackResult && (
@@ -92,7 +93,6 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 60 },
   title: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary, marginBottom: 20 },
   section: { backgroundColor: Colors.bgCard, borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  sectionTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginBottom: 16 },
   typeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   typeBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: Colors.border },
   typeBtnActive: { backgroundColor: Colors.ciOrange, borderColor: Colors.ciOrange },
