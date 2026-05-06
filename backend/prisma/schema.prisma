@@ -410,6 +410,109 @@ model SupportTicket {
   @@map("support_tickets")
 }
 
+// ─── RESIDENCE CHANGE REQUEST ────────────────────────────────────────────────
+
+model ResidenceChangeRequest {
+  id             String      @id @default(uuid())
+  citizenNni     String?     @map("citizen_nni")
+  oldAddress     String      @map("old_address")
+  oldCity        String      @map("old_city")
+  newAddress     String      @map("new_address")
+  newCity        String      @map("new_city")
+  motif          String      // Mutation professionnelle, Achat logement, Location, Regroupement familial
+  effectDate     DateTime    @map("effect_date")
+  moveDate       DateTime    @map("move_date")
+  justificatifs  Json        @default("[]") @map("justificatifs")
+  status         EventStatus @default(EN_ATTENTE_VALIDATION)
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  @@map("residence_change_requests")
+}
+
+// ─── CASIER JUDICIAIRE REQUEST ────────────────────────────────────────────────
+
+model CasierJudiciaire {
+  id             String      @id @default(uuid())
+  lastName       String      @map("last_name")
+  firstName      String      @map("first_name")
+  nationalNumber String      @map("national_number")
+  profession     String?
+  address        String?
+  objet          String      // Emploi, Concours, Visa, Voyage, Marché public
+  urgence        String      @default("Standard") // Standard, Prioritaire
+  referenceNumber String?    @unique @map("reference_number")
+  status         EventStatus @default(EN_ATTENTE_VALIDATION)
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  @@map("casier_judiciaire_requests")
+}
+
+// ─── CNI / PASSEPORT REQUEST ──────────────────────────────────────────────────
+
+model CniPasseportRequest {
+  id             String      @id @default(uuid())
+  documentType   String      @map("document_type") // CNI, Passeport
+  motif          String      // Première demande, Expiration, Perte, Vol, Détérioration
+  commune        String
+  referenceNumber String?    @unique @map("reference_number")
+  status         EventStatus @default(EN_ATTENTE_VALIDATION)
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  @@map("cni_passeport_requests")
+}
+
+// ─── IMPOTS REQUEST ───────────────────────────────────────────────────────────
+
+model ImpotsRequest {
+  id                  String   @id @default(uuid())
+  numeroContribuable  String   @map("numero_contribuable")
+  categorie           String   // Particulier, Entreprise, Foncier, TVA
+  anneeFiscale        String   @map("annee_fiscale")
+  montantDu           String?  @map("montant_du")
+  penalites           String?
+  modePaiement        String   @map("mode_paiement")
+  status              String   @default("EN_ATTENTE")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("impots_requests")
+}
+
+// ─── COMPLAINT (Porter Plainte) ───────────────────────────────────────────────
+
+model Complaint {
+  id              String      @id @default(uuid())
+  plaintiffName   String      @map("plaintiff_name")
+  plaintiffNni    String?     @map("plaintiff_nni")
+  plaintiffPhone  String      @map("plaintiff_phone")
+  infractionType  String      @map("infraction_type")
+  factDate        DateTime    @map("fact_date")
+  factTime        String?     @map("fact_time")
+  factLocation    String      @map("fact_location")
+  description     String
+  preuves         Json        @default("[]")
+  referenceNumber String?     @unique @map("reference_number")
+  status          IncidentStatus @default(OUVERT)
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  @@map("complaints")
+}
+
+// ─── CNI BLOCK REQUEST (Bloquer CNI) ─────────────────────────────────────────
+
+model CniBlockRequest {
+  id               String      @id @default(uuid())
+  documentNumber   String      @map("document_number")
+  incidentDate     DateTime    @map("incident_date")
+  incidentLocation String?     @map("incident_location")
+  motif            String      // Perte, Vol, Destruction
+  action           String      // Suspension temporaire, Blocage définitif, Renouvellement immédiat
+  referenceNumber  String?     @unique @map("reference_number")
+  status           EventStatus @default(EN_ATTENTE_VALIDATION)
+  createdAt        DateTime    @default(now()) @map("created_at")
+
+  @@map("cni_block_requests")
+}
+
 // ─── AUDIT LOG (Module 15 — Administration & Audit) ──────────────────────────
 
 enum AuditAction {

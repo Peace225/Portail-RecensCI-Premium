@@ -147,4 +147,117 @@ export class ModulesService {
       },
     });
   }
+
+  // ─── CHANGEMENT DE RÉSIDENCE ──────────────────────────────────────────────
+
+  async createResidenceChange(dto: any) {
+    return this.prisma.residenceChangeRequest.create({
+      data: {
+        ...dto,
+        effectDate: new Date(dto.effectDate),
+        moveDate: new Date(dto.moveDate),
+        status: 'EN_ATTENTE_VALIDATION',
+      },
+    });
+  }
+
+  async findResidenceChanges(filters: { status?: string; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
+    const where = filters.status ? { status: filters.status as any } : {};
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.residenceChangeRequest.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.residenceChangeRequest.count({ where }),
+    ]);
+    return { data, total, page, limit };
+  }
+
+  // ─── CASIER JUDICIAIRE ────────────────────────────────────────────────────
+
+  async createCasierJudiciaire(dto: any) {
+    const ref = `CJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    return this.prisma.casierJudiciaire.create({
+      data: { ...dto, referenceNumber: ref, status: 'EN_ATTENTE_VALIDATION' },
+    });
+  }
+
+  async findCasierJudiciaire(filters: { status?: string; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
+    const where = filters.status ? { status: filters.status as any } : {};
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.casierJudiciaire.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.casierJudiciaire.count({ where }),
+    ]);
+    return { data, total, page, limit };
+  }
+
+  // ─── CNI / PASSEPORT ─────────────────────────────────────────────────────
+
+  async createCniPasseport(dto: any) {
+    const ref = `CNI-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    return this.prisma.cniPasseportRequest.create({
+      data: { ...dto, referenceNumber: ref, status: 'EN_ATTENTE_VALIDATION' },
+    });
+  }
+
+  async findCniPasseport(filters: { status?: string; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
+    const where = filters.status ? { status: filters.status as any } : {};
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.cniPasseportRequest.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.cniPasseportRequest.count({ where }),
+    ]);
+    return { data, total, page, limit };
+  }
+
+  // ─── IMPÔTS ───────────────────────────────────────────────────────────────
+
+  async createImpotsRequest(dto: any) {
+    return this.prisma.impotsRequest.create({
+      data: { ...dto, status: 'EN_ATTENTE' },
+    });
+  }
+
+  async findImpotsRequests(filters: { status?: string; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
+    const where = filters.status ? { status: filters.status } : {};
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.impotsRequest.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.impotsRequest.count({ where }),
+    ]);
+    return { data, total, page, limit };
+  }
+
+  // ─── BLOQUER CNI ──────────────────────────────────────────────────────────
+
+  async createCniBlock(dto: any) {
+    const ref = `BLOCK-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    return this.prisma.cniBlockRequest.create({
+      data: {
+        ...dto,
+        incidentDate: new Date(dto.incidentDate),
+        referenceNumber: ref,
+        status: 'EN_ATTENTE_VALIDATION',
+      },
+    });
+  }
+
+  async findCniBlocks(filters: { status?: string; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
+    const where = filters.status ? { status: filters.status as any } : {};
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.cniBlockRequest.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.cniBlockRequest.count({ where }),
+    ]);
+    return { data, total, page, limit };
+  }
 }

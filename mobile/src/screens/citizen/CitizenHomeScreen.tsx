@@ -30,12 +30,23 @@ const DECLARATIONS = [
   { label: 'Mariage / Divorce', icon: 'heart-outline', route: 'CitizenDeclaration', color: '#ec4899' },
   { label: 'Changement d\'Adresse', icon: 'home-outline', route: 'AddressChange', color: Colors.ciOrange },
   { label: 'Migration Interne', icon: 'map-outline', route: 'InternalMigration', color: '#6366f1' },
+  { label: 'Extrait de Naissance', icon: 'document-outline', route: 'ExtraitNaissance', color: Colors.ciGreen },
+  { label: 'Changement de Résidence', icon: 'location-outline', route: 'ResidenceChange', color: Colors.ciOrange },
 ];
 
-// Services sociaux
+// Documents officiels
+const DOCUMENTS = [
+  { label: 'CNI / Passeport', icon: 'card-outline', route: 'CNIPasseport', color: '#3b82f6' },
+  { label: 'Casier Judiciaire', icon: 'shield-checkmark-outline', route: 'CasierJudiciaire', color: '#64748b' },
+  { label: 'Bloquer / Signaler CNI', icon: 'ban-outline', route: 'BloquerCNI', color: Colors.ciOrange },
+];
+
+// Services sociaux & sécurité
 const SERVICES = [
   { label: 'Sécurité Sociale', icon: 'shield-checkmark-outline', route: 'SocialSecurity', color: Colors.ciGreen },
   { label: 'Recensement', icon: 'people-outline', route: 'CensusDetails', color: Colors.ciOrange },
+  { label: 'Impôts & Taxes', icon: 'cash-outline', route: 'ImpotsTaxes', color: '#f59e0b' },
+  { label: 'Porter Plainte', icon: 'megaphone-outline', route: 'PorterPlainte', color: '#ef4444' },
 ];
 
 export default function CitizenHomeScreen({ navigation }: any) {
@@ -150,6 +161,24 @@ export default function CitizenHomeScreen({ navigation }: any) {
       <Text style={styles.sectionTitle}>Services Sociaux</Text>
       <View style={styles.declarationList}>
         {SERVICES.map((item) => (
+          <TouchableOpacity
+            key={item.route}
+            style={styles.declarationItem}
+            onPress={() => navigation.navigate(item.route)}
+          >
+            <View style={[styles.declarationIcon, { backgroundColor: `${item.color}15` }]}>
+              <Ionicons name={item.icon as any} size={22} color={item.color} />
+            </View>
+            <Text style={styles.declarationLabel}>{item.label}</Text>
+            <Ionicons name="chevron-forward-outline" size={18} color={Colors.textMuted} />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Documents officiels */}
+      <Text style={styles.sectionTitle}>Documents Officiels</Text>
+      <View style={styles.declarationList}>
+        {DOCUMENTS.map((item) => (
           <TouchableOpacity
             key={item.route}
             style={styles.declarationItem}

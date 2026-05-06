@@ -142,4 +142,94 @@ export class ModulesController {
   updateTicket(@Param('id') id: string, @Body() body: any) {
     return this.modulesService.updateTicket(id, body);
   }
+
+  // ─── CHANGEMENT DE RÉSIDENCE ──────────────────────────────────────────────
+
+  @Post('residence-change')
+  @Roles('CITIZEN', 'AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Déclarer un changement de résidence' })
+  createResidenceChange(@Body() body: any) {
+    return this.modulesService.createResidenceChange(body);
+  }
+
+  @Get('residence-change')
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Liste des changements de résidence' })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  findResidenceChanges(@Query() query: any) {
+    return this.modulesService.findResidenceChanges(query);
+  }
+
+  // ─── CASIER JUDICIAIRE ────────────────────────────────────────────────────
+
+  @Post('casier-judiciaire')
+  @Roles('CITIZEN', 'AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Demander un casier judiciaire (bulletin n°3)' })
+  createCasierJudiciaire(@Body() body: any) {
+    return this.modulesService.createCasierJudiciaire(body);
+  }
+
+  @Get('casier-judiciaire')
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Liste des demandes de casier judiciaire' })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  findCasierJudiciaire(@Query() query: any) {
+    return this.modulesService.findCasierJudiciaire(query);
+  }
+
+  // ─── CNI / PASSEPORT ─────────────────────────────────────────────────────
+
+  @Post('cni-passeport')
+  @Roles('CITIZEN', 'AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Demander ou renouveler une CNI / Passeport' })
+  createCniPasseport(@Body() body: any) {
+    return this.modulesService.createCniPasseport(body);
+  }
+
+  @Get('cni-passeport')
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Liste des demandes CNI / Passeport' })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  findCniPasseport(@Query() query: any) {
+    return this.modulesService.findCniPasseport(query);
+  }
+
+  // ─── IMPÔTS ───────────────────────────────────────────────────────────────
+
+  @Post('impots')
+  @Roles('CITIZEN', 'AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Consulter / déclarer un dossier fiscal' })
+  createImpotsRequest(@Body() body: any) {
+    return this.modulesService.createImpotsRequest(body);
+  }
+
+  @Get('impots')
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Liste des dossiers fiscaux' })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  findImpotsRequests(@Query() query: any) {
+    return this.modulesService.findImpotsRequests(query);
+  }
+
+  // ─── BLOQUER CNI ──────────────────────────────────────────────────────────
+
+  @Post('bloquer-cni')
+  @Roles('CITIZEN', 'AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Signaler / bloquer un document CNI perdu ou volé' })
+  createCniBlock(@Body() body: any) {
+    return this.modulesService.createCniBlock(body);
+  }
+
+  @Get('bloquer-cni')
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Liste des signalements CNI' })
+  @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  findCniBlocks(@Query() query: any) {
+    return this.modulesService.findCniBlocks(query);
+  }
 }

@@ -49,4 +49,23 @@ export class SecurityController {
   createEmergency(@Body() body: any, @Request() req) {
     return this.securityService.createEmergency(body, req.user.id);
   }
+
+  // ─── PLAINTES CITOYENS ────────────────────────────────────────────────────
+
+  @Post('complaints')
+  @Roles('CITIZEN', 'AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Déposer une plainte citoyenne' })
+  @ApiBody({ schema: { example: { plaintiffName: 'Koné Aya', plaintiffPhone: '+225 07 00 00 00', infractionType: 'Vol', factDate: '2026-05-01', factLocation: 'Marché Adjamé', description: 'Description des faits...' } } })
+  createComplaint(@Body() body: any) {
+    return this.securityService.createComplaint(body);
+  }
+
+  @Get('complaints')
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Liste des plaintes citoyennes' })
+  @ApiQuery({ name: 'status', required: false, enum: ['OUVERT', 'EN_COURS', 'FERME'] })
+  @ApiQuery({ name: 'page', required: false })
+  findComplaints(@Query() query: any) {
+    return this.securityService.findComplaints(query);
+  }
 }

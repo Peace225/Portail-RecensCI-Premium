@@ -64,4 +64,41 @@ export class SecurityService {
       },
     });
   }
+
+  // ─── PLAINTES CITOYENS ────────────────────────────────────────────────────
+
+  async createComplaint(dto: {
+    plaintiffName: string;
+    plaintiffNni?: string;
+    plaintiffPhone: string;
+    infractionType: string;
+    factDate: string;
+    factTime?: string;
+    factLocation: string;
+    description: string;
+    preuves?: string[];
+  }) {
+    const ref = `PLT-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    return this.prisma.complaint.create({
+      data: {
+        ...dto,
+        factDate: new Date(dto.factDate),
+        preuves: dto.preuves ?? [],
+        referenceNumber: ref,
+        status: 'OUVERT',
+      },
+    });
+  }
+
+  async findComplaints(filters: { status?: string; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
+    const where: any = filters.status ? { status: filters.status } : {};
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.complaint.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.complaint.count({ where }),
+    ]);
+    return { data, total, page, limit };
+  }
 }

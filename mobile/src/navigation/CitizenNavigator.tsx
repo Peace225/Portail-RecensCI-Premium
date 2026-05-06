@@ -18,6 +18,14 @@ import CitizenDeclarationScreen from '../screens/citizen/CitizenDeclarationScree
 import InternalMigrationScreen from '../screens/citizen/InternalMigrationScreen';
 import SocialSecurityScreen from '../screens/citizen/SocialSecurityScreen';
 import CensusDetailsScreen from '../screens/citizen/CensusDetailsScreen';
+// Nouveaux modules
+import ResidenceChangeScreen from '../screens/citizen/ResidenceChangeScreen';
+import ExtraitNaissanceScreen from '../screens/citizen/ExtraitNaissanceScreen';
+import CasierJudiciairScreen from '../screens/citizen/CasierJudiciairScreen';
+import CNIPasseportScreen from '../screens/citizen/CNIPasseportScreen';
+import ImpotsTaxesScreen from '../screens/citizen/ImpotsTaxesScreen';
+import PorterPlainteScreen from '../screens/citizen/PorterPlainteScreen';
+import BloquerCNIScreen from '../screens/citizen/BloquerCNIScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -89,6 +97,14 @@ export default function CitizenNavigator() {
       {/* Services sociaux */}
       <Stack.Screen name="SocialSecurity" component={SocialSecurityScreen} options={{ title: 'Sécurité Sociale' }} />
       <Stack.Screen name="CensusDetails" component={CensusDetailsScreen} options={{ title: 'Recensement' }} />
+      {/* Nouveaux modules */}
+      <Stack.Screen name="ResidenceChange" component={ResidenceChangeScreen} options={{ title: 'Changement de Résidence' }} />
+      <Stack.Screen name="ExtraitNaissance" component={ExtraitNaissanceScreen} options={{ title: 'Extrait de Naissance' }} />
+      <Stack.Screen name="CasierJudiciaire" component={CasierJudiciairScreen} options={{ title: 'Casier Judiciaire' }} />
+      <Stack.Screen name="CNIPasseport" component={CNIPasseportScreen} options={{ title: 'CNI / Passeport' }} />
+      <Stack.Screen name="ImpotsTaxes" component={ImpotsTaxesScreen} options={{ title: 'Impôts & Taxes' }} />
+      <Stack.Screen name="PorterPlainte" component={PorterPlainteScreen} options={{ title: 'Porter Plainte' }} />
+      <Stack.Screen name="BloquerCNI" component={BloquerCNIScreen} options={{ title: 'Bloquer / Signaler CNI' }} />
     </Stack.Navigator>
   );
 }
