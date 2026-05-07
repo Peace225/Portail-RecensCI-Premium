@@ -14,7 +14,7 @@ export default function CitizenFluxScreen() {
   const fetchPending = async () => {
     try {
       const { data } = await api.get('/citizens/pending');
-      setCitizens(data || []);
+      setCitizens(Array.isArray(data) ? data : (data?.data || []));
     } catch {
       Alert.alert('Erreur', 'Impossible de charger les citoyens en attente.');
     } finally {

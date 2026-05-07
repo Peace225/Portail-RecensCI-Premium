@@ -80,6 +80,44 @@ export const DEMO_SUCCESS = (type = 'record') => ({
   createdAt: new Date().toISOString(),
 });
 
+// ─── Demandes citoyen ─────────────────────────────────────────────────────────
+export const DEMO_REQUESTS = [
+  { id: 'r1', type: 'EXTRAIT_NAISSANCE', referenceNumber: 'CERT-1234567890-001', status: 'PRET', createdAt: new Date(Date.now() - 86400000 * 2).toISOString() },
+  { id: 'r2', type: 'CASIER_JUDICIAIRE', referenceNumber: 'CJ-1234567890-002', status: 'EN_TRAITEMENT', createdAt: new Date(Date.now() - 86400000 * 5).toISOString() },
+  { id: 'r3', type: 'CNI', referenceNumber: 'CNI-1234567890-003', status: 'EN_ATTENTE_VALIDATION', createdAt: new Date(Date.now() - 86400000).toISOString() },
+];
+
+// ─── Audit logs ───────────────────────────────────────────────────────────────
+export const DEMO_AUDIT_LOGS = [
+  { id: 'al1', action: 'LOGIN', resource: 'User', userEmail: 'superadmin@recensci.ci', userRole: 'SUPER_ADMIN', createdAt: new Date().toISOString() },
+  { id: 'al2', action: 'CREATE', resource: 'BirthRecord', userEmail: 'agent@recensci.ci', userRole: 'AGENT', description: 'Acte de naissance créé', createdAt: new Date(Date.now() - 3600000).toISOString() },
+  { id: 'al3', action: 'VALIDATE', resource: 'Citizen', userEmail: 'admin@recensci.ci', userRole: 'ADMIN', description: 'Citoyen validé', createdAt: new Date(Date.now() - 7200000).toISOString() },
+  { id: 'al4', action: 'EXPORT', resource: 'Report', userEmail: 'superadmin@recensci.ci', userRole: 'SUPER_ADMIN', description: 'Export CSV généré', createdAt: new Date(Date.now() - 86400000).toISOString() },
+];
+
+// ─── API Keys ─────────────────────────────────────────────────────────────────
+export const DEMO_API_KEYS = [
+  { id: 'k1', name: 'Partenaire ONECI', keyPrefix: 'rci_live_oneci', organizationName: 'ONECI', status: 'ACTIVE', rateLimit: 5000, createdAt: new Date().toISOString() },
+  { id: 'k2', name: 'Ministère Intérieur', keyPrefix: 'rci_live_mint', organizationName: 'Ministère de l\'Intérieur', status: 'ACTIVE', rateLimit: 10000, createdAt: new Date().toISOString() },
+  { id: 'k3', name: 'Ancien partenaire', keyPrefix: 'rci_live_old', organizationName: 'Partenaire Test', status: 'REVOKED', rateLimit: 1000, createdAt: new Date(Date.now() - 86400000 * 30).toISOString() },
+];
+
+// ─── Stats exports ────────────────────────────────────────────────────────────
+export const DEMO_STATS = {
+  births: 4821,
+  deaths: 1203,
+  marriages: 892,
+  divorces: 134,
+  migrations: 2456,
+  citizens: 29389142,
+};
+
+// ─── Citoyens en attente ──────────────────────────────────────────────────────
+export const DEMO_PENDING_CITIZENS = [
+  { id: 'p1', nni: 'CI-0010-2024', fullName: 'Ouattara Seydou', city: 'Abidjan', status: 'EN_ATTENTE_VALIDATION', createdAt: new Date(Date.now() - 86400000).toISOString() },
+  { id: 'p2', nni: 'CI-0011-2024', fullName: 'Coulibaly Mariam', city: 'Bouaké', status: 'EN_ATTENTE_VALIDATION', createdAt: new Date(Date.now() - 86400000 * 2).toISOString() },
+];
+
 // ─── Routing table : url pattern → données démo ───────────────────────────────
 export function getDemoResponse(method: string, url: string): any {
   const u = url.toLowerCase();
@@ -94,11 +132,16 @@ export function getDemoResponse(method: string, url: string): any {
   // Notifications
   if (u.includes('/notifications')) return DEMO_NOTIFICATIONS;
 
-  // Citoyens
-  if (u.includes('/citizens') && method === 'GET') return { data: DEMO_CITIZENS, total: DEMO_CITIZENS.length };
+  // Demandes citoyen
+  if (u.includes('/requests')) return DEMO_REQUESTS;
+
+  // Citoyens — ordre important : plus spécifique en premier
+  if (u.includes('/citizens/pending')) return DEMO_PENDING_CITIZENS;
+  if (u.includes('/citizens/flagged')) return DEMO_PENDING_CITIZENS.map(c => ({ ...c, flagReason: 'Doublon potentiel détecté' }));
+  if (u.includes('/citizens') && method === 'GET') return DEMO_CITIZENS;
 
   // Agents
-  if (u.includes('/agents') && method === 'GET') return { data: DEMO_AGENTS, total: DEMO_AGENTS.length };
+  if (u.includes('/agents') && method === 'GET') return DEMO_AGENTS;
 
   // Certificats
   if (u.includes('/certificates/track')) return DEMO_CERTIFICATES[0];
@@ -106,13 +149,18 @@ export function getDemoResponse(method: string, url: string): any {
 
   // Incidents / sécurité
   if (u.includes('/security/incidents') && method === 'GET') return { data: DEMO_INCIDENTS, total: DEMO_INCIDENTS.length };
-  if (u.includes('/security/map')) return DEMO_INCIDENTS;
+  if (u.includes('/security/map') || u.includes('/security') && method === 'GET') return DEMO_INCIDENTS;
 
   // Alertes sanitaires
   if (u.includes('/health-alerts') && method === 'GET') return DEMO_HEALTH_ALERTS;
 
   // Support
   if (u.includes('/support') && method === 'GET') return DEMO_TICKETS;
+
+  // Admin — audit, api-keys, exports
+  if (u.includes('/admin/audit') || u.includes('/audit')) return DEMO_AUDIT_LOGS;
+  if (u.includes('/admin/api-keys') || u.includes('/api-keys')) return DEMO_API_KEYS;
+  if (u.includes('/exports/stats') || u.includes('/exports')) return DEMO_STATS;
 
   // Tous les POST/PATCH → succès simulé
   if (method === 'POST') return DEMO_SUCCESS('Demande');

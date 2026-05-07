@@ -83,7 +83,7 @@ export default function AdminHomeScreen({ navigation }: any) {
       {stats && (
         <>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsContent}>
-            {user.role === 'ENTITY_ADMIN'
+            {(user.role === 'ENTITY_ADMIN'
               ? [
                   { label: 'Naissances', value: stats.births || 0 },
                   { label: 'Mariages', value: stats.marriages || 0 },
@@ -95,7 +95,7 @@ export default function AdminHomeScreen({ navigation }: any) {
                   { label: 'Agents', value: stats.agents || 0 },
                   { label: 'Incidents', value: stats.incidents || 0 },
                 ]
-            }.map((s: any) => (
+            ).map((s: any) => (
               <Card key={s.label} style={styles.statCard} accent={accentColor}>
                 <Text style={[styles.statValue, { color: accentColor }]}>{s.value}</Text>
                 <Text style={styles.statLabel}>{s.label}</Text>

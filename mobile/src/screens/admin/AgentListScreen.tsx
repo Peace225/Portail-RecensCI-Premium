@@ -20,7 +20,7 @@ export default function AgentListScreen() {
     const fetchAgents = async () => {
       try {
         const { data } = await api.get('/agents');
-        setAgents(data || []);
+        setAgents(Array.isArray(data) ? data : (data?.data || []));
       } catch {
         Alert.alert('Erreur', 'Impossible de charger les agents.');
       } finally {

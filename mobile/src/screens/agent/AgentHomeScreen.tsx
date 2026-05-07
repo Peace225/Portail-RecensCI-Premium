@@ -22,7 +22,7 @@ const MODULES = [
   { label: 'Mort Maternelle', icon: 'medical-outline', route: 'MaternalDeath', color: '#be185d' },
   { label: 'Migration Int.', icon: 'airplane-outline', route: 'InternationalMigration', color: '#0ea5e9' },
   { label: 'Migration Interne', icon: 'map-outline', route: 'InternalMigration', color: '#6366f1' },
-  { label: 'Alerte Sanitaire', icon: 'warning-outline', route: 'HealthAlert', color: '#dc2626' },
+  { label: 'Alerte Sanitaire', icon: 'warning-outline', route: 'HealthAlerts', color: '#dc2626' },
 ];
 
 export default function AgentHomeScreen({ navigation }: any) {

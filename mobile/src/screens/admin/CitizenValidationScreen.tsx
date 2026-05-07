@@ -14,7 +14,7 @@ export default function CitizenValidationScreen() {
   const fetchFlagged = async () => {
     try {
       const { data } = await api.get('/citizens/flagged');
-      setCitizens(data || []);
+      setCitizens(Array.isArray(data) ? data : (data?.data || []));
     } catch {
       Alert.alert('Erreur', 'Impossible de charger les citoyens signalés.');
     } finally {

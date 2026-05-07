@@ -23,7 +23,7 @@ export default function CitizenRequestsScreen() {
     const fetchRequests = async () => {
       try {
         const { data } = await api.get(`/citizens/${user.id}/requests`);
-        setRequests(data || []);
+        setRequests(Array.isArray(data) ? data : (data?.data || []));
       } catch {
         Alert.alert('Erreur', 'Impossible de charger vos demandes.');
       } finally {

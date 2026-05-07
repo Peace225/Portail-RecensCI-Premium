@@ -12,7 +12,7 @@ export default function AuditLogsScreen() {
     const fetchLogs = async () => {
       try {
         const { data } = await api.get('/admin/audit');
-        setLogs(data || []);
+        setLogs(Array.isArray(data) ? data : (data?.data || []));
       } catch {
         Alert.alert('Erreur', 'Impossible de charger les logs d\'audit.');
       } finally {

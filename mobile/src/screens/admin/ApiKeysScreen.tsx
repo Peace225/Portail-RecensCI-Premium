@@ -20,7 +20,7 @@ export default function ApiKeysScreen() {
   const fetchKeys = async () => {
     try {
       const { data } = await api.get('/admin/api-keys');
-      setKeys(data || []);
+      setKeys(Array.isArray(data) ? data : (data?.data || []));
     } catch {
       Alert.alert('Erreur', 'Impossible de charger les clés API.');
     } finally {

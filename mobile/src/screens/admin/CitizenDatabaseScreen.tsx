@@ -20,7 +20,7 @@ export default function CitizenDatabaseScreen() {
     setLoading(true);
     try {
       const { data } = await api.get(`/citizens${q ? `?search=${encodeURIComponent(q)}` : ''}`);
-      setCitizens(data || []);
+      setCitizens(Array.isArray(data) ? data : (data?.data || []));
     } catch {
       Alert.alert('Erreur', 'Impossible de charger les citoyens.');
     } finally {
