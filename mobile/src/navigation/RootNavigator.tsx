@@ -19,15 +19,30 @@ import AdminNavigator from './AdminNavigator';
 
 const Stack = createNativeStackNavigator();
 
+// Composant stable pour le navigator selon le rôle — défini HORS du RootNavigator
+// pour éviter toute violation des Rules of Hooks
+function RoleNavigator({ role }: { role: string | null }) {
+  switch (role) {
+    case 'CITIZEN':    return <CitizenNavigator />;
+    case 'AGENT':      return <AgentNavigator />;
+    case 'ENTITY_ADMIN':
+    case 'ADMIN':
+    case 'SUPER_ADMIN': return <AdminNavigator />;
+    default:           return <CitizenNavigator />;
+  }
+}
+
 export default function RootNavigator() {
+  // ── Tous les hooks AVANT tout return conditionnel ──
   const { loading, isLoggedIn, role } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
-  // Splash au premier lancement
+  // Splash
   if (!splashDone) {
     return <SplashScreen onEnter={() => setSplashDone(true)} />;
   }
 
+  // Loading auth
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -36,20 +51,6 @@ export default function RootNavigator() {
     );
   }
 
-  const getNavigator = () => {
-    if (!isLoggedIn) return null;
-    switch (role) {
-      case 'CITIZEN': return <CitizenNavigator />;
-      case 'AGENT': return <AgentNavigator />;
-      case 'ENTITY_ADMIN':
-      case 'ADMIN':
-      case 'SUPER_ADMIN': return <AdminNavigator />;
-      default: return <CitizenNavigator />;
-    }
-  };
-
-  const AppNavigator = React.useCallback(() => getNavigator(), [role, isLoggedIn]);
-
   return (
     <NavigationContainer>
       <View style={{ flex: 1 }}>
@@ -57,7 +58,9 @@ export default function RootNavigator() {
           {!isLoggedIn ? (
             <Stack.Screen name="Login" component={LoginScreen} />
           ) : (
-            <Stack.Screen name="App" component={AppNavigator} />
+            <Stack.Screen name="App">
+              {() => <RoleNavigator role={role} />}
+            </Stack.Screen>
           )}
         </Stack.Navigator>
         {isLoggedIn && <ChatFAB />}
@@ -69,5 +72,3 @@ export default function RootNavigator() {
 const styles = StyleSheet.create({
   loader: { flex: 1, backgroundColor: Colors.bg, alignItems: 'center', justifyContent: 'center' },
 });
-
-
