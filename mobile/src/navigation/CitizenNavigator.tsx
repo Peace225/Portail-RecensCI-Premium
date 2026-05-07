@@ -44,7 +44,11 @@ function CitizenTabs() {
       screenOptions={({ route }) => {
         const tab = TAB_CONFIG.find(t => t.name === route.name);
         return {
-          headerShown: false,
+          headerShown: true,
+          headerStyle: { backgroundColor: Colors.bgCard },
+          headerTintColor: Colors.ciOrange,
+          headerTitleStyle: { fontWeight: '800' as const, fontSize: 14, textTransform: 'uppercase' as const, letterSpacing: 1 },
+          headerBackground: () => <FlagStripe />,
           tabBarStyle: {
             backgroundColor: Colors.bgCard,
             borderTopColor: Colors.border,

@@ -160,13 +160,8 @@ export default function CitizenHomeScreen({ navigation }: any) {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.ciOrange} />}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.flagStripe}>
-          <View style={[styles.stripe, { backgroundColor: Colors.ciOrange }]} />
-          <View style={[styles.stripe, { backgroundColor: Colors.ciWhite }]} />
-          <View style={[styles.stripe, { backgroundColor: Colors.ciGreen }]} />
-        </View>
+      {/* Header citoyen */}
+      <View style={styles.headerContent}>
         <View style={styles.headerContent}>
           <View>
             <Text style={styles.greeting}>Bonjour,</Text>
@@ -177,7 +172,6 @@ export default function CitizenHomeScreen({ navigation }: any) {
             <Ionicons name="log-out-outline" size={18} color="#ef4444" />
           </TouchableOpacity>
         </View>
-      </View>
 
       {/* NNI */}
       {user.nni && (
@@ -252,12 +246,10 @@ export default function CitizenHomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
-  header: { marginBottom: 8 },
-  flagStripe: { flexDirection: 'row', height: 4 },
-  stripe: { flex: 1 },
   headerContent: {
     flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'flex-start', padding: 24, paddingTop: 60,
+    alignItems: 'flex-start', padding: 24, paddingTop: 16,
+    marginBottom: 8,
   },
   greeting: { fontSize: 13, color: Colors.textMuted, fontWeight: '600' },
   userName: { fontSize: 22, fontWeight: '900', color: '#fff', marginBottom: 8 },
