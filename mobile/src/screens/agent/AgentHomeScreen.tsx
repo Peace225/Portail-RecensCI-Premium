@@ -51,13 +51,6 @@ export default function AgentHomeScreen({ navigation }: any) {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.ciOrange} />}
     >
-      {/* Bande tricolore CI */}
-      <View style={styles.flagStripe}>
-        <View style={[styles.band, { backgroundColor: Colors.ciOrange }]} />
-        <View style={[styles.band, { backgroundColor: Colors.ciWhite }]} />
-        <View style={[styles.band, { backgroundColor: Colors.ciGreen }]} />
-      </View>
-
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -140,8 +133,6 @@ export default function AgentHomeScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  flagStripe: { flexDirection: 'row', height: 3 },
-  band: { flex: 1 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: 24, paddingTop: 60 },
   greeting: { fontSize: 12, color: Colors.ciOrange, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
   userName: { fontSize: 22, fontWeight: '900', color: '#fff', marginTop: 2 },
