@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
+import { FlagStripe } from '../components/ui/FlagStripe';
 
 import CitizenHomeScreen from '../screens/citizen/CitizenHomeScreen';
 import CitizenProfileScreen from '../screens/citizen/CitizenProfileScreen';
@@ -76,6 +77,7 @@ const HEADER_OPTS = {
   headerStyle: { backgroundColor: Colors.bgCard },
   headerTintColor: Colors.ciOrange,
   headerTitleStyle: { fontWeight: '800' as const, fontSize: 14, textTransform: 'uppercase' as const, letterSpacing: 1 },
+  headerBackground: () => <FlagStripe />,
 };
 
 export default function CitizenNavigator() {

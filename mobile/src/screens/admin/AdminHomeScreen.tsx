@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { Card } from '../../components/ui/Card';
 import { DynamicChart } from '../../components/DynamicChart';
+import { FlagStripe } from '../../components/ui/FlagStripe';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
@@ -58,6 +59,13 @@ export default function AdminHomeScreen({ navigation }: any) {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}
     >
+      {/* Bande tricolore CI */}
+      <View style={styles.flagStripe}>
+        <View style={[styles.band, { backgroundColor: Colors.ciOrange }]} />
+        <View style={[styles.band, { backgroundColor: Colors.ciWhite }]} />
+        <View style={[styles.band, { backgroundColor: Colors.ciGreen }]} />
+      </View>
+
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: `${accentColor}30` }]}>
         <View>
@@ -134,6 +142,8 @@ export default function AdminHomeScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
+  flagStripe: { flexDirection: 'row', height: 3 },
+  band: { flex: 1 },
   header: { padding: 24, paddingTop: 60, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottomWidth: 1, marginBottom: 16 },
   roleLabel: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 },
   userName: { fontSize: 22, fontWeight: '900', color: '#fff' },

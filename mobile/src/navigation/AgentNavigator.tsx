@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
+import { FlagStripe } from '../components/ui/FlagStripe';
 
 import AgentHomeScreen from '../screens/agent/AgentHomeScreen';
 import NotificationsScreen from '../screens/shared/NotificationsScreen';
@@ -53,6 +54,7 @@ const HEADER_OPTS = {
   headerStyle: { backgroundColor: Colors.bgCard },
   headerTintColor: Colors.ciOrange,
   headerTitleStyle: { fontWeight: '800' as const, fontSize: 14, textTransform: 'uppercase' as const, letterSpacing: 1 },
+  headerBackground: () => <FlagStripe />,
 };
 
 export default function AgentNavigator() {
