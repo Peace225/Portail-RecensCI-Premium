@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
 import { useAuth } from '../hooks/useAuth';
 import { Colors } from '../theme/colors';
 import { ChatFAB } from '../components/ChatFAB';
@@ -19,17 +17,25 @@ import AdminNavigator from './AdminNavigator';
 
 const Stack = createNativeStackNavigator();
 
-// Composant stable pour le navigator selon le rôle — défini HORS du RootNavigator
-// pour éviter toute violation des Rules of Hooks
+// Composant stable défini HORS de RootNavigator — évite toute violation des Rules of Hooks
 function RoleNavigator({ role }: { role: string | null }) {
   switch (role) {
-    case 'CITIZEN':    return <CitizenNavigator />;
-    case 'AGENT':      return <AgentNavigator />;
+    case 'CITIZEN':     return <CitizenNavigator />;
+    case 'AGENT':       return <AgentNavigator />;
     case 'ENTITY_ADMIN':
     case 'ADMIN':
     case 'SUPER_ADMIN': return <AdminNavigator />;
-    default:           return <CitizenNavigator />;
+    default:            return <CitizenNavigator />;
   }
+}
+
+// Écran de chargement inline (pas de NavigationContainer nécessaire)
+function LoadingScreen() {
+  return (
+    <View style={styles.loader}>
+      <ActivityIndicator size="large" color={Colors.ciOrange} />
+    </View>
+  );
 }
 
 export default function RootNavigator() {
@@ -37,23 +43,19 @@ export default function RootNavigator() {
   const { loading, isLoggedIn, role } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
-  // Splash
+  // Splash — avant NavigationContainer, c'est intentionnel
   if (!splashDone) {
     return <SplashScreen onEnter={() => setSplashDone(true)} />;
   }
 
-  // Loading auth
+  // Auth en cours de vérification
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color={Colors.ciOrange} />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (
     <NavigationContainer>
-      <View style={{ flex: 1 }}>
+      <View style={styles.root}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {!isLoggedIn ? (
             <Stack.Screen name="Login" component={LoginScreen} />
@@ -70,5 +72,11 @@ export default function RootNavigator() {
 }
 
 const styles = StyleSheet.create({
-  loader: { flex: 1, backgroundColor: Colors.bg, alignItems: 'center', justifyContent: 'center' },
+  root: { flex: 1 },
+  loader: {
+    flex: 1,
+    backgroundColor: Colors.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
