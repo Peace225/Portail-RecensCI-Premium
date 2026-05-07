@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, Alert,
+  View, Text, StyleSheet, ScrollView, Alert, Image,
   KeyboardAvoidingView, Platform, TouchableOpacity,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import api from '../../services/api';
@@ -21,6 +22,7 @@ interface HouseholdMember {
   gender: 'MASCULIN' | 'FEMININ';
   relation: string;
   nni: string;
+  photoUri?: string;
 }
 
 const RELATIONS = ['Chef de ménage', 'Conjoint(e)', 'Enfant', 'Parent', 'Frère/Sœur', 'Autre'];
@@ -30,19 +32,57 @@ const OWNERSHIP = ['Propriétaire', 'Locataire', 'Hébergé gratuitement'];
 // ─── Composant membre ─────────────────────────────────────────────────────────
 
 function MemberCard({
-  member, index, onChange, onRemove,
+  member, index, onChange, onRemove, onPhotoChange,
 }: {
   member: HouseholdMember;
   index: number;
   onChange: (id: string, key: keyof HouseholdMember, val: string) => void;
   onRemove: (id: string) => void;
+  onPhotoChange: (id: string, uri: string | undefined) => void;
 }) {
+
+  const pickPhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission refusée', 'Autorisez l\'accès à la galerie.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],   // carré — portrait d'identité
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets[0]) {
+      onPhotoChange(member.id, result.assets[0].uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission refusée', 'Autorisez l\'accès à la caméra.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets[0]) {
+      onPhotoChange(member.id, result.assets[0].uri);
+    }
+  };
+
   return (
     <View style={memberStyles.card}>
+      {/* En-tête carte */}
       <View style={memberStyles.cardHeader}>
         <View style={memberStyles.badge}>
           <Ionicons name="person-outline" size={14} color={Colors.ciOrange} />
-          <Text style={memberStyles.badgeText}>Membre {index + 1}</Text>
+          <Text style={memberStyles.badgeText}>
+            {index === 0 ? 'Chef de ménage' : `Membre ${index + 1}`}
+          </Text>
         </View>
         {index > 0 && (
           <TouchableOpacity onPress={() => onRemove(member.id)} style={memberStyles.removeBtn}>
@@ -51,23 +91,60 @@ function MemberCard({
         )}
       </View>
 
-      <Input
-        label="Nom complet *"
-        value={member.fullName}
-        onChangeText={v => onChange(member.id, 'fullName', v)}
-        placeholder="Nom et prénoms"
-      />
+      {/* Photo + infos côte à côte */}
+      <View style={memberStyles.photoRow}>
+        {/* Zone photo */}
+        <View style={memberStyles.photoZone}>
+          {member.photoUri ? (
+            <View style={memberStyles.photoWrapper}>
+              <Image source={{ uri: member.photoUri }} style={memberStyles.photo} />
+              <TouchableOpacity
+                style={memberStyles.photoRemove}
+                onPress={() => onPhotoChange(member.id, undefined)}
+              >
+                <Ionicons name="close-circle" size={20} color={Colors.error} />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={memberStyles.photoPlaceholder}>
+              <Ionicons name="person-outline" size={32} color={Colors.textMuted} />
+              <Text style={memberStyles.photoPlaceholderText}>Photo</Text>
+            </View>
+          )}
+          {/* Boutons photo */}
+          <View style={memberStyles.photoBtns}>
+            <TouchableOpacity style={memberStyles.photoBtn} onPress={takePhoto}>
+              <Ionicons name="camera-outline" size={16} color={Colors.ciOrange} />
+            </TouchableOpacity>
+            <TouchableOpacity style={memberStyles.photoBtn} onPress={pickPhoto}>
+              <Ionicons name="image-outline" size={16} color={Colors.ciGreen} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Champs nom + NNI */}
+        <View style={memberStyles.infoFields}>
+          <Input
+            label="Nom complet *"
+            value={member.fullName}
+            onChangeText={v => onChange(member.id, 'fullName', v)}
+            placeholder="Nom et prénoms"
+          />
+          <Input
+            label="NNI"
+            value={member.nni}
+            onChangeText={v => onChange(member.id, 'nni', v)}
+            placeholder="CI-XXXX-XXXX"
+          />
+        </View>
+      </View>
+
+      {/* Date de naissance */}
       <Input
         label="Date de naissance"
         value={member.birthDate}
         onChangeText={v => onChange(member.id, 'birthDate', v)}
         placeholder="AAAA-MM-JJ"
-      />
-      <Input
-        label="NNI"
-        value={member.nni}
-        onChangeText={v => onChange(member.id, 'nni', v)}
-        placeholder="CI-XXXX-XXXX"
       />
 
       {/* Genre */}
@@ -108,7 +185,10 @@ const memberStyles = StyleSheet.create({
     backgroundColor: Colors.bg, borderRadius: 16, padding: 14,
     marginBottom: 12, borderWidth: 1, borderColor: `${Colors.ciOrange}25`,
   },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  cardHeader: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'center', marginBottom: 14,
+  },
   badge: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: `${Colors.ciOrange}15`, paddingHorizontal: 10, paddingVertical: 4,
@@ -116,6 +196,34 @@ const memberStyles = StyleSheet.create({
   },
   badgeText: { fontSize: 11, fontWeight: '800', color: Colors.ciOrange, textTransform: 'uppercase' },
   removeBtn: { padding: 6, backgroundColor: 'rgba(220,38,38,0.1)', borderRadius: 8 },
+
+  // Photo layout
+  photoRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+  photoZone: { alignItems: 'center', gap: 8 },
+  photoWrapper: { position: 'relative' },
+  photo: {
+    width: 80, height: 80, borderRadius: 12,
+    backgroundColor: Colors.bgCard,
+    borderWidth: 2, borderColor: Colors.ciOrange,
+  },
+  photoRemove: { position: 'absolute', top: -8, right: -8 },
+  photoPlaceholder: {
+    width: 80, height: 80, borderRadius: 12,
+    backgroundColor: Colors.bgCard,
+    borderWidth: 1, borderColor: Colors.border,
+    borderStyle: 'dashed',
+    alignItems: 'center', justifyContent: 'center', gap: 4,
+  },
+  photoPlaceholderText: { fontSize: 9, color: Colors.textMuted, fontWeight: '700', textTransform: 'uppercase' },
+  photoBtns: { flexDirection: 'row', gap: 6 },
+  photoBtn: {
+    width: 36, height: 36, borderRadius: 10,
+    backgroundColor: Colors.bgCard,
+    borderWidth: 1, borderColor: Colors.border,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  infoFields: { flex: 1 },
+
   fieldLabel: {
     fontSize: 10, fontWeight: '800', color: Colors.textMuted,
     textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, marginTop: 4,
@@ -133,14 +241,12 @@ export default function CensusDetailsScreen({ navigation }: any) {
   const user = useSelector((state: RootState) => state.user);
   const [loading, setLoading] = useState(false);
 
-  // Résidence
   const [residence, setResidence] = useState({
     address: '', city: '', commune: '', quartier: '',
     phone: '', housingType: 'Appartement', ownership: 'Locataire',
   });
   const setRes = (key: string) => (val: string) => setResidence(r => ({ ...r, [key]: val }));
 
-  // Membres du ménage — chef de ménage pré-rempli avec le citoyen connecté
   const [members, setMembers] = useState<HouseholdMember[]>([
     {
       id: '1',
@@ -149,6 +255,7 @@ export default function CensusDetailsScreen({ navigation }: any) {
       gender: 'MASCULIN',
       relation: 'Chef de ménage',
       nni: user.nni || '',
+      photoUri: undefined,
     },
   ]);
 
@@ -158,7 +265,7 @@ export default function CensusDetailsScreen({ navigation }: any) {
       {
         id: Date.now().toString(),
         fullName: '', birthDate: '', gender: 'MASCULIN',
-        relation: 'Enfant', nni: '',
+        relation: 'Enfant', nni: '', photoUri: undefined,
       },
     ]);
   };
@@ -167,9 +274,15 @@ export default function CensusDetailsScreen({ navigation }: any) {
     setMembers(m => m.map(mb => mb.id === id ? { ...mb, [key]: val } : mb));
   };
 
+  const updateMemberPhoto = (id: string, uri: string | undefined) => {
+    setMembers(m => m.map(mb => mb.id === id ? { ...mb, photoUri: uri } : mb));
+  };
+
   const removeMember = (id: string) => {
     setMembers(m => m.filter(mb => mb.id !== id));
   };
+
+  const photosCount = members.filter(m => m.photoUri).length;
 
   const handleSubmit = async () => {
     if (!residence.city.trim()) {
@@ -186,12 +299,16 @@ export default function CensusDetailsScreen({ navigation }: any) {
         citizenId: user.id,
         citizenNni: user.nni,
         residence,
-        members,
+        members: members.map(({ photoUri, ...m }) => ({
+          ...m,
+          hasPhoto: !!photoUri,
+        })),
         householdSize: members.length,
+        photosCount,
       });
       Alert.alert(
         'Recensement soumis',
-        `Votre ménage de ${members.length} personne(s) a été enregistré avec succès.`,
+        `Ménage de ${members.length} personne(s) enregistré avec succès.${photosCount > 0 ? `\n${photosCount} photo(s) jointe(s).` : ''}`,
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (err: any) {
@@ -205,11 +322,10 @@ export default function CensusDetailsScreen({ navigation }: any) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
-        {/* Bannière info */}
         <View style={styles.infoBanner}>
           <Ionicons name="information-circle-outline" size={20} color={Colors.ciGreen} />
           <Text style={styles.infoText}>
-            Recensez tous les membres vivant sous votre toit. Ces données alimentent le registre national de population.
+            Recensez tous les membres vivant sous votre toit. Ajoutez une photo pour chaque membre afin de mettre un visage sur un nom.
           </Text>
         </View>
 
@@ -237,7 +353,6 @@ export default function CensusDetailsScreen({ navigation }: any) {
               </TouchableOpacity>
             ))}
           </View>
-
           <Text style={styles.fieldLabel}>Statut d'occupation</Text>
           <View style={styles.optionRow}>
             {OWNERSHIP.map(o => (
@@ -255,8 +370,20 @@ export default function CensusDetailsScreen({ navigation }: any) {
         {/* ── Membres du ménage ── */}
         <View style={styles.section}>
           <SectionHeader icon="people-outline" title={`Membres du ménage (${members.length})`} />
+
+          {/* Barre de progression photos */}
+          <View style={styles.photoProgress}>
+            <Ionicons name="camera-outline" size={14} color={photosCount === members.length ? Colors.ciGreen : Colors.textMuted} />
+            <Text style={[styles.photoProgressText, photosCount === members.length && { color: Colors.ciGreen }]}>
+              {photosCount}/{members.length} photo{members.length > 1 ? 's' : ''} ajoutée{members.length > 1 ? 's' : ''}
+            </Text>
+            {photosCount === members.length && members.length > 0 && (
+              <Ionicons name="checkmark-circle" size={14} color={Colors.ciGreen} />
+            )}
+          </View>
+
           <Text style={styles.memberNote}>
-            Incluez toutes les personnes vivant habituellement sous votre toit.
+            Incluez toutes les personnes vivant habituellement sous votre toit. La photo permet d'identifier chaque membre.
           </Text>
 
           {members.map((member, index) => (
@@ -266,6 +393,7 @@ export default function CensusDetailsScreen({ navigation }: any) {
               index={index}
               onChange={updateMember}
               onRemove={removeMember}
+              onPhotoChange={updateMemberPhoto}
             />
           ))}
 
@@ -281,6 +409,9 @@ export default function CensusDetailsScreen({ navigation }: any) {
           <Text style={styles.summaryText}>
             Ménage de <Text style={styles.summaryBold}>{members.length} personne(s)</Text> à{' '}
             <Text style={styles.summaryBold}>{residence.commune || '—'}</Text>
+            {photosCount > 0 && (
+              <Text style={{ color: Colors.ciGreen }}> · {photosCount} photo(s)</Text>
+            )}
           </Text>
         </View>
 
@@ -324,6 +455,13 @@ const styles = StyleSheet.create({
     fontSize: 10, fontWeight: '800', color: Colors.textMuted,
     textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8,
   },
+
+  photoProgress: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: Colors.bg, borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 8, marginBottom: 12,
+  },
+  photoProgressText: { fontSize: 12, fontWeight: '700', color: Colors.textMuted },
 
   memberNote: { fontSize: 12, color: Colors.textMuted, marginBottom: 14, lineHeight: 18 },
 
