@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
@@ -13,6 +14,7 @@ import { Colors } from '../../theme/colors';
 export default function AdminHomeScreen({ navigation }: any) {
   const user = useSelector((state: RootState) => state.user);
   const { logout } = useAuth();
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -60,7 +62,7 @@ export default function AdminHomeScreen({ navigation }: any) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}
     >
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: `${accentColor}30` }]}>
+      <View style={[styles.header, { borderBottomColor: `${accentColor}30`, paddingTop: insets.top + 12 }]}>
         <View>
           <Text style={[styles.roleLabel, { color: accentColor }]}>
             {user.role === 'SUPER_ADMIN' ? 'Super Administrateur' : user.role === 'ADMIN' ? 'Administrateur' : 'Admin Entité'}
@@ -135,7 +137,7 @@ export default function AdminHomeScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  header: { padding: 24, paddingTop: 60, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottomWidth: 1, marginBottom: 16 },
+  header: { padding: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottomWidth: 1, marginBottom: 16 },
   roleLabel: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 },
   userName: { fontSize: 22, fontWeight: '900', color: '#fff' },
   logoutBtn: { padding: 8, backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239,68,68,0.2)' },

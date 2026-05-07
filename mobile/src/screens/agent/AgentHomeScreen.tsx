@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
@@ -28,6 +29,7 @@ const MODULES = [
 export default function AgentHomeScreen({ navigation }: any) {
   const user = useSelector((state: RootState) => state.user);
   const { logout } = useAuth();
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -52,7 +54,7 @@ export default function AgentHomeScreen({ navigation }: any) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.ciOrange} />}
     >
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View>
           <Text style={styles.greeting}>Agent de terrain</Text>
           <Text style={styles.userName}>{user.name}</Text>
@@ -133,7 +135,7 @@ export default function AgentHomeScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: 24, paddingTop: 60 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: 24 },
   greeting: { fontSize: 12, color: Colors.ciOrange, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
   userName: { fontSize: 22, fontWeight: '900', color: '#fff', marginTop: 2 },
   logoutBtn: { padding: 8, backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239,68,68,0.2)' },

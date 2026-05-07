@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, RefreshControl,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAuth } from '../../hooks/useAuth';
@@ -84,6 +85,7 @@ function ServiceList({ items, navigation }: { items: ServiceItem[]; navigation: 
 export default function CitizenHomeScreen({ navigation }: any) {
   const user = useSelector((state: RootState) => state.user);
   const { logout } = useAuth();
+  const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -117,7 +119,7 @@ export default function CitizenHomeScreen({ navigation }: any) {
       </View>
 
       {/* Header citoyen */}
-      <View style={styles.headerContent}>
+      <View style={[styles.headerContent, { paddingTop: insets.top + 12 }]}>
         <View>
           <Text style={styles.greeting}>Bonjour,</Text>
           <Text style={styles.userName}>{user.name}</Text>
@@ -204,7 +206,7 @@ const styles = StyleSheet.create({
 
   headerContent: {
     flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'flex-start', padding: 24, paddingTop: 16,
+    alignItems: 'flex-start', padding: 24,
     marginBottom: 8,
   },
   greeting: { fontSize: 13, color: Colors.textMuted, fontWeight: '600' },
