@@ -23,30 +23,90 @@ const QUICK_ACTIONS = [
   { label: 'Support', icon: 'chatbubble-outline', route: 'Support', color: Colors.ciOrange },
 ];
 
-// Déclarations d'état civil accessibles au citoyen depuis chez lui
+// ── État civil ────────────────────────────────────────────────────────────────
 const DECLARATIONS = [
-  { label: 'Déclarer une Naissance', icon: 'happy-outline', route: 'BirthDeclaration', color: Colors.ciGreen },
-  { label: 'Déclarer un Décès', icon: 'leaf-outline', route: 'DeathDeclaration', color: '#64748b' },
-  { label: 'Mariage / Divorce', icon: 'heart-outline', route: 'CitizenDeclaration', color: '#ec4899' },
-  { label: 'Changement d\'Adresse', icon: 'home-outline', route: 'AddressChange', color: Colors.ciOrange },
-  { label: 'Migration Interne', icon: 'map-outline', route: 'InternalMigration', color: '#6366f1' },
-  { label: 'Extrait de Naissance', icon: 'document-outline', route: 'ExtraitNaissance', color: Colors.ciGreen },
-  { label: 'Changement de Résidence', icon: 'location-outline', route: 'ResidenceChange', color: Colors.ciOrange },
+  {
+    label: 'Déclarer une Naissance',
+    sub: 'Enregistrer un nouveau-né à l\'état civil',
+    icon: 'happy-outline', route: 'BirthDeclaration', color: Colors.ciGreen,
+  },
+  {
+    label: 'Déclarer un Décès',
+    sub: 'Signaler le décès d\'un proche',
+    icon: 'leaf-outline', route: 'DeathDeclaration', color: '#64748b',
+  },
+  {
+    label: 'Mariage / Divorce',
+    sub: 'Déclarer une union ou une séparation',
+    icon: 'heart-outline', route: 'CitizenDeclaration', color: '#ec4899',
+  },
+  {
+    label: 'Extrait de Naissance',
+    sub: 'Demander une copie de votre acte de naissance',
+    icon: 'document-outline', route: 'ExtraitNaissance', color: Colors.ciGreen,
+  },
 ];
 
-// Documents officiels
+// ── Résidence & déplacements ──────────────────────────────────────────────────
+const RESIDENCE = [
+  {
+    label: 'Changement d\'Adresse',
+    sub: 'Mettre à jour votre adresse dans votre profil',
+    icon: 'home-outline', route: 'AddressChange', color: Colors.ciOrange,
+  },
+  {
+    label: 'Changement de Résidence',
+    sub: 'Déménagement officiel avec dossier administratif (motif, justificatifs)',
+    icon: 'location-outline', route: 'ResidenceChange', color: '#6366f1',
+  },
+  {
+    label: 'Migration Interne',
+    sub: 'Déplacement entre villes ou régions — suivi des flux nationaux',
+    icon: 'map-outline', route: 'InternalMigration', color: '#0ea5e9',
+  },
+];
+
+// ── Documents officiels ───────────────────────────────────────────────────────
 const DOCUMENTS = [
-  { label: 'CNI / Passeport', icon: 'card-outline', route: 'CNIPasseport', color: '#3b82f6' },
-  { label: 'Casier Judiciaire', icon: 'shield-checkmark-outline', route: 'CasierJudiciaire', color: '#64748b' },
-  { label: 'Bloquer / Signaler CNI', icon: 'ban-outline', route: 'BloquerCNI', color: Colors.ciOrange },
+  {
+    label: 'CNI / Passeport',
+    sub: 'Demande ou renouvellement de pièce d\'identité',
+    icon: 'card-outline', route: 'CNIPasseport', color: '#3b82f6',
+  },
+  {
+    label: 'Casier Judiciaire',
+    sub: 'Bulletin n°3 pour emploi, visa, concours...',
+    icon: 'shield-checkmark-outline', route: 'CasierJudiciaire', color: '#64748b',
+  },
+  {
+    label: 'Bloquer / Signaler CNI',
+    sub: 'Document perdu, volé ou détérioré',
+    icon: 'ban-outline', route: 'BloquerCNI', color: Colors.ciOrange,
+  },
 ];
 
-// Services sociaux & sécurité
+// ── Services sociaux & sécurité ───────────────────────────────────────────────
 const SERVICES = [
-  { label: 'Sécurité Sociale', icon: 'shield-checkmark-outline', route: 'SocialSecurity', color: Colors.ciGreen },
-  { label: 'Recensement', icon: 'people-outline', route: 'CensusDetails', color: Colors.ciOrange },
-  { label: 'Impôts & Taxes', icon: 'cash-outline', route: 'ImpotsTaxes', color: '#f59e0b' },
-  { label: 'Porter Plainte', icon: 'megaphone-outline', route: 'PorterPlainte', color: '#ef4444' },
+  {
+    label: 'Recensement du Ménage',
+    sub: 'Déclarer les membres de votre foyer au registre national',
+    icon: 'people-outline', route: 'CensusDetails', color: Colors.ciOrange,
+  },
+  {
+    label: 'Sécurité Sociale',
+    sub: 'Affiliation et prestations sociales',
+    icon: 'shield-checkmark-outline', route: 'SocialSecurity', color: Colors.ciGreen,
+  },
+  {
+    label: 'Impôts & Taxes',
+    sub: 'Consulter votre dossier fiscal',
+    icon: 'cash-outline', route: 'ImpotsTaxes', color: '#f59e0b',
+  },
+  {
+    label: 'Porter Plainte',
+    sub: 'Signalement officiel transmis aux autorités',
+    icon: 'megaphone-outline', route: 'PorterPlainte', color: '#ef4444',
+  },
 ];
 
 export default function CitizenHomeScreen({ navigation }: any) {
@@ -71,6 +131,29 @@ export default function CitizenHomeScreen({ navigation }: any) {
   };
 
   const unreadCount = notifications.filter((n: any) => !n.read).length;
+
+  // Composant réutilisable pour une liste de services avec sous-titres
+  const ServiceList = ({ items }: { items: typeof DECLARATIONS }) => (
+    <View style={styles.serviceList}>
+      {items.map((item) => (
+        <TouchableOpacity
+          key={item.route}
+          style={styles.serviceItem}
+          onPress={() => navigation.navigate(item.route)}
+          activeOpacity={0.75}
+        >
+          <View style={[styles.serviceIcon, { backgroundColor: `${item.color}18` }]}>
+            <Ionicons name={item.icon as any} size={22} color={item.color} />
+          </View>
+          <View style={styles.serviceText}>
+            <Text style={styles.serviceLabel}>{item.label}</Text>
+            <Text style={styles.serviceSub} numberOfLines={1}>{item.sub}</Text>
+          </View>
+          <Ionicons name="chevron-forward-outline" size={16} color={Colors.textMuted} />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 
   return (
     <ScrollView
@@ -139,59 +222,27 @@ export default function CitizenHomeScreen({ navigation }: any) {
         ))}
       </View>
 
-      {/* Déclarations d'état civil */}
-      <Text style={styles.sectionTitle}>Déclarer un Événement</Text>
-      <View style={styles.declarationList}>
-        {DECLARATIONS.map((item) => (
-          <TouchableOpacity
-            key={item.route}
-            style={styles.declarationItem}
-            onPress={() => navigation.navigate(item.route)}
-          >
-            <View style={[styles.declarationIcon, { backgroundColor: `${item.color}15` }]}>
-              <Ionicons name={item.icon as any} size={22} color={item.color} />
-            </View>
-            <Text style={styles.declarationLabel}>{item.label}</Text>
-            <Ionicons name="chevron-forward-outline" size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
-        ))}
-      </View>
+      {/* État civil */}
+      <Text style={styles.sectionTitle}>État Civil</Text>
+      <ServiceList items={DECLARATIONS} />
 
-      {/* Services sociaux */}
-      <Text style={styles.sectionTitle}>Services Sociaux</Text>
-      <View style={styles.declarationList}>
-        {SERVICES.map((item) => (
-          <TouchableOpacity
-            key={item.route}
-            style={styles.declarationItem}
-            onPress={() => navigation.navigate(item.route)}
-          >
-            <View style={[styles.declarationIcon, { backgroundColor: `${item.color}15` }]}>
-              <Ionicons name={item.icon as any} size={22} color={item.color} />
-            </View>
-            <Text style={styles.declarationLabel}>{item.label}</Text>
-            <Ionicons name="chevron-forward-outline" size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
-        ))}
+      {/* Résidence & déplacements */}
+      <Text style={styles.sectionTitle}>Résidence & Déplacements</Text>
+      <View style={styles.residenceNote}>
+        <Ionicons name="information-circle-outline" size={14} color={Colors.textMuted} />
+        <Text style={styles.residenceNoteText}>
+          3 démarches distinctes selon votre situation
+        </Text>
       </View>
+      <ServiceList items={RESIDENCE} />
 
       {/* Documents officiels */}
       <Text style={styles.sectionTitle}>Documents Officiels</Text>
-      <View style={styles.declarationList}>
-        {DOCUMENTS.map((item) => (
-          <TouchableOpacity
-            key={item.route}
-            style={styles.declarationItem}
-            onPress={() => navigation.navigate(item.route)}
-          >
-            <View style={[styles.declarationIcon, { backgroundColor: `${item.color}15` }]}>
-              <Ionicons name={item.icon as any} size={22} color={item.color} />
-            </View>
-            <Text style={styles.declarationLabel}>{item.label}</Text>
-            <Ionicons name="chevron-forward-outline" size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
-        ))}
-      </View>
+      <ServiceList items={DOCUMENTS} />
+
+      {/* Services sociaux */}
+      <Text style={styles.sectionTitle}>Services & Sécurité</Text>
+      <ServiceList items={SERVICES} />
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -231,7 +282,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 11, fontWeight: '800', color: Colors.textMuted,
     textTransform: 'uppercase', letterSpacing: 1.5,
-    marginHorizontal: 24, marginBottom: 12, marginTop: 8,
+    marginHorizontal: 24, marginBottom: 10, marginTop: 16,
   },
 
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 10, marginBottom: 8 },
@@ -242,15 +293,25 @@ const styles = StyleSheet.create({
   },
   actionLabel: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', letterSpacing: 0.5 },
 
-  declarationList: { marginHorizontal: 24, marginBottom: 8 },
-  declarationItem: {
+  // Liste de services avec sous-titres
+  serviceList: { marginHorizontal: 24, marginBottom: 4 },
+  serviceItem: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: Colors.bgCard, borderRadius: 16,
     padding: 14, marginBottom: 8,
     borderWidth: 1, borderColor: Colors.border, gap: 14,
   },
-  declarationIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  declarationLabel: { flex: 1, fontSize: 14, fontWeight: '700', color: '#fff' },
+  serviceIcon: { width: 46, height: 46, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  serviceText: { flex: 1 },
+  serviceLabel: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 2 },
+  serviceSub: { fontSize: 11, color: Colors.textMuted, lineHeight: 15 },
+
+  // Note résidence
+  residenceNote: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    marginHorizontal: 24, marginBottom: 10, marginTop: -4,
+  },
+  residenceNoteText: { fontSize: 11, color: Colors.textMuted, fontStyle: 'italic' },
 });
 
 
