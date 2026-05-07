@@ -232,4 +232,33 @@ export class ModulesController {
   findCniBlocks(@Query() query: any) {
     return this.modulesService.findCniBlocks(query);
   }
+
+  // ─── RECENSEMENT MÉNAGE ───────────────────────────────────────────────────
+
+  @Post('census')
+  @Roles('CITIZEN', 'AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Soumettre le recensement d\'un ménage' })
+  @ApiBody({
+    schema: {
+      example: {
+        citizenId: 'uuid', citizenNni: 'CI-0001-2024',
+        residence: { address: 'Rue des Jardins', commune: 'Cocody', city: 'Abidjan', housingType: 'Appartement', ownership: 'Locataire' },
+        members: [{ fullName: 'Kouassi Jean', birthDate: '1990-01-01', gender: 'MASCULIN', relation: 'Chef de ménage', nni: 'CI-0001-2024' }],
+        householdSize: 1,
+      },
+    },
+  })
+  createCensus(@Body() body: any) {
+    return this.modulesService.createCensus(body);
+  }
+
+  @Get('census')
+  @Roles('AGENT', 'ADMIN', 'SUPER_ADMIN', 'ENTITY_ADMIN')
+  @ApiOperation({ summary: 'Liste des recensements soumis' })
+  @ApiQuery({ name: 'commune', required: false })
+  @ApiQuery({ name: 'city', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  findCensus(@Query() query: any) {
+    return this.modulesService.findCensus(query);
+  }
 }

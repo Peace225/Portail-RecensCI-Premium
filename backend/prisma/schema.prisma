@@ -410,6 +410,27 @@ model SupportTicket {
   @@map("support_tickets")
 }
 
+// ─── CENSUS RECORD (Recensement ménage) ──────────────────────────────────────
+
+model CensusRecord {
+  id            String   @id @default(uuid())
+  citizenId     String?  @map("citizen_id")
+  citizenNni    String?  @map("citizen_nni")
+  address       String?
+  quartier      String?
+  commune       String?
+  city          String?
+  phone         String?
+  housingType   String?  @map("housing_type")
+  ownership     String?
+  householdSize Int      @map("household_size")
+  members       Json     @default("[]")  // HouseholdMember[]
+  status        String   @default("SOUMIS")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("census_records")
+}
+
 // ─── RESIDENCE CHANGE REQUEST ────────────────────────────────────────────────
 
 model ResidenceChangeRequest {

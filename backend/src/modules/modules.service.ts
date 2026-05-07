@@ -260,4 +260,39 @@ export class ModulesService {
     ]);
     return { data, total, page, limit };
   }
+
+  // ─── RECENSEMENT MÉNAGE ───────────────────────────────────────────────────
+
+  async createCensus(dto: any) {
+    return this.prisma.censusRecord.create({
+      data: {
+        citizenId: dto.citizenId,
+        citizenNni: dto.citizenNni,
+        address: dto.residence?.address,
+        quartier: dto.residence?.quartier,
+        commune: dto.residence?.commune,
+        city: dto.residence?.city,
+        phone: dto.residence?.phone,
+        housingType: dto.residence?.housingType,
+        ownership: dto.residence?.ownership,
+        householdSize: dto.householdSize || (dto.members?.length ?? 1),
+        members: dto.members ?? [],
+        status: 'SOUMIS',
+      },
+    });
+  }
+
+  async findCensus(filters: { commune?: string; city?: string; page?: number; limit?: number }) {
+    const page = Number(filters.page) || 1;
+    const limit = Number(filters.limit) || 20;
+    const skip = (page - 1) * limit;
+    const where: any = {};
+    if (filters.commune) where.commune = { contains: filters.commune, mode: 'insensitive' };
+    if (filters.city) where.city = { contains: filters.city, mode: 'insensitive' };
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.censusRecord.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.censusRecord.count({ where }),
+    ]);
+    return { data, total, page, limit };
+  }
 }
