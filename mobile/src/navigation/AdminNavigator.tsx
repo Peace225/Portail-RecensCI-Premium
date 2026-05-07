@@ -17,6 +17,10 @@ import AuditLogsScreen from '../screens/admin/AuditLogsScreen';
 import ApiKeysScreen from '../screens/admin/ApiKeysScreen';
 import HealthAlertsScreen from '../screens/shared/HealthAlertsScreen';
 import IncidentMapScreen from '../screens/shared/IncidentMapScreen';
+// Mairie spécifique
+import MairieDepartmentsScreen from '../screens/admin/MairieDepartmentsScreen';
+import MairieRegistresScreen from '../screens/admin/MairieRegistresScreen';
+import MairieSettingsScreen from '../screens/admin/MairieSettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -63,6 +67,10 @@ export default function AdminNavigator() {
       <Stack.Screen name="ApiKeys" component={ApiKeysScreen} options={{ title: 'Clés API' }} />
       <Stack.Screen name="HealthAlerts" component={HealthAlertsScreen} options={{ title: 'Alertes Sanitaires' }} />
       <Stack.Screen name="IncidentMap" component={IncidentMapScreen} options={{ title: 'Carte Incidents' }} />
+      {/* Mairie spécifique */}
+      <Stack.Screen name="Departments" component={MairieDepartmentsScreen} options={{ title: 'Directions & Services' }} />
+      <Stack.Screen name="Registres" component={MairieRegistresScreen} options={{ title: 'Registres Officiels' }} />
+      <Stack.Screen name="Settings" component={MairieSettingsScreen} options={{ title: 'Paramètres' }} />
     </Stack.Navigator>
   );
 }
