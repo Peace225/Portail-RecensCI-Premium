@@ -109,7 +109,14 @@ export default function CitizenHomeScreen({ navigation }: any) {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.ciOrange} />}
     >
-      {/* Header citoyen — la bande tricolore vient du tab navigator header */}
+      {/* Bande tricolore CI — unique source, inline car tab header est caché */}
+      <View style={styles.flagStripe}>
+        <View style={[styles.band, { backgroundColor: Colors.ciOrange }]} />
+        <View style={[styles.band, { backgroundColor: Colors.ciWhite }]} />
+        <View style={[styles.band, { backgroundColor: Colors.ciGreen }]} />
+      </View>
+
+      {/* Header citoyen */}
       <View style={styles.headerContent}>
         <View>
           <Text style={styles.greeting}>Bonjour,</Text>
@@ -191,6 +198,9 @@ export default function CitizenHomeScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
+
+  flagStripe: { flexDirection: 'row', height: 3 },
+  band: { flex: 1 },
 
   headerContent: {
     flexDirection: 'row', justifyContent: 'space-between',
