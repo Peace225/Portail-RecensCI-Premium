@@ -13,7 +13,7 @@ import { PopCounter } from '../../components/DynamicChart';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
 
-// Toutes les actions disponibles pour le citoyen
+// ── Actions rapides ───────────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
   { label: 'Mes Demandes', icon: 'list-outline', route: 'CitizenRequests', color: Colors.ciOrange },
   { label: 'Certificats', icon: 'document-text-outline', route: 'CertificateRequest', color: Colors.ciGreen },
@@ -25,115 +25,39 @@ const QUICK_ACTIONS = [
 
 // ── État civil ────────────────────────────────────────────────────────────────
 const DECLARATIONS = [
-  {
-    label: 'Déclarer une Naissance',
-    sub: 'Enregistrer un nouveau-né à l\'état civil',
-    icon: 'happy-outline', route: 'BirthDeclaration', color: Colors.ciGreen,
-  },
-  {
-    label: 'Déclarer un Décès',
-    sub: 'Signaler le décès d\'un proche',
-    icon: 'leaf-outline', route: 'DeathDeclaration', color: '#64748b',
-  },
-  {
-    label: 'Mariage / Divorce',
-    sub: 'Déclarer une union ou une séparation',
-    icon: 'heart-outline', route: 'CitizenDeclaration', color: '#ec4899',
-  },
-  {
-    label: 'Extrait de Naissance',
-    sub: 'Demander une copie de votre acte de naissance',
-    icon: 'document-outline', route: 'ExtraitNaissance', color: Colors.ciGreen,
-  },
+  { label: 'Déclarer une Naissance', sub: 'Enregistrer un nouveau-né à l\'état civil', icon: 'happy-outline', route: 'BirthDeclaration', color: Colors.ciGreen },
+  { label: 'Déclarer un Décès', sub: 'Signaler le décès d\'un proche', icon: 'leaf-outline', route: 'DeathDeclaration', color: '#64748b' },
+  { label: 'Mariage / Divorce', sub: 'Déclarer une union ou une séparation', icon: 'heart-outline', route: 'CitizenDeclaration', color: '#ec4899' },
+  { label: 'Extrait de Naissance', sub: 'Demander une copie de votre acte de naissance', icon: 'document-outline', route: 'ExtraitNaissance', color: Colors.ciGreen },
 ];
 
 // ── Résidence & déplacements ──────────────────────────────────────────────────
 const RESIDENCE = [
-  {
-    label: 'Changement d\'Adresse',
-    sub: 'Mettre à jour votre adresse dans votre profil',
-    icon: 'home-outline', route: 'AddressChange', color: Colors.ciOrange,
-  },
-  {
-    label: 'Changement de Résidence',
-    sub: 'Déménagement officiel avec dossier administratif (motif, justificatifs)',
-    icon: 'location-outline', route: 'ResidenceChange', color: '#6366f1',
-  },
-  {
-    label: 'Migration Interne',
-    sub: 'Déplacement entre villes ou régions — suivi des flux nationaux',
-    icon: 'map-outline', route: 'InternalMigration', color: '#0ea5e9',
-  },
+  { label: 'Changement d\'Adresse', sub: 'Mettre à jour votre adresse dans votre profil', icon: 'home-outline', route: 'AddressChange', color: Colors.ciOrange },
+  { label: 'Changement de Résidence', sub: 'Déménagement officiel avec dossier administratif (motif, justificatifs)', icon: 'location-outline', route: 'ResidenceChange', color: '#6366f1' },
+  { label: 'Migration Interne', sub: 'Déplacement entre villes ou régions — suivi des flux nationaux', icon: 'map-outline', route: 'InternalMigration', color: '#0ea5e9' },
 ];
 
 // ── Documents officiels ───────────────────────────────────────────────────────
 const DOCUMENTS = [
-  {
-    label: 'CNI / Passeport',
-    sub: 'Demande ou renouvellement de pièce d\'identité',
-    icon: 'card-outline', route: 'CNIPasseport', color: '#3b82f6',
-  },
-  {
-    label: 'Casier Judiciaire',
-    sub: 'Bulletin n°3 pour emploi, visa, concours...',
-    icon: 'shield-checkmark-outline', route: 'CasierJudiciaire', color: '#64748b',
-  },
-  {
-    label: 'Bloquer / Signaler CNI',
-    sub: 'Document perdu, volé ou détérioré',
-    icon: 'ban-outline', route: 'BloquerCNI', color: Colors.ciOrange,
-  },
+  { label: 'CNI / Passeport', sub: 'Demande ou renouvellement de pièce d\'identité', icon: 'card-outline', route: 'CNIPasseport', color: '#3b82f6' },
+  { label: 'Casier Judiciaire', sub: 'Bulletin n°3 pour emploi, visa, concours...', icon: 'shield-checkmark-outline', route: 'CasierJudiciaire', color: '#64748b' },
+  { label: 'Bloquer / Signaler CNI', sub: 'Document perdu, volé ou détérioré', icon: 'ban-outline', route: 'BloquerCNI', color: Colors.ciOrange },
 ];
 
 // ── Services sociaux & sécurité ───────────────────────────────────────────────
 const SERVICES = [
-  {
-    label: 'Recensement du Ménage',
-    sub: 'Déclarer les membres de votre foyer au registre national',
-    icon: 'people-outline', route: 'CensusDetails', color: Colors.ciOrange,
-  },
-  {
-    label: 'Sécurité Sociale',
-    sub: 'Affiliation et prestations sociales',
-    icon: 'shield-checkmark-outline', route: 'SocialSecurity', color: Colors.ciGreen,
-  },
-  {
-    label: 'Impôts & Taxes',
-    sub: 'Consulter votre dossier fiscal',
-    icon: 'cash-outline', route: 'ImpotsTaxes', color: '#f59e0b',
-  },
-  {
-    label: 'Porter Plainte',
-    sub: 'Signalement officiel transmis aux autorités',
-    icon: 'megaphone-outline', route: 'PorterPlainte', color: '#ef4444',
-  },
+  { label: 'Recensement du Ménage', sub: 'Déclarer les membres de votre foyer au registre national', icon: 'people-outline', route: 'CensusDetails', color: Colors.ciOrange },
+  { label: 'Sécurité Sociale', sub: 'Affiliation et prestations sociales', icon: 'shield-checkmark-outline', route: 'SocialSecurity', color: Colors.ciGreen },
+  { label: 'Impôts & Taxes', sub: 'Consulter votre dossier fiscal', icon: 'cash-outline', route: 'ImpotsTaxes', color: '#f59e0b' },
+  { label: 'Porter Plainte', sub: 'Signalement officiel transmis aux autorités', icon: 'megaphone-outline', route: 'PorterPlainte', color: '#ef4444' },
 ];
 
-export default function CitizenHomeScreen({ navigation }: any) {
-  const user = useSelector((state: RootState) => state.user);
-  const { logout } = useAuth();
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+// ── Composant liste services ──────────────────────────────────────────────────
+type ServiceItem = { label: string; sub: string; icon: string; route: string; color: string };
 
-  const fetchData = async () => {
-    try {
-      const { data } = await api.get('/notifications');
-      setNotifications(data || []);
-    } catch {}
-  };
-
-  useEffect(() => { fetchData(); }, []);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchData();
-    setRefreshing(false);
-  };
-
-  const unreadCount = notifications.filter((n: any) => !n.read).length;
-
-  // Composant réutilisable pour une liste de services avec sous-titres
-  const ServiceList = ({ items }: { items: typeof DECLARATIONS }) => (
+function ServiceList({ items, navigation }: { items: ServiceItem[]; navigation: any }) {
+  return (
     <View style={styles.serviceList}>
       {items.map((item) => (
         <TouchableOpacity
@@ -154,24 +78,48 @@ export default function CitizenHomeScreen({ navigation }: any) {
       ))}
     </View>
   );
+}
+
+// ── Écran principal ───────────────────────────────────────────────────────────
+export default function CitizenHomeScreen({ navigation }: any) {
+  const user = useSelector((state: RootState) => state.user);
+  const { logout } = useAuth();
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const { data } = await api.get('/notifications');
+      setNotifications(Array.isArray(data) ? data : (data?.data || []));
+    } catch {}
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
+  const unreadCount = notifications.filter((n: any) => !n.read).length;
 
   return (
     <ScrollView
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.ciOrange} />}
     >
-      {/* Header citoyen */}
+      {/* Header citoyen — la bande tricolore vient du tab navigator header */}
       <View style={styles.headerContent}>
-        <View style={styles.headerContent}>
-          <View>
-            <Text style={styles.greeting}>Bonjour,</Text>
-            <Text style={styles.userName}>{user.name}</Text>
-            <Badge label="Citoyen" color={Colors.ciGreen} />
-          </View>
-          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-            <Ionicons name="log-out-outline" size={18} color="#ef4444" />
-          </TouchableOpacity>
+        <View>
+          <Text style={styles.greeting}>Bonjour,</Text>
+          <Text style={styles.userName}>{user.name}</Text>
+          <Badge label="Citoyen" color={Colors.ciGreen} />
         </View>
+        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+          <Ionicons name="log-out-outline" size={18} color="#ef4444" />
+        </TouchableOpacity>
+      </View>
 
       {/* NNI */}
       {user.nni && (
@@ -218,25 +166,23 @@ export default function CitizenHomeScreen({ navigation }: any) {
 
       {/* État civil */}
       <Text style={styles.sectionTitle}>État Civil</Text>
-      <ServiceList items={DECLARATIONS} />
+      <ServiceList items={DECLARATIONS} navigation={navigation} />
 
       {/* Résidence & déplacements */}
       <Text style={styles.sectionTitle}>Résidence & Déplacements</Text>
       <View style={styles.residenceNote}>
         <Ionicons name="information-circle-outline" size={14} color={Colors.textMuted} />
-        <Text style={styles.residenceNoteText}>
-          3 démarches distinctes selon votre situation
-        </Text>
+        <Text style={styles.residenceNoteText}>3 démarches distinctes selon votre situation</Text>
       </View>
-      <ServiceList items={RESIDENCE} />
+      <ServiceList items={RESIDENCE} navigation={navigation} />
 
       {/* Documents officiels */}
       <Text style={styles.sectionTitle}>Documents Officiels</Text>
-      <ServiceList items={DOCUMENTS} />
+      <ServiceList items={DOCUMENTS} navigation={navigation} />
 
       {/* Services sociaux */}
       <Text style={styles.sectionTitle}>Services & Sécurité</Text>
-      <ServiceList items={SERVICES} />
+      <ServiceList items={SERVICES} navigation={navigation} />
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -285,7 +231,6 @@ const styles = StyleSheet.create({
   },
   actionLabel: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase', textAlign: 'center', letterSpacing: 0.5 },
 
-  // Liste de services avec sous-titres
   serviceList: { marginHorizontal: 24, marginBottom: 4 },
   serviceItem: {
     flexDirection: 'row', alignItems: 'center',
@@ -298,12 +243,9 @@ const styles = StyleSheet.create({
   serviceLabel: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, marginBottom: 2 },
   serviceSub: { fontSize: 11, color: Colors.textMuted, lineHeight: 15 },
 
-  // Note résidence
   residenceNote: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     marginHorizontal: 24, marginBottom: 10, marginTop: -4,
   },
   residenceNoteText: { fontSize: 11, color: Colors.textMuted, fontStyle: 'italic' },
 });
-
-
