@@ -26,6 +26,14 @@ import CNIPasseportScreen from '../screens/citizen/CNIPasseportScreen';
 import ImpotsTaxesScreen from '../screens/citizen/ImpotsTaxesScreen';
 import PorterPlainteScreen from '../screens/citizen/PorterPlainteScreen';
 import BloquerCNIScreen from '../screens/citizen/BloquerCNIScreen';
+// Nouveaux modules
+import ResidenceChangeScreen from '../screens/citizen/ResidenceChangeScreen';
+import ExtraitNaissanceScreen from '../screens/citizen/ExtraitNaissanceScreen';
+import CasierJudiciairScreen from '../screens/citizen/CasierJudiciairScreen';
+import CNIPasseportScreen from '../screens/citizen/CNIPasseportScreen';
+import ImpotsTaxesScreen from '../screens/citizen/ImpotsTaxesScreen';
+import PorterPlainteScreen from '../screens/citizen/PorterPlainteScreen';
+import BloquerCNIScreen from '../screens/citizen/BloquerCNIScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
