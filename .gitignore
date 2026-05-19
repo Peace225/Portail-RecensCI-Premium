@@ -3,3 +3,7 @@
 
 # Variables d'environnement
 **/.env
+
+# Dossiers dépubliés de GitHub (gardés en local uniquement)
+backend/
+mobile/
